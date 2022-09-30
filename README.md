@@ -23,7 +23,7 @@ If conditions permit, downgrade targetSdkVersion to 28 or below for better compa
 
 ## Special Instruction
 
-This project distinguishes between 32-bit and 64-bit, it was compiled to 2 different demos. If you can not find your target in application list, please use another architecture.
+~~This project distinguishes between 32-bit and 64-bit, it was compiled to 2 different demos. If you can not find your target in application list, please use another architecture.~~
 
 ## Usage
 ### Step 1.Add initialized code in the Application
