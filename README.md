@@ -129,6 +129,7 @@ This project is a free open source project , routine maintenance consumes a lot 
 - [BlackReflection](https://github.com/CodingGay/BlackReflection)
 - [AndroidHiddenApiBypass](https://github.com/LSPosed/AndroidHiddenApiBypass)
 - [Pine](https://github.com/canyie/pine)
+- [LSPlant](https://github.com/LSPosed/LSPlant)
 
 ### License
 
