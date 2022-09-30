@@ -23,7 +23,7 @@ If conditions permit, downgrade targetSdkVersion to 28 or below for better compa
 
 ## Special Instruction
 
-~~This project distinguishes between 32-bit and 64-bit, it was compiled to 2 different demos. If you can not find your target in application list, please use another architecture.~~
+This project distinguishes between 32-bit and 64-bit, it was compiled to 2 different demos. If you can not find your target in application list, please use another architecture.
 
 ## Usage
 ### Step 1.Add initialized code in the Application
@@ -113,7 +113,6 @@ You can contribute to this project by making pull requests.
 ## Known Issues
 * Death process restarting produce duplicated activities and process. Temporary solution: kill them all and restart application manually.
 * firefox crashed when inputting website url
-* ~~vlc crashed~~
 * crashed when getType of content provider calling
 * it appeared that an applicatiom has multi procoess of each activity, it should be a process containing activities of an application
 * static broadcast failed test.

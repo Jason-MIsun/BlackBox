@@ -6,7 +6,6 @@
             android:id="@+id/list_choose"
             android:title="@string/choose"
             app:showAsAction="ifRoom">
-
     </item>
 
     <item
