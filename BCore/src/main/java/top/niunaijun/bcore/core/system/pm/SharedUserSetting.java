@@ -40,21 +40,20 @@ public final class SharedUserSetting implements Parcelable {
     // that all apps within the sharedUser run in the same selinux context.
     int seInfoTargetSdkVersion;
 
-
     SharedUserSetting(String _name) {
         name = _name;
     }
 
     @Override
     public String toString() {
-        return "SharedUserSetting{" + Integer.toHexString(System.identityHashCode(this)) + " "
-                + name + "/" + userId + "}";
+        return "SharedUserSetting{" + Integer.toHexString(System.identityHashCode(this)) + " " + name + "/" + userId + "}";
     }
 
     public static void saveSharedUsers() {
         Parcel parcel = Parcel.obtain();
         FileOutputStream fileOutputStream = null;
         AtomicFile atomicFile = new AtomicFile(BEnvironment.getSharedUserConf());
+
         try {
             parcel.writeMap(sSharedUsers);
 
@@ -71,6 +70,7 @@ public final class SharedUserSetting implements Parcelable {
 
     public static void loadSharedUsers() {
         Parcel parcel = Parcel.obtain();
+
         try {
             byte[] sharedUsersBytes = FileUtils.toByteArray(BEnvironment.getSharedUserConf());
             parcel.unmarshall(sharedUsersBytes, 0, sharedUsersBytes.length);

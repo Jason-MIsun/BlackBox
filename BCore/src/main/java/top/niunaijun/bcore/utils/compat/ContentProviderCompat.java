@@ -14,6 +14,7 @@ public class ContentProviderCompat {
         if (VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR1) {
             return context.getContentResolver().call(uri, method, arg, extras);
         }
+
         ContentProviderClient client = acquireContentProviderClientRetry(context, uri, retryCount);
         try {
             if (client == null) {
@@ -52,26 +53,6 @@ public class ContentProviderCompat {
         return client;
     }
 
-    public static ContentProviderClient acquireContentProviderClientRetry(Context context, String name, int retryCount) {
-        ContentProviderClient client = acquireContentProviderClient(context, name);
-        if (client == null) {
-            int retry = 0;
-            while (retry < retryCount && client == null) {
-                SystemClock.sleep(400);
-                retry++;
-                client = acquireContentProviderClient(context, name);
-            }
-        }
-        return client;
-    }
-
-    private static ContentProviderClient acquireContentProviderClient(Context context, String name) {
-        if (VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-            return context.getContentResolver().acquireUnstableContentProviderClient(name);
-        }
-        return context.getContentResolver().acquireContentProviderClient(name);
-    }
-
     private static void releaseQuietly(ContentProviderClient client) {
         if (client != null) {
             try {
@@ -80,8 +61,7 @@ public class ContentProviderCompat {
                 } else {
                     client.release();
                 }
-            } catch (Exception ignored) {
-            }
+            } catch (Exception ignored) { }
         }
     }
 }

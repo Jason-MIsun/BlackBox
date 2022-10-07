@@ -5,18 +5,16 @@ import android.os.IBinder;
 
 import java.lang.reflect.Method;
 
-import black.android.os.BRIVibratorManagerServiceStub;
-import black.android.os.BRServiceManager;
-import black.com.android.internal.os.BRIVibratorServiceStub;
+import black.android.os.IVibratorManagerService;
+import black.android.os.ServiceManager;
+import black.com.android.internal.os.IVibratorService;
 import top.niunaijun.bcore.fake.hook.BinderInvocationStub;
 import top.niunaijun.bcore.utils.MethodParameterUtils;
 import top.niunaijun.bcore.utils.compat.BuildCompat;
 
-/**
- * Created by BlackBox on 2022/3/7.
- */
 public class IVibratorServiceProxy extends BinderInvocationStub {
     private static final String NAME;
+
     static {
         if (BuildCompat.isS()) {
             NAME = "vibrator_manager";
@@ -26,16 +24,16 @@ public class IVibratorServiceProxy extends BinderInvocationStub {
     }
 
     public IVibratorServiceProxy() {
-        super(BRServiceManager.get().getService(NAME));
+        super(ServiceManager.getService.call(NAME));
     }
 
     @Override
     protected Object getWho() {
-        IBinder service = BRServiceManager.get().getService(NAME);
+        IBinder service = ServiceManager.getService.call(NAME);
         if (BuildCompat.isS()) {
-            return BRIVibratorManagerServiceStub.get().asInterface(service);
+            return IVibratorManagerService.Stub.asInterface.call(service);
         }
-        return BRIVibratorServiceStub.get().asInterface(service);
+        return IVibratorService.Stub.asInterface.call(service);
     }
 
     @Override
@@ -44,14 +42,14 @@ public class IVibratorServiceProxy extends BinderInvocationStub {
     }
 
     @Override
-    public boolean isBadEnv() {
-        return false;
-    }
-
-    @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
         MethodParameterUtils.replaceFirstUid(args);
         MethodParameterUtils.replaceFirstAppPkg(args);
         return super.invoke(proxy, method, args);
+    }
+
+    @Override
+    public boolean isBadEnv() {
+        return false;
     }
 }

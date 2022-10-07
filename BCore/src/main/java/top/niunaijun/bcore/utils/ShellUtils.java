@@ -4,7 +4,6 @@ import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.List;
 
 public class ShellUtils {
     public static final String COMMAND_SU = "su";
@@ -17,71 +16,14 @@ public class ShellUtils {
     }
 
     /**
-     * check whether has root permission
-     */
-    public static boolean checkRootPermission() {
-        return execCommand("echo root", true, false).result == 0;
-    }
-
-
-    /**
      * execute shell command, default return result msg
      *
      * @param command command
      * @param isRoot  whether need to run with root
      * @see ShellUtils#execCommand(String[], boolean, boolean)
      */
-    public static CommandResult execCommand(String command, boolean isRoot) {
-        return execCommand(new String[]{command}, isRoot, true);
-    }
-
-
-    /**
-     * execute shell commands, default return result msg
-     *
-     * @param commands command list
-     * @param isRoot   whether need to run with root
-     * @see ShellUtils#execCommand(String[], boolean, boolean)
-     */
-    public static CommandResult execCommand(List<String> commands, boolean isRoot) {
-        return execCommand(commands == null ? null : commands.toArray(new String[]{}), isRoot, true);
-    }
-
-    /**
-     * execute shell commands, default return result msg
-     *
-     * @param commands command array
-     * @param isRoot   whether need to run with root
-     * @see ShellUtils#execCommand(String[], boolean, boolean)
-     */
-    public static CommandResult execCommand(String[] commands, boolean isRoot) {
-        return execCommand(commands, isRoot, true);
-    }
-
-
-    /**
-     * execute shell command
-     *
-     * @param command         command
-     * @param isRoot          whether need to run with root
-     * @param isNeedResultMsg whether need result msg
-     * @see ShellUtils#execCommand(String[], boolean, boolean)
-     */
-    public static CommandResult execCommand(String command, boolean isRoot, boolean isNeedResultMsg) {
-        return execCommand(new String[]{command}, isRoot, isNeedResultMsg);
-    }
-
-
-    /**
-     * execute shell commands
-     *
-     * @param commands        command list
-     * @param isRoot          whether need to run with root
-     * @param isNeedResultMsg whether need result msg
-     * @see ShellUtils#execCommand(String[], boolean, boolean)
-     */
-    public static CommandResult execCommand(List<String> commands, boolean isRoot, boolean isNeedResultMsg) {
-        return execCommand(commands == null ? null : commands.toArray(new String[]{}), isRoot, isNeedResultMsg);
+    public static void execCommand(String command, boolean isRoot) {
+        execCommand(new String[]{command}, isRoot, true);
     }
 
     /**
@@ -100,6 +42,7 @@ public class ShellUtils {
         if (commands == null || commands.length == 0) {
             return new CommandResult(result, null);
         }
+
         Process process = null;
         BufferedReader successResult = null;
         StringBuilder successMsg = null;
@@ -107,6 +50,7 @@ public class ShellUtils {
         try {
             process = Runtime.getRuntime().exec(isRoot ? COMMAND_SU : COMMAND_SH);
             os = new DataOutputStream(process.getOutputStream());
+
             for (String command : commands) {
                 if (command == null) {
                     continue;
@@ -115,8 +59,10 @@ public class ShellUtils {
                 os.writeBytes(COMMAND_LINE_END);
                 os.flush();
             }
+
             os.writeBytes(COMMAND_EXIT);
             os.flush();
+
             result = process.waitFor();
             if (isNeedResultMsg) {
                 successMsg = new StringBuilder();
@@ -133,19 +79,20 @@ public class ShellUtils {
                 if (os != null) {
                     os.close();
                 }
+
                 if (successResult != null) {
                     successResult.close();
                 }
             } catch (IOException e) {
                 e.printStackTrace();
             }
+
             if (process != null) {
                 process.destroy();
             }
         }
         return new CommandResult(result, successMsg == null ? null : successMsg.toString());
     }
-
 
     /**
      * result of command
@@ -166,10 +113,6 @@ public class ShellUtils {
          * success message of command result
          **/
         public String successMsg;
-
-        public CommandResult(int result) {
-            this.result = result;
-        }
 
         public CommandResult(int result, String successMsg) {
             this.result = result;

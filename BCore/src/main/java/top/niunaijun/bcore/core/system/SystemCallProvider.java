@@ -12,14 +12,6 @@ import androidx.annotation.Nullable;
 import top.niunaijun.bcore.utils.Slog;
 import top.niunaijun.bcore.utils.compat.BundleCompat;
 
-/**
- * Created by Milk on 3/31/21.
- * * ∧＿∧
- * (`･ω･∥
- * 丶　つ０
- * しーＪ
- * 此处无Bug
- */
 public class SystemCallProvider extends ContentProvider {
     public static final String TAG = "SystemCallProvider";
 

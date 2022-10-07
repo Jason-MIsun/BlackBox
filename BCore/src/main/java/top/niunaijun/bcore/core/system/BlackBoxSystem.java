@@ -1,5 +1,8 @@
 package top.niunaijun.bcore.core.system;
 
+import static top.niunaijun.bcore.core.env.BEnvironment.EMPTY_JAR;
+import static top.niunaijun.bcore.core.env.BEnvironment.JUNIT_JAR;
+
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 
@@ -26,38 +29,24 @@ import top.niunaijun.bcore.core.system.user.BUserManagerService;
 import top.niunaijun.bcore.entity.pm.InstallOption;
 import top.niunaijun.bcore.utils.FileUtils;
 
-import static top.niunaijun.bcore.core.env.BEnvironment.EMPTY_JAR;
-import static top.niunaijun.bcore.core.env.BEnvironment.JUNIT_JAR;
-
-/**
- * Created by Milk on 4/22/21.
- * * ∧＿∧
- * (`･ω･∥
- * 丶　つ０
- * しーＪ
- * 此处无Bug
- */
 public class BlackBoxSystem {
-    private static BlackBoxSystem sBlackBoxSystem;
     private final List<ISystemService> mServices = new ArrayList<>();
     private final static AtomicBoolean isStartup = new AtomicBoolean(false);
 
+    private static final class SBlackBoxSystemHolder {
+        static final BlackBoxSystem sBlackBoxSystem = new BlackBoxSystem();
+    }
+
     public static BlackBoxSystem getSystem() {
-        if (sBlackBoxSystem == null) {
-            synchronized (BlackBoxSystem.class) {
-                if (sBlackBoxSystem == null) {
-                    sBlackBoxSystem = new BlackBoxSystem();
-                }
-            }
-        }
-        return sBlackBoxSystem;
+        return SBlackBoxSystemHolder.sBlackBoxSystem;
     }
 
     public void startup() {
-        if (isStartup.getAndSet(true))
+        if (isStartup.getAndSet(true)) {
             return;
-        BEnvironment.load();
+        }
 
+        BEnvironment.load();
         mServices.add(BPackageManagerService.get());
         mServices.add(BUserManagerService.get());
         mServices.add(BActivityManagerService.get());
@@ -81,8 +70,7 @@ public class BlackBoxSystem {
                     PackageInfo packageInfo = BlackBoxCore.getPackageManager().getPackageInfo(preInstallPackage, 0);
                     BPackageManagerService.get().installPackageAsUser(packageInfo.applicationInfo.sourceDir, InstallOption.installBySystem(), BUserHandle.USER_ALL);
                 }
-            } catch (PackageManager.NameNotFoundException ignored) {
-            }
+            } catch (PackageManager.NameNotFoundException ignored) { }
         }
         initJarEnv();
     }

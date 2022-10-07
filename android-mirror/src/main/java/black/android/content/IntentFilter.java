@@ -2,14 +2,10 @@ package black.android.content;
 
 import java.util.List;
 
-import top.niunaijun.blackreflection.annotation.BClassName;
-import top.niunaijun.blackreflection.annotation.BField;
+import black.Reflector;
 
-@BClassName("android.content.IntentFilter")
-public interface IntentFilter {
-    @BField
-    List<String> mActions();
+public class IntentFilter {
+    public static final Reflector REF = Reflector.on("android.content.IntentFilter");
 
-    @BField
-    List<String> mCategories();
+    public static Reflector.FieldWrapper<List<String>> mActions = REF.field("mActions");
 }

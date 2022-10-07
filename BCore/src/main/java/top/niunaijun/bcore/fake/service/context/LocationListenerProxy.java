@@ -11,15 +11,8 @@ import top.niunaijun.bcore.fake.hook.ClassInvocationStub;
 import top.niunaijun.bcore.fake.hook.MethodHook;
 import top.niunaijun.bcore.fake.hook.ProxyMethod;
 
-/**
- * Created by Refgd on 4/8/21.
- * * ∧＿∧
- * (`･ω･∥
- * 丶　つ０
- * しーＪ
- */
-public class LocationListenerStub extends ClassInvocationStub {
-    public static final String TAG = "LocationListenerStub";
+public class LocationListenerProxy extends ClassInvocationStub {
+    public static final String TAG = "LocationListenerProxy";
     private Object mBase;
 
     public Object wrapper(final Object locationListenerProxy) {
@@ -34,14 +27,10 @@ public class LocationListenerStub extends ClassInvocationStub {
     }
 
     @Override
-    protected void inject(Object baseInvocation, Object proxyInvocation) {
-
-    }
+    protected void inject(Object baseInvocation, Object proxyInvocation) { }
 
     @Override
-    protected void onBindMethod() {
-
-    }
+    protected void onBindMethod() { }
 
     @ProxyMethod("onLocationChanged")
     public static class OnLocationChanged extends MethodHook {
@@ -53,7 +42,7 @@ public class LocationListenerStub extends ClassInvocationStub {
                 locations.clear();
                 locations.add(BLocationManager.get().getLocation(BActivityThread.getUserId(), BActivityThread.getAppPackageName()).convert2SystemLocation());
                 args[0] = locations;
-            } else if(args[0] instanceof  Location) {
+            } else if (args[0] instanceof Location) {
                 args[0] = BLocationManager.get().getLocation(BActivityThread.getUserId(), BActivityThread.getAppPackageName()).convert2SystemLocation();
             }
             return method.invoke(who, args);

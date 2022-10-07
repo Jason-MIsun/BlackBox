@@ -2,28 +2,20 @@ package top.niunaijun.bcore.fake.service.context;
 
 import java.lang.reflect.Method;
 
-import black.android.content.BRIContentServiceStub;
-import black.android.os.BRServiceManager;
+import black.android.content.IContentService;
+import black.android.os.ServiceManager;
 import top.niunaijun.bcore.fake.hook.BinderInvocationStub;
 import top.niunaijun.bcore.fake.hook.MethodHook;
 import top.niunaijun.bcore.fake.hook.ProxyMethod;
 
-/**
- * Created by Milk on 4/6/21.
- * * ∧＿∧
- * (`･ω･∥
- * 丶　つ０
- * しーＪ
- * 此处无Bug
- */
-public class ContentServiceStub extends BinderInvocationStub {
-    public ContentServiceStub() {
-        super(BRServiceManager.get().getService("content"));
+public class ContentServiceProxy extends BinderInvocationStub {
+    public ContentServiceProxy() {
+        super(ServiceManager.getService.call("content"));
     }
 
     @Override
     protected Object getWho() {
-        return BRIContentServiceStub.get().asInterface(BRServiceManager.get().getService("content"));
+        return IContentService.Stub.asInterface.call(ServiceManager.getService.call("content"));
     }
 
     @Override
@@ -38,6 +30,7 @@ public class ContentServiceStub extends BinderInvocationStub {
 
     @ProxyMethod("registerContentObserver")
     public static class RegisterContentObserver extends MethodHook {
+
         @Override
         protected Object hook(Object who, Method method, Object[] args) throws Throwable {
             return 0;
@@ -46,6 +39,7 @@ public class ContentServiceStub extends BinderInvocationStub {
 
     @ProxyMethod("notifyChange")
     public static class NotifyChange extends MethodHook {
+
         @Override
         protected Object hook(Object who, Method method, Object[] args) throws Throwable {
             return 0;

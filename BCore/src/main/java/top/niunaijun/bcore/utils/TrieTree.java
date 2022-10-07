@@ -19,7 +19,7 @@ public class TrieTree {
 
         public TrieNode(char content, String word) {
             this.content = content;
-            this.word    = word;
+            this.word = word;
         }
 
         @Override
@@ -32,8 +32,9 @@ public class TrieTree {
 
         public TrieNode nextNode(char content) {
             for (TrieNode childNode : children) {
-                if (childNode.content == content)
+                if (childNode.content == content) {
                     return childNode;
+                }
             }
             return null;
         }
@@ -42,9 +43,11 @@ public class TrieTree {
     public void add(String word) {
         TrieNode current = root;
         StringBuilder wordBuilder = new StringBuilder();
+
         for (int index = 0; index < word.length(); ++index) {
             char content = word.charAt(index);
             wordBuilder.append(content);
+
             TrieNode node = new TrieNode(content, wordBuilder.toString());
             if (Objects.requireNonNull(current).children.contains(node)) {
                 current = current.nextNode(content);
@@ -53,14 +56,9 @@ public class TrieTree {
                 current = node;
             }
 
-            if (index == (word.length() - 1))
+            if (index == (word.length() - 1)) {
                 Objects.requireNonNull(current).isEnd = true;
-        }
-    }
-
-    public void addAll(List<String> words) {
-        for (String word : words) {
-            add(word);
+            }
         }
     }
 
@@ -70,13 +68,15 @@ public class TrieTree {
             char content = word.charAt(index);
 
             TrieNode node = new TrieNode(content, null);
-            if (current.children.contains(node))
+            if (current.children.contains(node)) {
                 current = current.nextNode(content);
-            else
+            } else {
                 return null;
+            }
 
-            if (Objects.requireNonNull(current).isEnd)
+            if (Objects.requireNonNull(current).isEnd) {
                 return current.word;
+            }
         }
         return null;
     }

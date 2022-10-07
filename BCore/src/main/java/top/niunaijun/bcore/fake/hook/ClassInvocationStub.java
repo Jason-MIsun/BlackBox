@@ -1,26 +1,16 @@
 package top.niunaijun.bcore.fake.hook;
 
-import android.os.Build;
 import android.text.TextUtils;
-import android.util.Log;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import top.niunaijun.bcore.utils.MethodParameterUtils;
-import top.niunaijun.bcore.utils.Slog;
 
-/**
- * Created by Milk on 3/30/21.
- * * ∧＿∧
- * (`･ω･∥
- * 丶　つ０
- * しーＪ
- * 此处无Bug
- */
 public abstract class ClassInvocationStub implements InvocationHandler, IInjectHook {
     public static final String TAG = ClassInvocationStub.class.getSimpleName();
 
@@ -33,16 +23,10 @@ public abstract class ClassInvocationStub implements InvocationHandler, IInjectH
 
     protected abstract void inject(Object baseInvocation, Object proxyInvocation);
 
-    protected void onBindMethod() {
+    protected void onBindMethod() { }
 
-    }
-
-    protected Object getProxyInvocation() {
+    public Object getProxyInvocation() {
         return mProxyInvocation;
-    }
-
-    protected Object getBase() {
-        return mBase;
     }
 
     protected void onlyProxy(boolean onlyStatus) {
@@ -62,6 +46,7 @@ public abstract class ClassInvocationStub implements InvocationHandler, IInjectH
         for (Class<?> declaredClass : declaredClasses) {
             initAnnotation(declaredClass);
         }
+
         ScanClass scanClass = this.getClass().getAnnotation(ScanClass.class);
         if (scanClass != null) {
             for (Class<?> aClass : scanClass.value()) {
@@ -76,13 +61,6 @@ public abstract class ClassInvocationStub implements InvocationHandler, IInjectH
         // get proxy method annotation
         ProxyMethod proxyMethod = clazz.getAnnotation(ProxyMethod.class);
         if (proxyMethod != null) {
-            /*ProxyVersion proxyVersion = clazz.getAnnotation(ProxyVersion.class);
-            Slog.d(TAG + " Build.VERSION.SDK_INT ", String.valueOf(Build.VERSION.SDK_INT));
-            if (proxyVersion != null) {
-                if (Build.VERSION.SDK_INT < proxyVersion.lower() && Build.VERSION.SDK_INT > proxyVersion.upper()) {
-                    return;
-                }
-            }*/
             final String name = proxyMethod.value();
             if (!TextUtils.isEmpty(name)) {
                 try {
@@ -92,6 +70,7 @@ public abstract class ClassInvocationStub implements InvocationHandler, IInjectH
                 }
             }
         }
+
         ProxyMethods proxyMethods = clazz.getAnnotation(ProxyMethods.class);
         if (proxyMethods != null) {
             String[] value = proxyMethods.value();
@@ -120,7 +99,7 @@ public abstract class ClassInvocationStub implements InvocationHandler, IInjectH
             try {
                 return method.invoke(mBase, args);
             } catch (Throwable e) {
-                throw e.getCause();
+                throw Objects.requireNonNull(e.getCause());
             }
         }
 
@@ -128,6 +107,7 @@ public abstract class ClassInvocationStub implements InvocationHandler, IInjectH
         if (result != null) {
             return result;
         }
+
         result = methodHook.hook(mBase, method, args);
         result = methodHook.afterHook(result);
         return result;

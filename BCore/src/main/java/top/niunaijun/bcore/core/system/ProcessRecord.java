@@ -4,7 +4,6 @@ import android.content.pm.ApplicationInfo;
 import android.os.Binder;
 import android.os.ConditionVariable;
 import android.os.IInterface;
-import android.os.Process;
 
 import java.util.Arrays;
 
@@ -31,10 +30,6 @@ public class ProcessRecord extends Binder {
         this.processName = processName;
     }
 
-    public int getCallingBUid() {
-        return callingBUid;
-    }
-
     @Override
     public int hashCode() {
         return Arrays.hashCode(new Object[]{processName, pid, buid, bpid, uid, pid, userId});
@@ -55,16 +50,6 @@ public class ProcessRecord extends Binder {
         config.userId = userId;
         config.token = this;
         return config;
-    }
-
-    public void kill() {
-        if (pid > 0) {
-            try {
-                Process.killProcess(pid);
-            } catch (Throwable e) {
-                e.printStackTrace();
-            }
-        }
     }
 
     public String getPackageName() {

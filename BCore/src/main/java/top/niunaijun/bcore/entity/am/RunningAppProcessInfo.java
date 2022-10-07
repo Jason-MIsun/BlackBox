@@ -7,9 +7,6 @@ import android.os.Parcelable;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Created by BlackBox on 2022/2/25.
- */
 public class RunningAppProcessInfo implements Parcelable {
     public List<ActivityManager.RunningAppProcessInfo> mAppProcessInfoList;
 
@@ -21,10 +18,6 @@ public class RunningAppProcessInfo implements Parcelable {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeTypedList(this.mAppProcessInfoList);
-    }
-
-    public void readFromParcel(Parcel source) {
-        this.mAppProcessInfoList = source.createTypedArrayList(ActivityManager.RunningAppProcessInfo.CREATOR);
     }
 
     public RunningAppProcessInfo() {

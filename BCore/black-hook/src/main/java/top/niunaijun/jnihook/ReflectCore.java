@@ -5,14 +5,6 @@ import java.lang.reflect.Method;
 
 import top.niunaijun.jnihook.jni.JniHook;
 
-/**
- * Created by Milk on 2021/5/7.
- * * ∧＿∧
- * (`･ω･∥
- * 丶　つ０
- * しーＪ
- * 此处无Bug
- */
 public class ReflectCore {
     public static void set(Class<?> clazz) {
         try {

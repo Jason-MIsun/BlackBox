@@ -12,14 +12,6 @@ import java.lang.ref.WeakReference;
 import java.util.Map;
 import java.util.Objects;
 
-/**
- * Created by Milk on 2021/5/7.
- * * ∧＿∧
- * (`･ω･∥
- * 丶　つ０
- * しーＪ
- * 此处无Bug
- */
 public class ActivityThread {
     public H mH = null;
     public AppBindData mBoundApplication;
@@ -43,9 +35,8 @@ public class ActivityThread {
         throw new RuntimeException();
     }
 
-    public ContentProviderHolder installProvider(Context context,
-                                                 ContentProviderHolder holder, ProviderInfo info,
-                                                 boolean noisy, boolean noReleaseNeeded, boolean stable) {
+    public ContentProviderHolder installProvider(Context context, ContentProviderHolder holder, ProviderInfo info, boolean noisy,
+                                                 boolean noReleaseNeeded, boolean stable) {
         throw new RuntimeException();
     }
 

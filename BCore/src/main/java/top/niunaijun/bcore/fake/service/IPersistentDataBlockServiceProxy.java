@@ -1,28 +1,24 @@
 package top.niunaijun.bcore.fake.service;
 
-import black.android.os.BRServiceManager;
-import black.android.service.persistentdata.BRIPersistentDataBlockServiceStub;
+import black.android.os.ServiceManager;
+import black.android.service.persistentdata.IPersistentDataBlockService;
 import top.niunaijun.bcore.fake.hook.BinderInvocationStub;
 import top.niunaijun.bcore.fake.service.base.ValueMethodProxy;
 
-/**
- * Created by BlackBox on 2022/3/8.
- */
 public class IPersistentDataBlockServiceProxy extends BinderInvocationStub {
-    public static final String NAME = "persistent_data_block";
 
     public IPersistentDataBlockServiceProxy() {
-        super(BRServiceManager.get().getService(NAME));
+        super(ServiceManager.getService.call("persistent_data_block"));
     }
 
     @Override
     protected Object getWho() {
-        return BRIPersistentDataBlockServiceStub.get().asInterface(BRServiceManager.get().getService(NAME));
+        return IPersistentDataBlockService.Stub.asInterface.call(ServiceManager.getService.call("persistent_data_block"));
     }
 
     @Override
     protected void inject(Object baseInvocation, Object proxyInvocation) {
-        replaceSystemService(NAME);
+        replaceSystemService("persistent_data_block");
     }
 
     @Override

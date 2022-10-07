@@ -4,10 +4,13 @@ plugins {
 
 android {
     compileSdk rootProject.ext.compileSdk
+
     aidlPackagedList "android/app/IServiceConnection.aidl"
     aidlPackagedList "android/accounts/IAccountManagerResponse.aidl"
 
     defaultConfig {
+        minSdk rootProject.ext.minSdk
+
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles "consumer-rules.pro"
     }
@@ -27,6 +30,4 @@ android {
 
 dependencies {
     implementation project(':BCore:black-fake')
-    implementation "com.github.CodingGay.BlackReflection:core:$rootProject.ext.blackReflection"
-    annotationProcessor "com.github.CodingGay.BlackReflection:compiler:$rootProject.ext.blackReflection"
 }

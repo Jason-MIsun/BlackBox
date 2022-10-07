@@ -1,7 +1,8 @@
 package top.niunaijun.bcore.core.system.am;
 
+import static android.content.pm.PackageManager.GET_META_DATA;
+
 import android.app.ActivityManager;
-import android.app.Notification;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -29,16 +30,6 @@ import top.niunaijun.bcore.entity.am.RunningAppProcessInfo;
 import top.niunaijun.bcore.entity.am.RunningServiceInfo;
 import top.niunaijun.bcore.utils.Slog;
 
-import static android.content.pm.PackageManager.GET_META_DATA;
-
-/**
- * Created by Milk on 3/31/21.
- * * ∧＿∧
- * (`･ω･∥
- * 丶　つ０
- * しーＪ
- * 此处无Bug
- */
 public class BActivityManagerService extends IBActivityManagerService.Stub implements ISystemService {
     public static final String TAG = "BActivityManagerService";
     private static final BActivityManagerService sService = new BActivityManagerService();
@@ -51,14 +42,14 @@ public class BActivityManagerService extends IBActivityManagerService.Stub imple
 
     public BActivityManagerService() {
         BPackageManagerService mPms = BPackageManagerService.get();
-        mBroadcastManager = BroadcastManager.startSystem(this, mPms);
+        mBroadcastManager = BroadcastManager.startSystem(mPms);
     }
 
     @Override
     public ComponentName startService(Intent intent, String resolvedType, boolean requireForeground, int userId) {
         UserSpace userSpace = getOrCreateSpaceLocked(userId);
         synchronized (userSpace.mActiveServices) {
-            userSpace.mActiveServices.startService(intent, resolvedType, requireForeground, userId);
+            userSpace.mActiveServices.startService(intent, resolvedType, userId);
         }
         return null;
     }
@@ -66,14 +57,12 @@ public class BActivityManagerService extends IBActivityManagerService.Stub imple
     @Override
     public IBinder acquireContentProviderClient(ProviderInfo providerInfo) {
         int callingPid = Binder.getCallingPid();
-        ProcessRecord processRecord = BProcessManagerService.get().startProcessLocked(providerInfo.packageName,
-                providerInfo.processName,
-                BProcessManagerService.get().getUserIdByCallingPid(callingPid),
-                -1,
-                Binder.getCallingPid());
+        ProcessRecord processRecord = BProcessManagerService.get().startProcessLocked(providerInfo.packageName, providerInfo.processName,
+                BProcessManagerService.get().getUserIdByCallingPid(callingPid), -1, Binder.getCallingPid());
         if (processRecord == null) {
             throw new RuntimeException("Unable to create process " + providerInfo.name);
         }
+
         try {
             return processRecord.bActivityThread.acquireContentProviderClient(providerInfo);
         } catch (Throwable t) {
@@ -85,18 +74,19 @@ public class BActivityManagerService extends IBActivityManagerService.Stub imple
     @Override
     public Intent sendBroadcast(Intent intent, String resolvedType, int userId) throws RemoteException {
         List<ResolveInfo> resolves = BPackageManagerService.get().queryBroadcastReceivers(intent, GET_META_DATA, resolvedType, userId);
-
         for (ResolveInfo resolve : resolves) {
             ProcessRecord processRecord = BProcessManagerService.get().findProcessRecord(resolve.activityInfo.packageName, resolve.activityInfo.processName, userId);
             if (processRecord == null) {
                 continue;
             }
+
             try {
                 processRecord.bActivityThread.bindApplication();
             } catch (RemoteException e) {
                 e.printStackTrace();
             }
         }
+
         Intent shadow = new Intent();
         shadow.setPackage(BlackBoxCore.getHostPkg());
         shadow.setComponent(null);
@@ -135,6 +125,7 @@ public class BActivityManagerService extends IBActivityManagerService.Stub imple
         if (process == null) {
             return;
         }
+
         UserSpace userSpace = getOrCreateSpaceLocked(process.userId);
         synchronized (userSpace.mStack) {
             userSpace.mStack.onActivityResumed(process.userId, token);
@@ -148,6 +139,7 @@ public class BActivityManagerService extends IBActivityManagerService.Stub imple
         if (process == null) {
             return;
         }
+
         UserSpace userSpace = getOrCreateSpaceLocked(process.userId);
         synchronized (userSpace.mStack) {
             userSpace.mStack.onActivityDestroyed(process.userId, token);
@@ -161,6 +153,7 @@ public class BActivityManagerService extends IBActivityManagerService.Stub imple
         if (process == null) {
             return;
         }
+
         UserSpace userSpace = getOrCreateSpaceLocked(process.userId);
         synchronized (userSpace.mStack) {
             userSpace.mStack.onFinishActivity(process.userId, token);
@@ -169,15 +162,15 @@ public class BActivityManagerService extends IBActivityManagerService.Stub imple
 
     @Override
     public RunningAppProcessInfo getRunningAppProcesses(String callerPackage, int userId) {
-        ActivityManager manager = (ActivityManager)
-                BlackBoxCore.getContext().getSystemService(Context.ACTIVITY_SERVICE);
+        ActivityManager manager = (ActivityManager) BlackBoxCore.getContext().getSystemService(Context.ACTIVITY_SERVICE);
         List<ActivityManager.RunningAppProcessInfo> runningAppProcesses = manager.getRunningAppProcesses();
         Map<Integer, ActivityManager.RunningAppProcessInfo> runningProcessMap = new HashMap<>();
+
         for (ActivityManager.RunningAppProcessInfo runningProcess : runningAppProcesses) {
             runningProcessMap.put(runningProcess.pid, runningProcess);
         }
-        List<ProcessRecord> packageProcessAsUser = BProcessManagerService.get().getPackageProcessAsUser(callerPackage, userId);
 
+        List<ProcessRecord> packageProcessAsUser = BProcessManagerService.get().getPackageProcessAsUser(callerPackage, userId);
         RunningAppProcessInfo appProcessInfo = new RunningAppProcessInfo();
         for (ProcessRecord processRecord : packageProcessAsUser) {
             ActivityManager.RunningAppProcessInfo runningAppProcessInfo = runningProcessMap.get(processRecord.pid);
@@ -198,12 +191,12 @@ public class BActivityManagerService extends IBActivityManagerService.Stub imple
     @Override
     public void scheduleBroadcastReceiver(Intent intent, PendingResultData pendingResultData, int userId) throws RemoteException {
         List<ResolveInfo> resolves = BPackageManagerService.get().queryBroadcastReceivers(intent, GET_META_DATA, null, userId);
-
         if (resolves.isEmpty()) {
             pendingResultData.build().finish();
             Slog.d(TAG, "scheduleBroadcastReceiver empty");
             return;
         }
+
         mBroadcastManager.sendBroadcast(pendingResultData);
         for (ResolveInfo resolve : resolves) {
             ProcessRecord processRecord = BProcessManagerService.get().findProcessRecord(resolve.activityInfo.packageName, resolve.activityInfo.processName, userId);
@@ -274,26 +267,10 @@ public class BActivityManagerService extends IBActivityManagerService.Stub imple
     }
 
     @Override
-    public void setServiceForeground(ComponentName className, IBinder token, int id, Notification notification, int flags, int foregroundServiceType, int userId) {
+    public UnbindRecord onServiceUnbind(Intent proxyIntent, int userId) {
         UserSpace userSpace = getOrCreateSpaceLocked(userId);
         synchronized (userSpace.mActiveServices) {
-            userSpace.mActiveServices.setServiceForeground(className, token, id, notification, flags, foregroundServiceType, userId);
-        }
-    }
-
-    @Override
-    public void onStartCommand(Intent intent, int userId) {
-        UserSpace userSpace = getOrCreateSpaceLocked(userId);
-        synchronized (userSpace.mActiveServices) {
-            userSpace.mActiveServices.onStartCommand(intent, userId);
-        }
-    }
-
-    @Override
-    public UnbindRecord onServiceUnbind(Intent proxyIntent, int userId) throws RemoteException {
-        UserSpace userSpace = getOrCreateSpaceLocked(userId);
-        synchronized (userSpace.mActiveServices) {
-            return userSpace.mActiveServices.onServiceUnbind(proxyIntent, userId);
+            return userSpace.mActiveServices.onServiceUnbind(proxyIntent);
         }
     }
 
@@ -301,7 +278,7 @@ public class BActivityManagerService extends IBActivityManagerService.Stub imple
     public void onServiceDestroy(Intent proxyIntent, int userId) {
         UserSpace userSpace = getOrCreateSpaceLocked(userId);
         synchronized (userSpace.mActiveServices) {
-            userSpace.mActiveServices.onServiceDestroy(proxyIntent, userId);
+            userSpace.mActiveServices.onServiceDestroy(proxyIntent);
         }
     }
 
@@ -325,7 +302,7 @@ public class BActivityManagerService extends IBActivityManagerService.Stub imple
     public void unbindService(IBinder binder, int userId) {
         UserSpace userSpace = getOrCreateSpaceLocked(userId);
         synchronized (userSpace.mActiveServices) {
-            userSpace.mActiveServices.unbindService(binder, userId);
+            userSpace.mActiveServices.unbindService(binder);
         }
     }
 
@@ -333,15 +310,16 @@ public class BActivityManagerService extends IBActivityManagerService.Stub imple
     public void stopServiceToken(ComponentName className, IBinder token, int userId) {
         UserSpace userSpace = getOrCreateSpaceLocked(userId);
         synchronized (userSpace.mActiveServices) {
-            userSpace.mActiveServices.stopServiceToken(className, token, userId);
+            userSpace.mActiveServices.stopServiceToken(token, userId);
         }
     }
 
     @Override
     public AppConfig initProcess(String packageName, String processName, int userId) {
         ProcessRecord processRecord = BProcessManagerService.get().startProcessLocked(packageName, processName, userId, -1, Binder.getCallingPid());
-        if (processRecord == null)
+        if (processRecord == null) {
             return null;
+        }
         return processRecord.getClientConfig();
     }
 
@@ -377,8 +355,10 @@ public class BActivityManagerService extends IBActivityManagerService.Stub imple
     private UserSpace getOrCreateSpaceLocked(int userId) {
         synchronized (mUserSpace) {
             UserSpace userSpace = mUserSpace.get(userId);
-            if (userSpace != null)
+            if (userSpace != null) {
                 return userSpace;
+            }
+
             userSpace = new UserSpace();
             mUserSpace.put(userId, userSpace);
             return userSpace;

@@ -10,15 +10,8 @@ import androidx.annotation.NonNull;
 
 import java.util.UUID;
 
-import black.android.content.BRBroadcastReceiverPendingResult;
-import black.android.content.BRBroadcastReceiverPendingResultM;
-import black.android.content.BroadcastReceiverPendingResultContext;
-import black.android.content.BroadcastReceiverPendingResultMContext;
 import top.niunaijun.bcore.utils.compat.BuildCompat;
 
-/**
- * Created by BlackBox on 2022/2/28.
- */
 public class PendingResultData implements Parcelable {
     public int mType;
     public boolean mOrderedHint;
@@ -36,36 +29,34 @@ public class PendingResultData implements Parcelable {
     public PendingResultData(BroadcastReceiver.PendingResult pendingResult) {
         mBToken = UUID.randomUUID().toString();
         if (BuildCompat.isM()) {
-            BroadcastReceiverPendingResultMContext resultMContext = BRBroadcastReceiverPendingResultM.get(pendingResult);
-            mType = resultMContext.mType();
-            mOrderedHint = resultMContext.mOrderedHint();
-            mInitialStickyHint = resultMContext.mInitialStickyHint();
-            mToken = resultMContext.mToken();
-            mSendingUser = resultMContext.mSendingUser();
-            mFlags = resultMContext.mFlags();
-            mResultData = resultMContext.mResultData();
-            mResultExtras = resultMContext.mResultExtras();
-            mAbortBroadcast = resultMContext.mAbortBroadcast();
-            mFinished = resultMContext.mFinished();
+            mType = black.android.content.BroadcastReceiver.PendingResultM.mType.get(pendingResult);
+            mOrderedHint = black.android.content.BroadcastReceiver.PendingResultM.mOrderedHint.get(pendingResult);
+            mInitialStickyHint = black.android.content.BroadcastReceiver.PendingResultM.mInitialStickyHint.get(pendingResult);
+            mToken = black.android.content.BroadcastReceiver.PendingResultM.mToken.get(pendingResult);
+            mSendingUser = black.android.content.BroadcastReceiver.PendingResultM.mSendingUser.get(pendingResult);
+            mFlags = black.android.content.BroadcastReceiver.PendingResultM.mFlags.get(pendingResult);
+            mResultData = black.android.content.BroadcastReceiver.PendingResultM.mResultData.get(pendingResult);
+            mResultExtras = black.android.content.BroadcastReceiver.PendingResultM.mResultExtras.get(pendingResult);
+            mAbortBroadcast = black.android.content.BroadcastReceiver.PendingResultM.mAbortBroadcast.get(pendingResult);
+            mFinished = black.android.content.BroadcastReceiver.PendingResultM.mFinished.get(pendingResult);
         } else {
-            BroadcastReceiverPendingResultContext resultContext = BRBroadcastReceiverPendingResult.get(pendingResult);
-            mType = resultContext.mType();
-            mOrderedHint = resultContext.mOrderedHint();
-            mInitialStickyHint = resultContext.mInitialStickyHint();
-            mToken = resultContext.mToken();
-            mSendingUser = resultContext.mSendingUser();
-            mResultData = resultContext.mResultData();
-            mResultExtras = resultContext.mResultExtras();
-            mAbortBroadcast = resultContext.mAbortBroadcast();
-            mFinished = resultContext.mFinished();
+            mType = black.android.content.BroadcastReceiver.PendingResult.mType.get(pendingResult);
+            mOrderedHint = black.android.content.BroadcastReceiver.PendingResult.mOrderedHint.get(pendingResult);
+            mInitialStickyHint = black.android.content.BroadcastReceiver.PendingResult.mInitialStickyHint.get(pendingResult);
+            mToken = black.android.content.BroadcastReceiver.PendingResult.mToken.get(pendingResult);
+            mSendingUser = black.android.content.BroadcastReceiver.PendingResult.mSendingUser.get(pendingResult);
+            mResultData = black.android.content.BroadcastReceiver.PendingResult.mResultData.get(pendingResult);
+            mResultExtras = black.android.content.BroadcastReceiver.PendingResult.mResultExtras.get(pendingResult);
+            mAbortBroadcast = black.android.content.BroadcastReceiver.PendingResult.mAbortBroadcast.get(pendingResult);
+            mFinished = black.android.content.BroadcastReceiver.PendingResult.mFinished.get(pendingResult);
         }
     }
 
     public BroadcastReceiver.PendingResult build() {
         if (BuildCompat.isM()) {
-            return BRBroadcastReceiverPendingResultM.get()._new(mResultCode, mResultData, mResultExtras, mType, mOrderedHint, mInitialStickyHint, mToken, mSendingUser, mFlags);
+            return black.android.content.BroadcastReceiver.PendingResultM._new.newInstance(mResultCode, mResultData, mResultExtras, mType, mOrderedHint, mInitialStickyHint, mToken, mSendingUser, mFlags);
         } else {
-            return BRBroadcastReceiverPendingResult.get()._new(mResultCode, mResultData, mResultExtras, mType, mOrderedHint, mInitialStickyHint, mToken, mSendingUser);
+            return black.android.content.BroadcastReceiver.PendingResult._new.newInstance(mResultCode, mResultData, mResultExtras, mType, mOrderedHint, mInitialStickyHint, mToken, mSendingUser);
         }
     }
 
@@ -88,21 +79,6 @@ public class PendingResultData implements Parcelable {
         dest.writeByte(this.mAbortBroadcast ? (byte) 1 : (byte) 0);
         dest.writeByte(this.mFinished ? (byte) 1 : (byte) 0);
         dest.writeString(this.mBToken);
-    }
-
-    public void readFromParcel(Parcel source) {
-        this.mType = source.readInt();
-        this.mOrderedHint = source.readByte() != 0;
-        this.mInitialStickyHint = source.readByte() != 0;
-        this.mToken = source.readStrongBinder();
-        this.mSendingUser = source.readInt();
-        this.mFlags = source.readInt();
-        this.mResultCode = source.readInt();
-        this.mResultData = source.readString();
-        this.mResultExtras = source.readBundle();
-        this.mAbortBroadcast = source.readByte() != 0;
-        this.mFinished = source.readByte() != 0;
-        this.mBToken = source.readString();
     }
 
     protected PendingResultData(Parcel in) {
@@ -135,18 +111,8 @@ public class PendingResultData implements Parcelable {
     @NonNull
     @Override
     public String toString() {
-        return "PendingResultData{" +
-                "mType=" + mType +
-                ", mOrderedHint=" + mOrderedHint +
-                ", mInitialStickyHint=" + mInitialStickyHint +
-                ", mToken=" + mToken +
-                ", mSendingUser=" + mSendingUser +
-                ", mFlags=" + mFlags +
-                ", mResultCode=" + mResultCode +
-                ", mResultData='" + mResultData + '\'' +
-                ", mResultExtras=" + mResultExtras +
-                ", mAbortBroadcast=" + mAbortBroadcast +
-                ", mFinished=" + mFinished +
-                '}';
+        return "PendingResultData{" + "mType=" + mType + ", mOrderedHint=" + mOrderedHint + ", mInitialStickyHint=" + mInitialStickyHint + ", mToken=" + mToken +
+                ", mSendingUser=" + mSendingUser + ", mFlags=" + mFlags + ", mResultCode=" + mResultCode + ", mResultData='" + mResultData + '\'' +
+                ", mResultExtras=" + mResultExtras + ", mAbortBroadcast=" + mAbortBroadcast + ", mFinished=" + mFinished + '}';
     }
 }

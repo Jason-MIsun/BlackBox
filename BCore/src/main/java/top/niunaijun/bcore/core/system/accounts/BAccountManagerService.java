@@ -37,8 +37,6 @@ import androidx.annotation.NonNull;
 import androidx.core.util.AtomicFile;
 import androidx.core.util.Preconditions;
 
-import org.xmlpull.v1.XmlPullParser;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -54,8 +52,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-import black.com.android.internal.BRRstyleable;
-import black.com.android.internal.RstyleableStatic;
 import top.niunaijun.bcore.BlackBoxCore;
 import top.niunaijun.bcore.core.env.BEnvironment;
 import top.niunaijun.bcore.core.system.BProcessManagerService;
@@ -70,25 +66,21 @@ import top.niunaijun.bcore.utils.FileUtils;
 import top.niunaijun.bcore.utils.Slog;
 import top.niunaijun.bcore.utils.compat.AccountManagerCompat;
 
-/**
- * Created by BlackBox on 2022/3/3.
- */
 @SuppressLint("InlinedApi")
-public class BAccountManagerService extends IBAccountManagerService.Stub implements ISystemService , PackageMonitor {
+public class BAccountManagerService extends IBAccountManagerService.Stub implements ISystemService, PackageMonitor {
     private static final String TAG = "AccountManagerService";
     private static final BAccountManagerService sService = new BAccountManagerService();
     private static final Account[] EMPTY_ACCOUNT_ARRAY = new Account[]{};
 
     // Messages that can be sent on mHandler
     private static final int MESSAGE_TIMED_OUT = 3;
-    private static final int MESSAGE_COPY_SHARED_ACCOUNT = 4;
 
     private final BPackageManagerService mPms;
     private final Map<Integer, BUserAccounts> mUserAccountsMap = new HashMap<>();
     private final AuthenticatorCache mAuthenticatorCache = new AuthenticatorCache();
 
     private final LinkedList<TokenCache> mTokenCaches = new LinkedList<>();
-    private final LinkedHashMap<String, Session> mSessions = new LinkedHashMap<String, Session>();
+    private final LinkedHashMap<String, Session> mSessions = new LinkedHashMap<>();
     private final Handler mHandler = new Handler(Looper.getMainLooper());
 
     private final Context mContext;
@@ -127,14 +119,17 @@ public class BAccountManagerService extends IBAccountManagerService.Stub impleme
             if (!userInfoConf.exists()) {
                 return;
             }
+
             is = new FileInputStream(BEnvironment.getAccountsConf());
             byte[] bytes = FileUtils.toByteArray(is);
             parcel.unmarshall(bytes, 0, bytes.length);
             parcel.setDataPosition(0);
 
             HashMap<Integer, BUserAccounts> accountsMap = parcel.readHashMap(BUserAccounts.class.getClassLoader());
-            if (accountsMap == null)
+            if (accountsMap == null) {
                 return;
+            }
+
             synchronized (mUserAccountsMap) {
                 mUserAccountsMap.clear();
                 for (Integer key : accountsMap.keySet()) {
@@ -154,6 +149,7 @@ public class BAccountManagerService extends IBAccountManagerService.Stub impleme
             Parcel parcel = Parcel.obtain();
             AtomicFile atomicFile = new AtomicFile(BEnvironment.getAccountsConf());
             FileOutputStream fileOutputStream = null;
+
             try {
                 parcel.writeMap(mUserAccountsMap);
                 try {
@@ -175,11 +171,12 @@ public class BAccountManagerService extends IBAccountManagerService.Stub impleme
     @Override
     public String getPassword(Account account, int userId) {
         if (Log.isLoggable(TAG, Log.VERBOSE)) {
-            Log.v(TAG, "getPassword: " + account
-                    + ", caller's uid " + Binder.getCallingUid()
-                    + ", pid " + Binder.getCallingPid());
+            Log.v(TAG, "getPassword: " + account + ", caller's uid " + Binder.getCallingUid() + ", pid " + Binder.getCallingPid());
         }
-        if (account == null) throw new IllegalArgumentException("account is null");
+
+        if (account == null) {
+            throw new IllegalArgumentException("account is null");
+        }
         BUserAccounts accounts = getUserAccounts(userId);
         return readPasswordInternal(accounts, account);
     }
@@ -187,8 +184,8 @@ public class BAccountManagerService extends IBAccountManagerService.Stub impleme
     @Override
     public String getUserData(Account account, String key, int userId) {
         if (Log.isLoggable(TAG, Log.VERBOSE)) {
-            String msg = String.format("getUserData( account: %s, key: %s, callerUid: %s, pid: %s",
-                    account, key, Binder.getCallingUid(), Binder.getCallingPid());
+            String msg = String.format("getUserData( account: %s, key: %s, callerUid: %s, pid: %s", account, key, Binder.getCallingUid(),
+                    Binder.getCallingPid());
             Log.v(TAG, msg);
         }
         Objects.requireNonNull(account, "account cannot be null");
@@ -263,27 +260,29 @@ public class BAccountManagerService extends IBAccountManagerService.Stub impleme
 
     @Override
     public void getAccountByTypeAndFeatures(IAccountManagerResponse response, String accountType, String[] features, int userId) {
-        if (response == null) throw new IllegalArgumentException("response is null");
-        if (accountType == null) throw new IllegalArgumentException("accountType is null");
+        if (response == null) {
+            throw new IllegalArgumentException("response is null");
+        }
+
+        if (accountType == null) {
+            throw new IllegalArgumentException("accountType is null");
+        }
 
         String opPackageName = getCallingPackageName();
-
         BUserAccounts userAccounts = getUserAccounts(userId);
+
         if (ArrayUtils.isEmpty(features)) {
-            Account[] accountsWithManagedNotVisible = getAccountsFromCache(
-                    userAccounts, accountType, opPackageName,
+            Account[] accountsWithManagedNotVisible = getAccountsFromCache(userAccounts, accountType, opPackageName,
                     true /* include managed not visible */);
-            handleGetAccountsResult(
-                    response, accountsWithManagedNotVisible, opPackageName, userId);
+            handleGetAccountsResult(response, accountsWithManagedNotVisible, opPackageName, userId);
             return;
         }
 
         IAccountManagerResponse retrieveAccountsResponse =
                 new IAccountManagerResponse.Stub() {
                     @Override
-                    public void onResult(Bundle value) throws RemoteException {
-                        Parcelable[] parcelables = value.getParcelableArray(
-                                AccountManager.KEY_ACCOUNTS);
+                    public void onResult(Bundle value) {
+                        Parcelable[] parcelables = value.getParcelableArray(AccountManager.KEY_ACCOUNTS);
                         Account[] accounts = new Account[parcelables.length];
                         for (int i = 0; i < parcelables.length; i++) {
                             accounts[i] = (Account) parcelables[i];
@@ -293,8 +292,7 @@ public class BAccountManagerService extends IBAccountManagerService.Stub impleme
                     }
 
                     @Override
-                    public void onError(int errorCode, String errorMessage)
-                            throws RemoteException {
+                    public void onError(int errorCode, String errorMessage) {
                         // Will not be called in this case.
                     }
                 };
@@ -310,17 +308,22 @@ public class BAccountManagerService extends IBAccountManagerService.Stub impleme
 
     @Override
     public void getAccountsByFeatures(IAccountManagerResponse response, String type, String[] features, int userId) {
-        if (response == null) throw new IllegalArgumentException("response is null");
-        if (type == null) throw new IllegalArgumentException("accountType is null");
+        if (response == null) {
+            throw new IllegalArgumentException("response is null");
+        }
+
+        if (type == null) {
+            throw new IllegalArgumentException("accountType is null");
+        }
 
         String opPackageName = getCallingPackageName();
         // check visibleAccountTypes
         BUserAccounts userAccounts = getUserAccounts(userId);
         if (features == null || features.length == 0) {
-            Account[] accounts = getAccountsFromCache(userAccounts, type,
-                    opPackageName, false);
+            Account[] accounts = getAccountsFromCache(userAccounts, type, opPackageName, false);
             Bundle result = new Bundle();
             result.putParcelableArray(AccountManager.KEY_ACCOUNTS, accounts);
+
             onResult(response, result);
             return;
         }
@@ -341,8 +344,8 @@ public class BAccountManagerService extends IBAccountManagerService.Stub impleme
 
     @Override
     public void removeAccountAsUser(IAccountManagerResponse response, Account account, boolean expectActivityLaunch, int userId) {
-        Preconditions.checkArgument(account != null, "account cannot be null");
-        Preconditions.checkArgument(response != null, "response cannot be null");
+        Preconditions.checkArgument(account != null, "Account cannot be null");
+        Preconditions.checkArgument(response != null, "Response cannot be null");
         // Only allow the system process to modify accounts of other users
         /*
          * Only the system, authenticator or profile owner should be allowed to remove accounts for
@@ -357,10 +360,9 @@ public class BAccountManagerService extends IBAccountManagerService.Stub impleme
     public boolean removeAccountExplicitly(Account account, int userId) {
         final int callingUid = Binder.getCallingUid();
         if (Log.isLoggable(TAG, Log.VERBOSE)) {
-            Log.v(TAG, "removeAccountExplicitly: " + account
-                    + ", caller's uid " + callingUid
-                    + ", pid " + Binder.getCallingPid());
+            Log.v(TAG, "removeAccountExplicitly: " + account + ", caller's uid " + callingUid + ", pid " + Binder.getCallingPid());
         }
+
         if (account == null) {
             /*
              * Null accounts should result in returning false, as per
@@ -390,15 +392,12 @@ public class BAccountManagerService extends IBAccountManagerService.Stub impleme
             return;
         }
 
-        Slog.d(TAG, "Copying account " + account.toString()
-                + " from user " + userFrom + " to user " + userTo);
-        new Session(fromAccounts, response, account.type, false,
-                false /* stripAuthTokenFromResult */, account.name,
+        Slog.d(TAG, "Copying account " + account.toString() + " from user " + userFrom + " to user " + userTo);
+        new Session(fromAccounts, response, account.type, false, false /* stripAuthTokenFromResult */, account.name,
                 false /* authDetailsRequired */) {
             @Override
             protected String toDebugString(long now) {
-                return super.toDebugString(now) + ", getAccountCredentialsForClone"
-                        + ", " + account.type;
+                return super.toDebugString(now) + ", getAccountCredentialsForClone" + ", " + account.type;
             }
 
             @Override
@@ -408,13 +407,11 @@ public class BAccountManagerService extends IBAccountManagerService.Stub impleme
 
             @Override
             public void onResult(Bundle result) {
-                if (result != null
-                        && result.getBoolean(AccountManager.KEY_BOOLEAN_RESULT, false)) {
+                if (result != null && result.getBoolean(AccountManager.KEY_BOOLEAN_RESULT, false)) {
                     // Create a Session for the target user and pass in the bundle
                     completeCloningAccount(response, result, account, toAccounts, userFrom);
-                } else {
-                    super.onResult(result);
                 }
+                super.onResult(result);
             }
         }.bind();
     }
@@ -448,11 +445,14 @@ public class BAccountManagerService extends IBAccountManagerService.Stub impleme
 
     @Override
     public String peekAuthToken(Account account, String authTokenType, int userId) {
-        Objects.requireNonNull(account, "account cannot be null");
-        Objects.requireNonNull(authTokenType, "authTokenType cannot be null");
+        Objects.requireNonNull(account, "Account cannot be null");
+        Objects.requireNonNull(authTokenType, "AuthTokenType cannot be null");
+
         BUserAccounts accounts = getUserAccounts(userId);
-        if (accounts == null)
+        if (accounts == null) {
             return null;
+        }
+
         synchronized (accounts.lock) {
             return accounts.getAuthToken(account).get(authTokenType);
         }
@@ -460,12 +460,14 @@ public class BAccountManagerService extends IBAccountManagerService.Stub impleme
 
     @Override
     public void setAuthToken(Account account, String authTokenType, String authToken, int userId) {
-        Objects.requireNonNull(account, "account cannot be null");
-        Objects.requireNonNull(authTokenType, "authTokenType cannot be null");
+        Objects.requireNonNull(account, "Account cannot be null");
+        Objects.requireNonNull(authTokenType, "AuthTokenType cannot be null");
 
         BUserAccounts accounts = getUserAccounts(userId);
-        if (accounts == null)
+        if (accounts == null) {
             return;
+        }
+
         synchronized (accounts.lock) {
             accounts.getAuthToken(account).put(authTokenType, authToken);
             saveAllAccounts();
@@ -474,16 +476,19 @@ public class BAccountManagerService extends IBAccountManagerService.Stub impleme
 
     @Override
     public void setPassword(Account account, String password, int userId) {
-        Objects.requireNonNull(account, "account cannot be null");
+        Objects.requireNonNull(account, "Account cannot be null");
         BUserAccounts accounts = getUserAccounts(userId);
-        if (accounts == null)
+        if (accounts == null) {
             return;
+        }
+
         synchronized (accounts.lock) {
             BAccount bAccount = accounts.getAccount(account);
             bAccount.password = password;
             bAccount.authTokens.clear();
             saveAllAccounts();
         }
+
         synchronized (mTokenCaches) {
             Iterator<TokenCache> iterator = mTokenCaches.iterator();
             while (iterator.hasNext()) {
@@ -496,18 +501,24 @@ public class BAccountManagerService extends IBAccountManagerService.Stub impleme
     }
 
     @Override
-    public void clearPassword(Account account, int userId) throws RemoteException {
+    public void clearPassword(Account account, int userId) {
         setPassword(account, null, userId);
     }
 
     @Override
     public void setUserData(Account account, String key, String value, int userId) {
-        if (key == null) throw new IllegalArgumentException("key is null");
-        if (account == null) throw new IllegalArgumentException("account is null");
+        if (key == null) {
+            throw new IllegalArgumentException("key is null");
+        }
+        if (account == null) {
+            throw new IllegalArgumentException("account is null");
+        }
 
         BUserAccounts accounts = getUserAccounts(userId);
-        if (accounts == null)
+        if (accounts == null) {
             return;
+        }
+
         synchronized (accounts.lock) {
             accounts.getAccountUserData(account).put(key, value);
             saveAllAccounts();
@@ -537,11 +548,11 @@ public class BAccountManagerService extends IBAccountManagerService.Stub impleme
             Slog.w(TAG, "Failed to report error back to the client." + e);
             return;
         }
+
         final BUserAccounts accounts = getUserAccounts(userId);
         AuthenticatorInfo authenticatorInfo = mAuthenticatorCache.authenticators.get(account.type);
 
-        final boolean customTokens =
-                authenticatorInfo != null && authenticatorInfo.desc.customTokens;
+        final boolean customTokens = authenticatorInfo != null && authenticatorInfo.desc.customTokens;
 
         // Get the calling package. We will use it for the purpose of caching.
         final String callerPkg = loginOptions.getString(AccountManager.KEY_ANDROID_PACKAGE_NAME);
@@ -563,6 +574,7 @@ public class BAccountManagerService extends IBAccountManagerService.Stub impleme
                 result.putString(AccountManager.KEY_AUTHTOKEN, authToken);
                 result.putString(AccountManager.KEY_ACCOUNT_NAME, account.name);
                 result.putString(AccountManager.KEY_ACCOUNT_TYPE, account.type);
+
                 onResult(response, result);
                 return;
             }
@@ -583,10 +595,12 @@ public class BAccountManagerService extends IBAccountManagerService.Stub impleme
                 if (Log.isLoggable(TAG, Log.VERBOSE)) {
                     Log.v(TAG, "getAuthToken: cache hit ofr custom token authenticator.");
                 }
+
                 Bundle result = new Bundle();
                 result.putString(AccountManager.KEY_AUTHTOKEN, token);
                 result.putString(AccountManager.KEY_ACCOUNT_NAME, account.name);
                 result.putString(AccountManager.KEY_ACCOUNT_TYPE, account.type);
+
                 onResult(response, result);
                 return;
             }
@@ -603,10 +617,7 @@ public class BAccountManagerService extends IBAccountManagerService.Stub impleme
             @Override
             protected String toDebugString(long now) {
                 loginOptions.keySet();
-                return super.toDebugString(now) + ", getAuthToken"
-                        + ", " + account
-                        + ", authTokenType " + authTokenType
-                        + ", loginOptions " + loginOptions
+                return super.toDebugString(now) + ", getAuthToken" + ", " + account + ", authTokenType " + authTokenType + ", loginOptions " + loginOptions
                         + ", notifyOnAuthFailure " + notifyOnAuthFailure;
             }
 
@@ -629,6 +640,7 @@ public class BAccountManagerService extends IBAccountManagerService.Stub impleme
                                     "the type and name should not be empty");
                             return;
                         }
+
                         Account resultAccount = new Account(name, type);
                         if (!customTokens) {
                             saveAuthTokenToDatabase(
@@ -637,6 +649,7 @@ public class BAccountManagerService extends IBAccountManagerService.Stub impleme
                                     authTokenType,
                                     authToken);
                         }
+
                         long expiryMillis = result.getLong(
                                 AbstractAccountAuthenticator.KEY_CUSTOM_TOKEN_EXPIRY, 0L);
                         if (customTokens
@@ -650,15 +663,6 @@ public class BAccountManagerService extends IBAccountManagerService.Stub impleme
                                     expiryMillis);
                         }
                     }
-
-                    /*Intent intent = result.getParcelable(AccountManager.KEY_INTENT);
-                    if (intent != null && notifyOnAuthFailure && !customTokens) {
-                            doNotification(
-                                    mAccounts,
-                                    account,
-                                    result.getString(AccountManager.KEY_AUTH_FAILED_MESSAGE),
-                                    intent, "android", accounts.userId);
-                    }*/
                 }
                 super.onResult(result);
             }
@@ -667,30 +671,29 @@ public class BAccountManagerService extends IBAccountManagerService.Stub impleme
 
     @Override
     public void addAccount(IAccountManagerResponse response, String accountType, String authTokenType, String[] requiredFeatures, boolean expectActivityLaunch, Bundle optionsIn, int userId) {
-        if (response == null) throw new IllegalArgumentException("response is null");
-        if (accountType == null) throw new IllegalArgumentException("accountType is null");
+        if (response == null) {
+            throw new IllegalArgumentException("response is null");
+        }
 
-        /*final int pid = Binder.getCallingPid();
-        final int uid = Binder.getCallingUid();*/
+        if (accountType == null) {
+            throw new IllegalArgumentException("accountType is null");
+        }
+
         final Bundle options = (optionsIn == null) ? new Bundle() : optionsIn;
-        /*options.putInt(AccountManager.KEY_CALLER_UID, uid);
-        options.putInt(AccountManager.KEY_CALLER_PID, pid);*/
-
         BUserAccounts accounts = getUserAccounts(userId);
+
         new Session(accounts, response, accountType, expectActivityLaunch,
                 true /* stripAuthTokenFromResult */, null /* accountName */,
                 false /* authDetailsRequired */, true /* updateLastAuthenticationTime */) {
             @Override
             public void run() throws RemoteException {
-                mAuthenticator.addAccount(this, mAccountType, authTokenType, requiredFeatures,
-                        options);
+                mAuthenticator.addAccount(this, mAccountType, authTokenType, requiredFeatures, options);
             }
 
             @Override
             protected String toDebugString(long now) {
-                return super.toDebugString(now) + ", addAccount"
-                        + ", accountType " + accountType
-                        + ", requiredFeatures " + Arrays.toString(requiredFeatures);
+                return super.toDebugString(now) + ", addAccount" + ", accountType " + accountType + ", requiredFeatures "
+                        + Arrays.toString(requiredFeatures);
             }
         }.bind();
     }
@@ -702,9 +705,14 @@ public class BAccountManagerService extends IBAccountManagerService.Stub impleme
 
     @Override
     public void updateCredentials(IAccountManagerResponse response, Account account, String authTokenType, boolean expectActivityLaunch, Bundle loginOptions, int userId) {
-        if (response == null) throw new IllegalArgumentException("response is null");
-        if (account == null) throw new IllegalArgumentException("account is null");
-        long identityToken = clearCallingIdentity();
+        if (response == null) {
+            throw new IllegalArgumentException("response is null");
+        }
+
+        if (account == null) {
+            throw new IllegalArgumentException("account is null");
+        }
+
         BUserAccounts accounts = getUserAccounts(userId);
         new Session(accounts, response, account.type, expectActivityLaunch,
                 true /* stripAuthTokenFromResult */, account.name,
@@ -716,9 +724,7 @@ public class BAccountManagerService extends IBAccountManagerService.Stub impleme
             @Override
             protected String toDebugString(long now) {
                 if (loginOptions != null) loginOptions.keySet();
-                return super.toDebugString(now) + ", updateCredentials"
-                        + ", " + account
-                        + ", authTokenType " + authTokenType
+                return super.toDebugString(now) + ", updateCredentials" + ", " + account + ", authTokenType " + authTokenType
                         + ", loginOptions " + loginOptions;
             }
         }.bind();
@@ -726,8 +732,13 @@ public class BAccountManagerService extends IBAccountManagerService.Stub impleme
 
     @Override
     public void editProperties(IAccountManagerResponse response, String accountType, boolean expectActivityLaunch, int userId) {
-        if (response == null) throw new IllegalArgumentException("response is null");
-        if (accountType == null) throw new IllegalArgumentException("accountType is null");
+        if (response == null) {
+            throw new IllegalArgumentException("response is null");
+        }
+
+        if (accountType == null) {
+            throw new IllegalArgumentException("accountType is null");
+        }
 
         BUserAccounts accounts = getUserAccounts(userId);
         new Session(accounts, response, accountType, expectActivityLaunch,
@@ -739,8 +750,7 @@ public class BAccountManagerService extends IBAccountManagerService.Stub impleme
             }
             @Override
             protected String toDebugString(long now) {
-                return super.toDebugString(now) + ", editProperties"
-                        + ", accountType " + accountType;
+                return super.toDebugString(now) + ", editProperties" + ", accountType " + accountType;
             }
         }.bind();
     }
@@ -754,8 +764,10 @@ public class BAccountManagerService extends IBAccountManagerService.Stub impleme
     public boolean accountAuthenticated(Account account, int userId) {
         Objects.requireNonNull(account, "account cannot be null");
         BUserAccounts userAccounts = getUserAccounts(userId);
-        if (userAccounts == null)
+
+        if (userAccounts == null) {
             return false;
+        }
         return updateLastAuthenticatedTime(userAccounts, account);
     }
 
@@ -763,18 +775,14 @@ public class BAccountManagerService extends IBAccountManagerService.Stub impleme
     public void getAuthTokenLabel(IAccountManagerResponse response, String accountType, String authTokenType, int userId) {
         Preconditions.checkArgument(accountType != null, "accountType cannot be null");
         Preconditions.checkArgument(authTokenType != null, "authTokenType cannot be null");
-        /*if (UserHandle.getAppId(callingUid) != Process.SYSTEM_UID) {
-            throw new SecurityException("can only call from system");
-        }*/
+
         BUserAccounts accounts = getUserAccounts(userId);
         new Session(accounts, response, accountType, false /* expectActivityLaunch */,
                 false /* stripAuthTokenFromResult */,  null /* accountName */,
                 false /* authDetailsRequired */) {
             @Override
             protected String toDebugString(long now) {
-                return super.toDebugString(now) + ", getAuthTokenLabel"
-                        + ", " + accountType
-                        + ", authTokenType " + authTokenType;
+                return super.toDebugString(now) + ", getAuthTokenLabel" + ", " + accountType + ", authTokenType " + authTokenType;
             }
 
             @Override
@@ -789,48 +797,40 @@ public class BAccountManagerService extends IBAccountManagerService.Stub impleme
                     Bundle bundle = new Bundle();
                     bundle.putString(AccountManager.KEY_AUTH_TOKEN_LABEL, label);
                     super.onResult(bundle);
-                } else {
-                    super.onResult(null);
                 }
+                super.onResult(null);
             }
         }.bind();
     }
 
     @Override
-    public Map getPackagesAndVisibilityForAccount(Account account, int userId) {
+    public HashMap<?, ?> getPackagesAndVisibilityForAccount(Account account, int userId) {
         return new HashMap<>();
     }
 
-    protected void saveCachedToken(BUserAccounts accounts,
-                                   Account account,
-                                   String callerPkg,
-                                   String tokenType,
-                                   String token,
-                                   long expiryMillis) {
+    protected void saveCachedToken(BUserAccounts accounts, Account account, String callerPkg, String tokenType, String token, long expiryMillis) {
         if (account == null || tokenType == null || callerPkg == null) {
             return;
         }
+
         TokenCache cache = new TokenCache(accounts.userId, account, callerPkg, tokenType, token, expiryMillis);
         synchronized (mTokenCaches) {
             mTokenCaches.add(cache);
         }
     }
 
-    protected void saveAuthTokenToDatabase(BUserAccounts accounts, Account account, String
-                                           authTokenType, String authToken) {
-        if (accounts == null)
+    protected void saveAuthTokenToDatabase(BUserAccounts accounts, Account account, String authTokenType, String authToken) {
+        if (accounts == null) {
             return;
+        }
+
         synchronized (accounts.lock) {
             accounts.getAuthToken(account).put(authTokenType, authToken);
             saveAllAccounts();
         }
     }
 
-    protected String readCachedTokenInternal(
-            BUserAccounts accounts,
-            Account account,
-            String tokenType,
-            String callingPackage) {
+    protected String readCachedTokenInternal(BUserAccounts accounts, Account account, String tokenType, String callingPackage) {
         long nowTime = System.currentTimeMillis();
         synchronized (mTokenCaches) {
             Iterator<TokenCache> iterator = mTokenCaches.iterator();
@@ -840,19 +840,18 @@ public class BAccountManagerService extends IBAccountManagerService.Stub impleme
                 if (next.userId == accounts.userId && next.account.equals(account) && next.authTokenType.equals(tokenType) && next.packageName.equals(callingPackage)) {
                     if (next.expiryEpochMillis > nowTime) {
                         return next.authToken;
-                    } else {
-                        iterator.remove();
                     }
+                    iterator.remove();
                 }
             }
             return null;
         }
     }
 
-    protected String readAuthTokenInternal(BUserAccounts accounts, Account account,
-                                           String authTokenType) {
-        if (accounts == null)
+    protected String readAuthTokenInternal(BUserAccounts accounts, Account account, String authTokenType) {
+        if (accounts == null) {
             return null;
+        }
         // If not cached yet - do slow path and sync with db if necessary
         synchronized (accounts.lock) {
             Map<String, String> authToken = accounts.getAuthToken(account);
@@ -860,16 +859,14 @@ public class BAccountManagerService extends IBAccountManagerService.Stub impleme
         }
     }
 
-    private void completeCloningAccount(IAccountManagerResponse response,
-                                        final Bundle accountCredentials, final Account account, final BUserAccounts targetUser,
-                                        final int parentUserId) {
+    private void completeCloningAccount(IAccountManagerResponse response, final Bundle accountCredentials, final Account account,
+                                        final BUserAccounts targetUser, final int parentUserId) {
         new Session(targetUser, response, account.type, false,
                 false /* stripAuthTokenFromResult */, account.name,
                 false /* authDetailsRequired */) {
             @Override
             protected String toDebugString(long now) {
-                return super.toDebugString(now) + ", getAccountCredentialsForClone"
-                        + ", " + account.type;
+                return super.toDebugString(now) + ", getAccountCredentialsForClone" + ", " + account.type;
             }
 
             @Override
@@ -877,8 +874,7 @@ public class BAccountManagerService extends IBAccountManagerService.Stub impleme
                 // Confirm that the owner's account still exists before this step.
                 for (Account acc : getAccounts(parentUserId, mContext.getPackageName())) {
                     if (acc.equals(account)) {
-                        mAuthenticator.addAccountFromCredentials(
-                                this, account, accountCredentials);
+                        mAuthenticator.addAccountFromCredentials(this, account, accountCredentials);
                         break;
                     }
                 }
@@ -887,8 +883,7 @@ public class BAccountManagerService extends IBAccountManagerService.Stub impleme
             @Override
             public void onResult(Bundle result) {
                 // TODO: Anything to do if if succedded?
-                // TODO: If it failed: Show error notification? Should we remove the shadow
-                // account to avoid retries?
+                // TODO: If it failed: Show error notification? Should we remove the shadow account to avoid retries?
                 // TODO: what we do with the visibility?
                 super.onResult(result);
             }
@@ -908,8 +903,7 @@ public class BAccountManagerService extends IBAccountManagerService.Stub impleme
     }
 
     @Override
-    public boolean addAccountExplicitlyWithVisibility(Account account, String password,
-                                                      Bundle extras, Map packageToVisibility, int userId) {
+    public boolean addAccountExplicitlyWithVisibility(Account account, String password, Bundle extras, Map packageToVisibility, int userId) {
         /*
          * Child users are not allowed to add accounts. Only the accounts that are shared by the
          * parent profile can be added to child profile.
@@ -918,33 +912,37 @@ public class BAccountManagerService extends IBAccountManagerService.Stub impleme
          */
         // fails if the account already exists
         BUserAccounts accounts = getUserAccounts(userId);
-        return addAccountInternal(accounts, account, password, extras,
-                (Map<String, Integer>) packageToVisibility);
+        return addAccountInternal(accounts, account, password, extras, (Map<String, Integer>) packageToVisibility);
     }
 
     @Override
-    public boolean setAccountVisibility(Account account, String packageName, int newVisibility, int userId) throws RemoteException {
+    public boolean setAccountVisibility(Account account, String packageName, int newVisibility, int userId) {
         Objects.requireNonNull(account, "account cannot be null");
         Objects.requireNonNull(packageName, "packageName cannot be null");
+
         BUserAccounts userAccounts = getUserAccounts(userId);
-        if (userAccounts == null)
+        if (userAccounts == null) {
             return false;
+        }
         return setAccountVisibility(account, packageName, newVisibility, userAccounts);
     }
 
     @Override
-    public int getAccountVisibility(Account account, String packageName, int userId) throws RemoteException {
+    public int getAccountVisibility(Account account, String packageName, int userId) {
         Objects.requireNonNull(account, "account cannot be null");
         Objects.requireNonNull(packageName, "packageName cannot be null");
+
         BUserAccounts accounts = getUserAccounts(userId);
         if (AccountManager.PACKAGE_NAME_KEY_LEGACY_VISIBLE.equals(packageName)) {
             int visibility = getAccountVisibilityFromCache(account, packageName, accounts);
+
             if (AccountManager.VISIBILITY_UNDEFINED != visibility) {
                 return visibility;
             } else {
                 return AccountManager.VISIBILITY_USER_MANAGED_VISIBLE;
             }
         }
+
         if (AccountManager.PACKAGE_NAME_KEY_LEGACY_NOT_VISIBLE.equals(packageName)) {
             int visibility = getAccountVisibilityFromCache(account, packageName, accounts);
             if (AccountManager.VISIBILITY_UNDEFINED != visibility) {
@@ -957,15 +955,17 @@ public class BAccountManagerService extends IBAccountManagerService.Stub impleme
     }
 
     @Override
-    public Map getAccountsAndVisibilityForPackage(String packageName, String accountType, int userId) throws RemoteException {
+    public Map getAccountsAndVisibilityForPackage(String packageName, String accountType, int userId) {
         Map<Account, Integer> hashMap = new HashMap<>();
         BUserAccounts userAccounts = getUserAccounts(userId);
+
         synchronized (userAccounts.lock) {
             for (BAccount account : userAccounts.accounts) {
                 if (account.account.type.equals(accountType)) {
                     Integer integer = userAccounts.getVisibility(account.account).get(packageName);
-                    if (integer != null)
+                    if (integer != null) {
                         hashMap.put(account.account, integer);
+                    }
                 }
             }
         }
@@ -973,26 +973,23 @@ public class BAccountManagerService extends IBAccountManagerService.Stub impleme
     }
 
     @Override
-    public void registerAccountListener(String[] accountTypes, String opPackageName, int userId) throws RemoteException {
-
-    }
+    public void registerAccountListener(String[] accountTypes, String opPackageName, int userId) throws RemoteException { }
 
     @Override
-    public void unregisterAccountListener(String[] accountTypes, String opPackageName, int userId) throws RemoteException {
+    public void unregisterAccountListener(String[] accountTypes, String opPackageName, int userId) { }
 
-    }
-
-    private boolean addAccountInternal(BUserAccounts accounts, Account account, String password,
-                                       Bundle extras, Map<String, Integer> packageToVisibility) {
+    private boolean addAccountInternal(BUserAccounts accounts, Account account, String password, Bundle extras, Map<String, Integer> packageToVisibility) {
         if (accounts == null) {
             accounts = new BUserAccounts();
         }
+
         synchronized (accounts.lock) {
             BAccount bAccount = accounts.getAccount(account);
             if (bAccount != null) {
                 Slog.d(TAG, "skipping since insertExtra failed for key " + account);
                 return false;
             }
+
             bAccount = accounts.addAccount(account);
             bAccount.password = password;
             if (extras != null) {
@@ -1004,12 +1001,11 @@ public class BAccountManagerService extends IBAccountManagerService.Stub impleme
 
             if (packageToVisibility != null) {
                 for (Map.Entry<String, Integer> entry : packageToVisibility.entrySet()) {
-                    setAccountVisibility(account, entry.getKey() /* package */,
-                            entry.getValue() /* visibility */,
-                            accounts);
+                    setAccountVisibility(account, entry.getKey() /* package */, entry.getValue() /* visibility */, accounts);
                 }
             }
         }
+
         saveAllAccounts();
         return true;
     }
@@ -1017,8 +1013,10 @@ public class BAccountManagerService extends IBAccountManagerService.Stub impleme
     private boolean setAccountVisibility(Account account, String packageName, int newVisibility, BUserAccounts accounts) {
         synchronized (accounts.lock) {
             BAccount bAccount = accounts.getAccount(account);
-            if (bAccount == null)
+            if (bAccount == null) {
                 return false;
+            }
+
             bAccount.visibility.put(packageName, newVisibility);
             return true;
         }
@@ -1030,6 +1028,7 @@ public class BAccountManagerService extends IBAccountManagerService.Stub impleme
             synchronized (userAccounts.lock) {
                 accounts = userAccounts.getAccountsByType(accountType);
             }
+
             if (accounts == null) {
                 return EMPTY_ACCOUNT_ARRAY;
             } else {
@@ -1046,17 +1045,16 @@ public class BAccountManagerService extends IBAccountManagerService.Stub impleme
                 if (totalLength == 0) {
                     return EMPTY_ACCOUNT_ARRAY;
                 }
+
                 accountsArray = new Account[totalLength];
                 totalLength = 0;
                 for (BUserAccounts bUserAccounts : mUserAccountsMap.values()) {
                     Account[] accountsOfType = bUserAccounts.toAccounts();
-                    System.arraycopy(accountsOfType, 0, accountsArray, totalLength,
-                            accountsOfType.length);
+                    System.arraycopy(accountsOfType, 0, accountsArray, totalLength, accountsOfType.length);
                     totalLength += accountsOfType.length;
                 }
             }
-            return filterAccounts(userAccounts, accountsArray, callingPackage,
-                    includeManagedNotVisible);
+            return filterAccounts(userAccounts, accountsArray, callingPackage, includeManagedNotVisible);
         }
     }
 
@@ -1065,19 +1063,11 @@ public class BAccountManagerService extends IBAccountManagerService.Stub impleme
         Map<Account, Integer> firstPass = new LinkedHashMap<>();
         for (Account account : unfiltered) {
             int visibility = resolveAccountVisibility(account, callingPackage, accounts);
-            if ((visibility == AccountManager.VISIBILITY_VISIBLE
-                    || visibility == AccountManager.VISIBILITY_USER_MANAGED_VISIBLE)
-                    || (includeManagedNotVisible
-                    && (visibility
-                    == AccountManager.VISIBILITY_USER_MANAGED_NOT_VISIBLE))) {
+            if ((visibility == AccountManager.VISIBILITY_VISIBLE || visibility == AccountManager.VISIBILITY_USER_MANAGED_VISIBLE)
+                    || (includeManagedNotVisible && (visibility == AccountManager.VISIBILITY_USER_MANAGED_NOT_VISIBLE))) {
                 firstPass.put(account, visibility);
             }
         }
-        /*Map<Account, Integer> secondPass =
-                filterSharedAccounts(accounts, firstPass, callingUid, callingPackage);
-
-        Account[] filtered = new Account[secondPass.size()];
-        filtered = secondPass.keySet().toArray(filtered);*/
         return firstPass.keySet().toArray(new Account[]{});
     }
 
@@ -1089,11 +1079,11 @@ public class BAccountManagerService extends IBAccountManagerService.Stub impleme
      * @param accounts    UserAccount that currently hosts the account and application
      * @return Visibility value, the method never returns AccountManager.VISIBILITY_UNDEFINED
      */
-    private Integer resolveAccountVisibility(Account account, @NonNull String packageName,
-                                             BUserAccounts accounts) {
+    private Integer resolveAccountVisibility(Account account, @NonNull String packageName, BUserAccounts accounts) {
         if (accounts == null) {
             return AccountManager.VISIBILITY_NOT_VISIBLE;
         }
+
         BAccount bAccount = accounts.getAccount(account);
         if (bAccount == null) {
             return AccountManager.VISIBILITY_NOT_VISIBLE;
@@ -1115,46 +1105,43 @@ public class BAccountManagerService extends IBAccountManagerService.Stub impleme
      * @param accounts    UserAccount that currently hosts the account and application
      * @return Visibility value, AccountManager.VISIBILITY_UNDEFINED if no value was stored.
      */
-    private int getAccountVisibilityFromCache(Account account, String packageName,
-                                              BUserAccounts accounts) {
+    private int getAccountVisibilityFromCache(Account account, String packageName, BUserAccounts accounts) {
         synchronized (accounts.lock) {
-            Map<String, Integer> accountVisibility =
-                    getPackagesAndVisibilityForAccountLocked(account, accounts);
+            Map<String, Integer> accountVisibility = getPackagesAndVisibilityForAccountLocked(account, accounts);
             Integer visibility = accountVisibility.get(packageName);
             return visibility != null ? visibility : AccountManager.VISIBILITY_UNDEFINED;
         }
     }
 
-    private @NonNull
-    Map<String, Integer> getPackagesAndVisibilityForAccountLocked(Account account,
-                                                                  BUserAccounts accounts) {
+    private @NonNull Map<String, Integer> getPackagesAndVisibilityForAccountLocked(Account account, BUserAccounts accounts) {
         return accounts.getVisibility(account);
     }
 
-    private void handleGetAccountsResult(
-            IAccountManagerResponse response,
-            Account[] accounts,
-            String callingPackage,
-            int userId) {
-
+    private void handleGetAccountsResult(IAccountManagerResponse response, Account[] accounts, String callingPackage, int userId) {
         if (needToStartChooseAccountActivity(accounts, callingPackage, userId)) {
-            // startChooseAccountActivityWithAccounts(response, accounts, callingPackage);
             return;
         }
+
         if (accounts.length == 1) {
             Bundle bundle = new Bundle();
             bundle.putString(AccountManager.KEY_ACCOUNT_NAME, accounts[0].name);
             bundle.putString(AccountManager.KEY_ACCOUNT_TYPE, accounts[0].type);
+
             onResult(response, bundle);
             return;
         }
-        // No qualified account exists, return an empty Bundle.
         onResult(response, new Bundle());
     }
 
     private boolean needToStartChooseAccountActivity(Account[] accounts, String callingPackage, int userId) {
-        if (accounts.length < 1) return false;
-        if (accounts.length > 1) return true;
+        if (accounts.length < 1) {
+            return false;
+        }
+
+        if (accounts.length > 1) {
+            return true;
+        }
+
         Account account = accounts[0];
         BUserAccounts userAccounts = getUserAccounts(userId);
         int visibility = resolveAccountVisibility(account, callingPackage, userAccounts);
@@ -1162,8 +1149,10 @@ public class BAccountManagerService extends IBAccountManagerService.Stub impleme
     }
 
     private String readUserDataInternal(BUserAccounts accounts, Account account, String key) {
-        if (accounts == null)
+        if (accounts == null) {
             return null;
+        }
+
         synchronized (accounts.lock) {
             Map<String, String> accountUserData = accounts.getAccountUserData(account);
             return accountUserData.get(key);
@@ -1171,12 +1160,15 @@ public class BAccountManagerService extends IBAccountManagerService.Stub impleme
     }
 
     public String readPasswordInternal(BUserAccounts accounts, Account account) {
-        if (accounts == null)
+        if (accounts == null) {
             return null;
+        }
+
         synchronized (accounts.lock) {
             BAccount bAccount = accounts.getAccount(account);
-            if (bAccount == null)
+            if (bAccount == null) {
                 return null;
+            }
             return bAccount.password;
         }
     }
@@ -1213,18 +1205,16 @@ public class BAccountManagerService extends IBAccountManagerService.Stub impleme
 
     private class RemoveAccountSession extends Session {
         final Account mAccount;
-        public RemoveAccountSession(BUserAccounts accounts, IAccountManagerResponse response,
-                                    Account account, boolean expectActivityLaunch) {
-            super(accounts, response, account.type, expectActivityLaunch,
-                    true /* stripAuthTokenFromResult */, account.name,
+
+        public RemoveAccountSession(BUserAccounts accounts, IAccountManagerResponse response, Account account, boolean expectActivityLaunch) {
+            super(accounts, response, account.type, expectActivityLaunch, true /* stripAuthTokenFromResult */, account.name,
                     false /* authDetailsRequired */);
             mAccount = account;
         }
 
         @Override
         protected String toDebugString(long now) {
-            return super.toDebugString(now) + ", removeAccount"
-                    + ", account " + mAccount;
+            return super.toDebugString(now) + ", removeAccount" + ", account " + mAccount;
         }
 
         @Override
@@ -1234,18 +1224,18 @@ public class BAccountManagerService extends IBAccountManagerService.Stub impleme
 
         @Override
         public void onResult(Bundle result) {
-            if (result != null && result.containsKey(AccountManager.KEY_BOOLEAN_RESULT)
-                    && !result.containsKey(AccountManager.KEY_INTENT)) {
+            if (result != null && result.containsKey(AccountManager.KEY_BOOLEAN_RESULT) && !result.containsKey(AccountManager.KEY_INTENT)) {
                 final boolean removalAllowed = result.getBoolean(AccountManager.KEY_BOOLEAN_RESULT);
                 if (removalAllowed) {
                     removeAccountInternal(mAccounts, mAccount);
                 }
+
                 IAccountManagerResponse response = getResponseAndClose();
                 if (response != null) {
                     if (Log.isLoggable(TAG, Log.VERBOSE)) {
-                        Log.v(TAG, getClass().getSimpleName() + " calling onResult() on response "
-                                + response);
+                        Log.v(TAG, getClass().getSimpleName() + " calling onResult() on response " + response);
                     }
+
                     try {
                         response.onResult(result);
                     } catch (RemoteException e) {
@@ -1262,22 +1252,13 @@ public class BAccountManagerService extends IBAccountManagerService.Stub impleme
         private volatile Account[] mAccountsOfType = null;
         private volatile ArrayList<Account> mAccountsWithFeatures = null;
         private volatile int mCurrentAccount = 0;
-        private final int mUserId;
         private final String mPackageName;
         private final boolean mIncludeManagedNotVisible;
 
-        public GetAccountsByTypeAndFeatureSession(
-                BUserAccounts accounts,
-                IAccountManagerResponse response,
-                String type,
-                String[] features,
-                int userId,
-                String packageName,
-                boolean includeManagedNotVisible) {
-            super(accounts, response, type, false /* expectActivityLaunch */,
-                    true /* stripAuthTokenFromResult */, null /* accountName */,
-                    false /* authDetailsRequired */);
-            mUserId = userId;
+        public GetAccountsByTypeAndFeatureSession(BUserAccounts accounts, IAccountManagerResponse response, String type, String[] features, int userId,
+                                                  String packageName, boolean includeManagedNotVisible) {
+            super(accounts, response, type, false /* expectActivityLaunch */, true /* stripAuthTokenFromResult */,
+                    null /* accountName */, false /* authDetailsRequired */);
             mFeatures = features;
             mPackageName = packageName;
             mIncludeManagedNotVisible = includeManagedNotVisible;
@@ -1305,11 +1286,11 @@ public class BAccountManagerService extends IBAccountManagerService.Stub impleme
                 // There is no need to send back a result or error in this case since
                 // that already happened when mAuthenticator was cleared.
                 if (Log.isLoggable(TAG, Log.VERBOSE)) {
-                    Log.v(TAG, "checkAccount: aborting session since we are no longer"
-                            + " connected to the authenticator, " + toDebugString());
+                    Log.v(TAG, "checkAccount: aborting session since we are no longer" + " connected to the authenticator, " + toDebugString());
                 }
                 return;
             }
+
             try {
                 accountAuthenticator.hasFeatures(this, mAccountsOfType[mCurrentAccount], mFeatures);
             } catch (RemoteException e) {
@@ -1324,9 +1305,11 @@ public class BAccountManagerService extends IBAccountManagerService.Stub impleme
                 onError(AccountManager.ERROR_CODE_INVALID_RESPONSE, "null bundle");
                 return;
             }
+
             if (result.getBoolean(AccountManager.KEY_BOOLEAN_RESULT, false)) {
                 mAccountsWithFeatures.add(mAccountsOfType[mCurrentAccount]);
             }
+
             mCurrentAccount++;
             checkAccount();
         }
@@ -1339,10 +1322,11 @@ public class BAccountManagerService extends IBAccountManagerService.Stub impleme
                     for (int i = 0; i < accounts.length; i++) {
                         accounts[i] = mAccountsWithFeatures.get(i);
                     }
+
                     if (Log.isLoggable(TAG, Log.VERBOSE)) {
-                        Log.v(TAG, getClass().getSimpleName() + " calling onResult() on response "
-                                + response);
+                        Log.v(TAG, getClass().getSimpleName() + " calling onResult() on response " + response);
                     }
+
                     Bundle result = new Bundle();
                     result.putParcelableArray(AccountManager.KEY_ACCOUNTS, accounts);
                     response.onResult(result);
@@ -1357,8 +1341,7 @@ public class BAccountManagerService extends IBAccountManagerService.Stub impleme
 
         @Override
         protected String toDebugString(long now) {
-            return super.toDebugString(now) + ", getAccountsByTypeAndFeatures"
-                    + ", " + (mFeatures != null ? TextUtils.join(",", mFeatures) : null);
+            return super.toDebugString(now) + ", getAccountsByTypeAndFeatures" + ", " + (mFeatures != null ? TextUtils.join(",", mFeatures) : null);
         }
     }
 
@@ -1376,22 +1359,20 @@ public class BAccountManagerService extends IBAccountManagerService.Stub impleme
         final Map<String, AuthenticatorInfo> authenticators = new HashMap<>();
     }
 
-    private static AuthenticatorDescription parseAuthenticatorDescription(Resources resources, String packageName,
-                                                                          AttributeSet attributeSet) {
-        RstyleableStatic rstyleableStatic = BRRstyleable.get();
-        TypedArray array = resources.obtainAttributes(attributeSet, rstyleableStatic.AccountAuthenticator());
+    private static AuthenticatorDescription parseAuthenticatorDescription(Resources resources, String packageName, AttributeSet attributeSet) {
+        TypedArray array = resources.obtainAttributes(attributeSet, Arrays.stream(black.com.android.internal.R.styleable.AccountAuthenticator.get()).mapToInt(Integer::intValue).toArray());
         try {
-            String accountType = array.getString(rstyleableStatic.AccountAuthenticator_accountType());
-            int label = array.getResourceId(rstyleableStatic.AccountAuthenticator_label(), 0);
-            int icon = array.getResourceId(rstyleableStatic.AccountAuthenticator_icon(), 0);
-            int smallIcon = array.getResourceId(rstyleableStatic.AccountAuthenticator_smallIcon(), 0);
-            int accountPreferences = array.getResourceId(rstyleableStatic.AccountAuthenticator_accountPreferences(), 0);
-            boolean customTokens = array.getBoolean(rstyleableStatic.AccountAuthenticator_customTokens(), false);
+            String accountType = array.getString(black.com.android.internal.R.styleable.AccountAuthenticator_accountType.get());
+            int label = array.getResourceId(black.com.android.internal.R.styleable.AccountAuthenticator_label.get(), 0);
+            int icon = array.getResourceId(black.com.android.internal.R.styleable.AccountAuthenticator_icon.get(), 0);
+            int smallIcon = array.getResourceId(black.com.android.internal.R.styleable.AccountAuthenticator_smallIcon.get(), 0);
+            int accountPreferences = array.getResourceId(black.com.android.internal.R.styleable.AccountAuthenticator_accountPreferences.get(), 0);
+            boolean customTokens = array.getBoolean(black.com.android.internal.R.styleable.AccountAuthenticator_customTokens.get(), false);
+
             if (TextUtils.isEmpty(accountType)) {
                 return null;
             }
-            return new AuthenticatorDescription(accountType, packageName, label, icon, smallIcon, accountPreferences,
-                    customTokens);
+            return new AuthenticatorDescription(accountType, packageName, label, icon, smallIcon, accountPreferences, customTokens);
         } finally {
             array.recycle();
         }
@@ -1403,26 +1384,19 @@ public class BAccountManagerService extends IBAccountManagerService.Stub impleme
         if (packageName != null) {
             intent.setPackage(packageName);
         }
-        generateServicesMap(
-                mPms.queryIntentServices(intent, PackageManager.GET_META_DATA, BUserHandle.USER_ALL),
-                mAuthenticatorCache.authenticators, new RegisteredServicesParser());
+
+        generateServicesMap(mPms.queryIntentServices(intent, PackageManager.GET_META_DATA, BUserHandle.USER_ALL), mAuthenticatorCache.authenticators,
+                new RegisteredServicesParser());
     }
 
-    private void generateServicesMap(List<ResolveInfo> services, Map<String, AuthenticatorInfo> map,
-                                     RegisteredServicesParser accountParser) {
+    private void generateServicesMap(List<ResolveInfo> services, Map<String, AuthenticatorInfo> map, RegisteredServicesParser accountParser) {
         for (ResolveInfo info : services) {
-            XmlResourceParser parser = accountParser.getParser(mContext, info.serviceInfo,
-                    AccountManager.AUTHENTICATOR_META_DATA_NAME);
+            XmlResourceParser parser = accountParser.getParser(mContext, info.serviceInfo, AccountManager.AUTHENTICATOR_META_DATA_NAME);
             if (parser != null) {
                 try {
                     AttributeSet attributeSet = Xml.asAttributeSet(parser);
-                    int type;
-                    while ((type = parser.next()) != XmlPullParser.END_DOCUMENT && type != XmlPullParser.START_TAG) {
-                        // Nothing to do
-                    }
                     if (AccountManager.AUTHENTICATOR_ATTRIBUTES_NAME.equals(parser.getName())) {
-                        AuthenticatorDescription desc = parseAuthenticatorDescription(
-                                accountParser.getResources(mContext, info.serviceInfo.applicationInfo),
+                        AuthenticatorDescription desc = parseAuthenticatorDescription(accountParser.getResources(mContext, info.serviceInfo.applicationInfo),
                                 info.serviceInfo.packageName, attributeSet);
                         if (desc != null) {
                             map.put(desc.type, new AuthenticatorInfo(desc, info.serviceInfo));
@@ -1435,8 +1409,7 @@ public class BAccountManagerService extends IBAccountManagerService.Stub impleme
         }
     }
 
-    private abstract class Session extends IAccountAuthenticatorResponse.Stub
-            implements IBinder.DeathRecipient, ServiceConnection {
+    private abstract class Session extends IAccountAuthenticatorResponse.Stub implements IBinder.DeathRecipient, ServiceConnection {
         IAccountManagerResponse mResponse;
         final String mAccountType;
         final boolean mExpectActivityLaunch;
@@ -1459,19 +1432,19 @@ public class BAccountManagerService extends IBAccountManagerService.Stub impleme
         private final boolean mStripAuthTokenFromResult;
         protected final BUserAccounts mAccounts;
 
-        public Session(BUserAccounts accounts, IAccountManagerResponse response, String accountType,
-                       boolean expectActivityLaunch, boolean stripAuthTokenFromResult, String accountName,
-                       boolean authDetailsRequired) {
-            this(accounts, response, accountType, expectActivityLaunch, stripAuthTokenFromResult,
-                    accountName, authDetailsRequired, false /* updateLastAuthenticatedTime */);
+        public Session(BUserAccounts accounts, IAccountManagerResponse response, String accountType, boolean expectActivityLaunch,
+                       boolean stripAuthTokenFromResult, String accountName, boolean authDetailsRequired) {
+            this(accounts, response, accountType, expectActivityLaunch, stripAuthTokenFromResult, accountName,
+                    authDetailsRequired, false /* updateLastAuthenticatedTime */);
         }
 
-        public Session(BUserAccounts accounts, IAccountManagerResponse response, String accountType,
-                       boolean expectActivityLaunch, boolean stripAuthTokenFromResult, String accountName,
-                       boolean authDetailsRequired, boolean updateLastAuthenticatedTime) {
+        public Session(BUserAccounts accounts, IAccountManagerResponse response, String accountType, boolean expectActivityLaunch,
+                       boolean stripAuthTokenFromResult, String accountName, boolean authDetailsRequired, boolean updateLastAuthenticatedTime) {
             super();
-            // if (response == null) throw new IllegalArgumentException("response is null");
-            if (accountType == null) throw new IllegalArgumentException("accountType is null");
+            if (accountType == null) {
+                throw new IllegalArgumentException("accountType is null");
+            }
+
             mAccounts = accounts;
             mStripAuthTokenFromResult = stripAuthTokenFromResult;
             mResponse = response;
@@ -1485,6 +1458,7 @@ public class BAccountManagerService extends IBAccountManagerService.Stub impleme
             synchronized (mSessions) {
                 mSessions.put(toString(), this);
             }
+
             if (response != null) {
                 try {
                     response.asBinder().linkToDeath(this, 0 /* flags */);
@@ -1519,10 +1493,8 @@ public class BAccountManagerService extends IBAccountManagerService.Stub impleme
             if (intent.getClipData() == null) {
                 intent.setClipData(ClipData.newPlainText(null, null));
             }
-            intent.setFlags(intent.getFlags() & ~(Intent.FLAG_GRANT_READ_URI_PERMISSION
-                    | Intent.FLAG_GRANT_WRITE_URI_PERMISSION
-                    | Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION
-                    | Intent.FLAG_GRANT_PREFIX_URI_PERMISSION));
+            intent.setFlags(intent.getFlags() & ~(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+                    | Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION | Intent.FLAG_GRANT_PREFIX_URI_PERMISSION));
             long bid = Binder.clearCallingIdentity();
             try {
                 ResolveInfo resolveInfo = mPms.resolveActivity(intent, 0, null, mAccounts.userId);
@@ -1562,17 +1534,15 @@ public class BAccountManagerService extends IBAccountManagerService.Stub impleme
         }
 
         protected String toDebugString(long now) {
-            return "Session: expectLaunch " + mExpectActivityLaunch
-                    + ", connected " + (mAuthenticator != null)
-                    + ", stats (" + mNumResults + "/" + mNumRequestContinued
-                    + "/" + mNumErrors + ")"
-                    + ", lifetime " + ((now - mCreationTime) / 1000.0);
+            return "Session: expectLaunch " + mExpectActivityLaunch + ", connected " + (mAuthenticator != null)
+                    + ", stats (" + mNumResults + "/" + mNumRequestContinued + "/" + mNumErrors + ")" + ", lifetime " + ((now - mCreationTime) / 1000.0);
         }
 
         void bind() {
             if (Log.isLoggable(TAG, Log.VERBOSE)) {
                 Log.v(TAG, "initiating bind to authenticator type " + mAccountType);
             }
+
             if (!bindToAuthenticator(mAccountType)) {
                 Log.d(TAG, "bind attempt failed for " + toDebugString());
                 onError(AccountManager.ERROR_CODE_REMOTE_EXCEPTION, "bind failure");
@@ -1596,8 +1566,7 @@ public class BAccountManagerService extends IBAccountManagerService.Stub impleme
             try {
                 run();
             } catch (RemoteException e) {
-                onError(AccountManager.ERROR_CODE_REMOTE_EXCEPTION,
-                        "remote exception");
+                onError(AccountManager.ERROR_CODE_REMOTE_EXCEPTION, "remote exception");
             }
         }
 
@@ -1605,14 +1574,13 @@ public class BAccountManagerService extends IBAccountManagerService.Stub impleme
         public void onServiceDisconnected(ComponentName name) {
             mAuthenticator = null;
             IAccountManagerResponse response = getResponseAndClose();
+
             if (response != null) {
                 try {
-                    response.onError(AccountManager.ERROR_CODE_REMOTE_EXCEPTION,
-                            "disconnected");
+                    response.onError(AccountManager.ERROR_CODE_REMOTE_EXCEPTION, "disconnected");
                 } catch (RemoteException e) {
                     if (Log.isLoggable(TAG, Log.VERBOSE)) {
-                        Log.v(TAG, "Session.onServiceDisconnected: "
-                                + "caught RemoteException while responding", e);
+                        Log.v(TAG, "Session.onServiceDisconnected: " + "caught RemoteException while responding", e);
                     }
                 }
             }
@@ -1620,102 +1588,70 @@ public class BAccountManagerService extends IBAccountManagerService.Stub impleme
 
         public abstract void run() throws RemoteException;
 
-        public void onTimedOut() {
-            IAccountManagerResponse response = getResponseAndClose();
-            if (response != null) {
-                try {
-                    response.onError(AccountManager.ERROR_CODE_REMOTE_EXCEPTION,
-                            "timeout");
-                } catch (RemoteException e) {
-                    if (Log.isLoggable(TAG, Log.VERBOSE)) {
-                        Log.v(TAG, "Session.onTimedOut: caught RemoteException while responding",
-                                e);
-                    }
-                }
-            }
-        }
-
         @Override
         public void onResult(Bundle result) {
             mNumResults++;
             Intent intent = null;
+
             if (result != null) {
-                boolean isSuccessfulConfirmCreds = result.getBoolean(
-                        AccountManager.KEY_BOOLEAN_RESULT, false);
-                boolean isSuccessfulUpdateCredsOrAddAccount =
-                        result.containsKey(AccountManager.KEY_ACCOUNT_NAME)
-                                && result.containsKey(AccountManager.KEY_ACCOUNT_TYPE);
+                boolean isSuccessfulConfirmCreds = result.getBoolean(AccountManager.KEY_BOOLEAN_RESULT, false);
+                boolean isSuccessfulUpdateCredsOrAddAccount = result.containsKey(AccountManager.KEY_ACCOUNT_NAME)
+                        && result.containsKey(AccountManager.KEY_ACCOUNT_TYPE);
                 // We should only update lastAuthenticated time, if
                 // mUpdateLastAuthenticatedTime is true and the confirmRequest
                 // or updateRequest was successful
-                boolean needUpdate = mUpdateLastAuthenticatedTime
-                        && (isSuccessfulConfirmCreds || isSuccessfulUpdateCredsOrAddAccount);
+                boolean needUpdate = mUpdateLastAuthenticatedTime && (isSuccessfulConfirmCreds || isSuccessfulUpdateCredsOrAddAccount);
                 if (needUpdate || mAuthDetailsRequired) {
                     boolean accountPresent = isAccountPresentForCaller(mAccountName, mAccountType, mAccounts.userId);
                     if (needUpdate && accountPresent) {
                         updateLastAuthenticatedTime(mAccounts, new Account(mAccountName, mAccountType));
                     }
+
                     if (mAuthDetailsRequired) {
                         long lastAuthenticatedTime = -1;
                         if (accountPresent) {
-                            lastAuthenticatedTime = mAccounts
-                                    .findAccountLastAuthenticatedTime(
-                                            new Account(mAccountName, mAccountType));
+                            lastAuthenticatedTime = mAccounts.findAccountLastAuthenticatedTime(new Account(mAccountName, mAccountType));
                         }
-                        result.putLong(AccountManager.KEY_LAST_AUTHENTICATED_TIME,
-                                lastAuthenticatedTime);
+
+                        result.putLong(AccountManager.KEY_LAST_AUTHENTICATED_TIME, lastAuthenticatedTime);
                     }
                 }
             }
-            if (result != null
-                    && (intent = result.getParcelable(AccountManager.KEY_INTENT)) != null) {
-                if (!checkKeyIntent(
-                        Binder.getCallingUid(),
-                        intent)) {
-                    onError(AccountManager.ERROR_CODE_INVALID_RESPONSE,
-                            "invalid intent in bundle returned");
+
+            if (result != null && (intent = result.getParcelable(AccountManager.KEY_INTENT)) != null) {
+                if (!checkKeyIntent(Binder.getCallingUid(), intent)) {
+                    onError(AccountManager.ERROR_CODE_INVALID_RESPONSE, "invalid intent in bundle returned");
                     return;
                 }
             }
-            /*if (result != null
-                    && !TextUtils.isEmpty(result.getString(AccountManager.KEY_AUTHTOKEN))) {
-                String accountName = result.getString(AccountManager.KEY_ACCOUNT_NAME);
-                String accountType = result.getString(AccountManager.KEY_ACCOUNT_TYPE);
-                if (!TextUtils.isEmpty(accountName) && !TextUtils.isEmpty(accountType)) {
-                    Account account = new Account(accountName, accountType);
-                    cancelNotification(getSigninRequiredNotificationId(mAccounts, account),
-                            new UserHandle(mAccounts.userId));
-                }
-            }*/
+
             IAccountManagerResponse response;
-            if (mExpectActivityLaunch && result != null
-                    && result.containsKey(AccountManager.KEY_INTENT)) {
+            if (mExpectActivityLaunch && result != null && result.containsKey(AccountManager.KEY_INTENT)) {
                 response = mResponse;
             } else {
                 response = getResponseAndClose();
             }
+
             if (response != null) {
                 try {
                     if (result == null) {
                         if (Log.isLoggable(TAG, Log.VERBOSE)) {
-                            Log.v(TAG, getClass().getSimpleName()
-                                    + " calling onError() on response " + response);
+                            Log.v(TAG, getClass().getSimpleName() + " calling onError() on response " + response);
                         }
-                        response.onError(AccountManager.ERROR_CODE_INVALID_RESPONSE,
-                                "null bundle returned");
+
+                        response.onError(AccountManager.ERROR_CODE_INVALID_RESPONSE, "null bundle returned");
                     } else {
                         if (mStripAuthTokenFromResult) {
                             result.remove(AccountManager.KEY_AUTHTOKEN);
                         }
+
                         if (Log.isLoggable(TAG, Log.VERBOSE)) {
-                            Log.v(TAG, getClass().getSimpleName()
-                                    + " calling onResult() on response " + response);
+                            Log.v(TAG, getClass().getSimpleName() + " calling onResult() on response " + response);
                         }
-                        if ((result.getInt(AccountManager.KEY_ERROR_CODE, -1) > 0) &&
-                                (intent == null)) {
+
+                        if ((result.getInt(AccountManager.KEY_ERROR_CODE, -1) > 0) && (intent == null)) {
                             // All AccountManager error codes are greater than 0
-                            response.onError(result.getInt(AccountManager.KEY_ERROR_CODE),
-                                    result.getString(AccountManager.KEY_ERROR_MESSAGE));
+                            response.onError(result.getInt(AccountManager.KEY_ERROR_CODE), result.getString(AccountManager.KEY_ERROR_MESSAGE));
                         } else {
                             response.onResult(result);
                         }
@@ -1738,11 +1674,12 @@ public class BAccountManagerService extends IBAccountManagerService.Stub impleme
         public void onError(int errorCode, String errorMessage) {
             mNumErrors++;
             IAccountManagerResponse response = getResponseAndClose();
+
             if (response != null) {
                 if (Log.isLoggable(TAG, Log.VERBOSE)) {
-                    Log.v(TAG, getClass().getSimpleName()
-                            + " calling onError() on response " + response);
+                    Log.v(TAG, getClass().getSimpleName() + " calling onError() on response " + response);
                 }
+
                 try {
                     response.onError(errorCode, errorMessage);
                 } catch (RemoteException e) {
@@ -1765,18 +1702,10 @@ public class BAccountManagerService extends IBAccountManagerService.Stub impleme
             AuthenticatorInfo authenticatorInfo = mAuthenticatorCache.authenticators.get(authenticatorType);
             if (authenticatorInfo == null) {
                 if (Log.isLoggable(TAG, Log.VERBOSE)) {
-                    Log.v(TAG, "there is no authenticator for " + authenticatorType
-                            + ", bailing out");
+                    Log.v(TAG, "there is no authenticator for " + authenticatorType + ", bailing out");
                 }
                 return false;
             }
-
-            /*if (!isLocalUnlockedUser(mAccounts.userId)
-                    && !authenticatorInfo.componentInfo.directBootAware) {
-                Slog.w(TAG, "Blocking binding to authenticator " + authenticatorInfo.componentName
-                        + " which isn't encryption aware");
-                return false;
-            }*/
 
             Intent intent = new Intent();
             intent.setAction(AccountManager.ACTION_AUTHENTICATOR_INTENT);
@@ -1788,10 +1717,8 @@ public class BAccountManagerService extends IBAccountManagerService.Stub impleme
             if (Log.isLoggable(TAG, Log.VERBOSE)) {
                 Log.v(TAG, "performing bindService to " + componentName);
             }
+
             int flags = Context.BIND_AUTO_CREATE;
-            /*if (mAuthenticatorCache.getBindInstantServiceAllowed(mAccounts.userId)) {
-                flags |= Context.BIND_ALLOW_INSTANT;
-            }*/
             if (!mContext.bindService(intent, this, flags)) {
                 if (Log.isLoggable(TAG, Log.VERBOSE)) {
                     Log.v(TAG, "bindService to " + componentName + " failed");
@@ -1806,10 +1733,11 @@ public class BAccountManagerService extends IBAccountManagerService.Stub impleme
         if (result == null) {
             Log.e(TAG, "the result is unexpectedly null", new Exception());
         }
+
         if (Log.isLoggable(TAG, Log.VERBOSE)) {
-            Log.v(TAG, getClass().getSimpleName() + " calling onResult() on response "
-                    + response);
+            Log.v(TAG, getClass().getSimpleName() + " calling onResult() on response " + response);
         }
+
         try {
             response.onResult(result);
         } catch (RemoteException e) {
@@ -1829,8 +1757,10 @@ public class BAccountManagerService extends IBAccountManagerService.Stub impleme
     private String getCallingPackageName() {
         int callingPid = Binder.getCallingPid();
         ProcessRecord processByPid = BProcessManagerService.get().findProcessByPid(callingPid);
-        if (processByPid == null)
+
+        if (processByPid == null) {
             throw new IllegalArgumentException("ProcessRecord is null, PID: " + callingPid);
+        }
         return processByPid.getPackageName();
     }
 }

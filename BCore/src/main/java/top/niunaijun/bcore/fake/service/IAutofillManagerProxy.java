@@ -4,8 +4,8 @@ import android.content.ComponentName;
 
 import java.lang.reflect.Method;
 
-import black.android.os.BRServiceManager;
-import black.android.view.BRIAutoFillManagerStub;
+import black.android.os.ServiceManager;
+import black.android.view.IAutoFillManager;
 import top.niunaijun.bcore.BlackBoxCore;
 import top.niunaijun.bcore.app.BActivityThread;
 import top.niunaijun.bcore.fake.hook.BinderInvocationStub;
@@ -13,24 +13,16 @@ import top.niunaijun.bcore.fake.hook.MethodHook;
 import top.niunaijun.bcore.fake.hook.ProxyMethod;
 import top.niunaijun.bcore.proxy.ProxyManifest;
 
-/**
- * Created by Milk on 4/8/21.
- * * ∧＿∧
- * (`･ω･∥
- * 丶　つ０
- * しーＪ
- * 此处无Bug
- */
 public class IAutofillManagerProxy extends BinderInvocationStub {
     public static final String TAG = "AutofillManagerStub";
 
     public IAutofillManagerProxy() {
-        super(BRServiceManager.get().getService("autofill"));
+        super(ServiceManager.getService.call("autofill"));
     }
 
     @Override
     protected Object getWho() {
-        return BRIAutoFillManagerStub.get().asInterface(BRServiceManager.get().getService("autofill"));
+        return IAutoFillManager.Stub.asInterface.call(ServiceManager.getService.call("autofill"));
     }
 
     @Override
@@ -45,12 +37,15 @@ public class IAutofillManagerProxy extends BinderInvocationStub {
 
     @ProxyMethod("startSession")
     public static class StartSession extends MethodHook {
+
         @Override
         protected Object hook(Object who, Method method, Object[] args) throws Throwable {
             if (args != null) {
                 for (int i = 0; i < args.length; i++) {
-                    if (args[i] == null)
+                    if (args[i] == null) {
                         continue;
+                    }
+
                     if (args[i] instanceof ComponentName) {
                         args[i] = new ComponentName(BlackBoxCore.getHostPkg(), ProxyManifest.getProxyActivity(BActivityThread.getAppPid()));
                     }

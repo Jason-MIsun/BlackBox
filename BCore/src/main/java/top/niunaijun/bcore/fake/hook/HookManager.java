@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import top.niunaijun.bcore.BlackBoxCore;
-import top.niunaijun.bcore.core.NativeCore;
 import top.niunaijun.bcore.fake.delegate.AppInstrumentation;
 import top.niunaijun.bcore.fake.service.BuildProxy;
 import top.niunaijun.bcore.fake.service.HCallbackProxy;
@@ -19,6 +18,7 @@ import top.niunaijun.bcore.fake.service.IAlarmManagerProxy;
 import top.niunaijun.bcore.fake.service.IAppOpsManagerProxy;
 import top.niunaijun.bcore.fake.service.IAppWidgetManagerProxy;
 import top.niunaijun.bcore.fake.service.IAutofillManagerProxy;
+import top.niunaijun.bcore.fake.service.IBluetoothManagerProxy;
 import top.niunaijun.bcore.fake.service.IConnectivityManagerProxy;
 import top.niunaijun.bcore.fake.service.IContextHubServiceProxy;
 import top.niunaijun.bcore.fake.service.IDeviceIdentifiersPolicyProxy;
@@ -50,27 +50,17 @@ import top.niunaijun.bcore.fake.service.IVibratorServiceProxy;
 import top.niunaijun.bcore.fake.service.IVpnManagerProxy;
 import top.niunaijun.bcore.fake.service.IWifiManagerProxy;
 import top.niunaijun.bcore.fake.service.IWifiScannerProxy;
-import top.niunaijun.bcore.fake.service.IBluetoothManagerProxy;
 import top.niunaijun.bcore.fake.service.IWindowManagerProxy;
-import top.niunaijun.bcore.fake.service.context.ContentServiceStub;
-import top.niunaijun.bcore.fake.service.context.RestrictionsManagerStub;
-import top.niunaijun.bcore.fake.service.libcore.OsStub;
+import top.niunaijun.bcore.fake.service.context.ContentServiceProxy;
+import top.niunaijun.bcore.fake.service.context.RestrictionsManagerProxy;
+import top.niunaijun.bcore.fake.service.libcore.OsProxy;
 import top.niunaijun.bcore.utils.Slog;
 import top.niunaijun.bcore.utils.compat.BuildCompat;
 
-/**
- * Created by Milk on 3/30/21.
- * * ∧＿∧
- * (`･ω･∥
- * 丶　つ０
- * しーＪ
- * 此处无Bug
- */
 public class HookManager {
     public static final String TAG = "HookManager";
 
     private static final HookManager sHookManager = new HookManager();
-
     private final Map<Class<?>, IInjectHook> mInjectors = new HashMap<>();
 
     public static HookManager get() {
@@ -79,10 +69,8 @@ public class HookManager {
 
     public void init() {
         if (BlackBoxCore.get().isBlackProcess() || BlackBoxCore.get().isServerProcess()) {
-
             addInjector(new IDisplayManagerProxy());
-            addInjector(new OsStub());
-
+            addInjector(new OsProxy());
 
             addInjector(new ILocationManagerProxy());
             // AM and PM hook
@@ -105,10 +93,10 @@ public class HookManager {
             addInjector(new INotificationManagerProxy());
             addInjector(new IAlarmManagerProxy());
             addInjector(new IAppWidgetManagerProxy());
-            addInjector(new ContentServiceStub());
+            addInjector(new ContentServiceProxy());
             addInjector(new IWindowManagerProxy());
             addInjector(new IUserManagerProxy());
-            addInjector(new RestrictionsManagerStub());
+            addInjector(new RestrictionsManagerProxy());
             addInjector(new IMediaSessionManagerProxy());
             addInjector(new IStorageManagerProxy());
             addInjector(new ILauncherAppsProxy());
@@ -176,16 +164,6 @@ public class HookManager {
         if (iInjectHook != null && iInjectHook.isBadEnv()) {
             Log.d(TAG, "checkEnv: " + clazz.getSimpleName() + " is bad env");
             iInjectHook.injectHook();
-        }
-    }
-
-    public void checkAll() {
-        for (Class<?> aClass : mInjectors.keySet()) {
-            IInjectHook iInjectHook = mInjectors.get(aClass);
-            if (iInjectHook != null && iInjectHook.isBadEnv()) {
-                Log.d(TAG, "checkEnv: " + aClass.getSimpleName() + " is bad env");
-                iInjectHook.injectHook();
-            }
         }
     }
 

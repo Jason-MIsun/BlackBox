@@ -1,5 +1,8 @@
 package top.niunaijun.bcore.fake.provider;
 
+import static org.xmlpull.v1.XmlPullParser.END_DOCUMENT;
+import static org.xmlpull.v1.XmlPullParser.START_TAG;
+
 import android.content.ContentProvider;
 import android.content.ContentValues;
 import android.content.Context;
@@ -27,23 +30,12 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.xmlpull.v1.XmlPullParser.END_DOCUMENT;
-import static org.xmlpull.v1.XmlPullParser.START_TAG;
-
-/**
- * Created by Milk on 4/18/21.
- * * ∧＿∧
- * (`･ω･∥
- * 丶　つ０
- * しーＪ
- * 此处无Bug
- */
 public class FileProvider extends ContentProvider {
     private static final String[] COLUMNS = {
-            OpenableColumns.DISPLAY_NAME, OpenableColumns.SIZE };
+            OpenableColumns.DISPLAY_NAME, OpenableColumns.SIZE
+    };
 
-    private static final String
-            META_DATA_FILE_PROVIDER_PATHS = "android.support.FILE_PROVIDER_PATHS";
+    private static final String META_DATA_FILE_PROVIDER_PATHS = "android.support.FILE_PROVIDER_PATHS";
 
     private static final String TAG_ROOT_PATH = "root-path";
     private static final String TAG_FILES_PATH = "files-path";
@@ -58,7 +50,7 @@ public class FileProvider extends ContentProvider {
 
     private static final File DEVICE_ROOT = new File("/");
 
-    private static final HashMap<String, PathStrategy> sCache = new HashMap<String, PathStrategy>();
+    private static final HashMap<String, PathStrategy> sCache = new HashMap<>();
 
     private PathStrategy mStrategy;
 
@@ -89,7 +81,6 @@ public class FileProvider extends ContentProvider {
         if (!info.grantUriPermissions) {
             throw new SecurityException("Provider must grant uri permissions");
         }
-
         mStrategy = getPathStrategy(context, info.authority);
     }
 
@@ -113,14 +104,12 @@ public class FileProvider extends ContentProvider {
      * @throws IllegalArgumentException When the given {@link File} is outside
      * the paths supported by the provider.
      */
-    public static Uri getUriForFile(Context context, String authority,
-                                    File file) {
+    public static Uri getUriForFile(Context context, String authority, File file) {
         final PathStrategy strategy = getPathStrategy(context, authority);
         return strategy.getUriForFile(file);
     }
 
-    public static File getFileForUri(Context context, String authority,
-                                    Uri uri) {
+    public static File getFileForUri(Context context, String authority, Uri uri) {
         final PathStrategy strategy = getPathStrategy(context, authority);
         return strategy.getFileForUri(uri);
     }
@@ -154,9 +143,7 @@ public class FileProvider extends ContentProvider {
      *
      */
     @Override
-    public Cursor query(Uri uri, String[] projection, String selection,
-                        String[] selectionArgs,
-                        String sortOrder) {
+    public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
         // ContentProvider has already checked granted permissions
         final File file = mStrategy.getFileForUri(uri);
 
@@ -207,7 +194,6 @@ public class FileProvider extends ContentProvider {
                 return mime;
             }
         }
-
         return "application/octet-stream";
     }
 
@@ -225,8 +211,7 @@ public class FileProvider extends ContentProvider {
      * subclass FileProvider if you want to provide different functionality.
      */
     @Override
-    public int update(Uri uri, ContentValues values, String selection,
-                      String[] selectionArgs) {
+    public int update(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
         throw new UnsupportedOperationException("No external updates");
     }
 
@@ -242,8 +227,7 @@ public class FileProvider extends ContentProvider {
      * @return 1 if the delete succeeds; otherwise, 0.
      */
     @Override
-    public int delete(Uri uri, String selection,
-                      String[] selectionArgs) {
+    public int delete(Uri uri, String selection, String[] selectionArgs) {
         // ContentProvider has already checked granted permissions
         final File file = mStrategy.getFileForUri(uri);
         return file.delete() ? 1 : 0;
@@ -265,8 +249,7 @@ public class FileProvider extends ContentProvider {
      * @return A new {@link ParcelFileDescriptor} with which you can access the file.
      */
     @Override
-    public ParcelFileDescriptor openFile(Uri uri, String mode)
-            throws FileNotFoundException {
+    public ParcelFileDescriptor openFile(Uri uri, String mode) throws FileNotFoundException {
         // ContentProvider has already checked granted permissions
         final File file = mStrategy.getFileForUri(uri);
         final int fileMode = modeToMode(mode);
@@ -284,12 +267,8 @@ public class FileProvider extends ContentProvider {
             if (strat == null) {
                 try {
                     strat = parsePathStrategy(context, authority);
-                } catch (IOException e) {
-                    throw new IllegalArgumentException(
-                            "Failed to parse " + META_DATA_FILE_PROVIDER_PATHS + " meta-data", e);
-                } catch (XmlPullParserException e) {
-                    throw new IllegalArgumentException(
-                            "Failed to parse " + META_DATA_FILE_PROVIDER_PATHS + " meta-data", e);
+                } catch (IOException | XmlPullParserException e) {
+                    throw new IllegalArgumentException("Failed to parse " + META_DATA_FILE_PROVIDER_PATHS + " meta-data", e);
                 }
                 sCache.put(authority, strat);
             }
@@ -305,20 +284,17 @@ public class FileProvider extends ContentProvider {
      */
     private static PathStrategy parsePathStrategy(Context context, String authority)
             throws IOException, XmlPullParserException {
-        final SimplePathStrategy strat = new SimplePathStrategy(authority);
+        final SimplePathStrategy simplePathStrategy = new SimplePathStrategy(authority);
 
         final ProviderInfo info = context.getPackageManager()
                 .resolveContentProvider(authority, PackageManager.GET_META_DATA);
         if (info == null) {
-            throw new IllegalArgumentException(
-                    "Couldn't find meta-data for provider with authority " + authority);
+            throw new IllegalArgumentException("Couldn't find meta-data for provider with authority " + authority);
         }
 
-        final XmlResourceParser in = info.loadXmlMetaData(
-                context.getPackageManager(), META_DATA_FILE_PROVIDER_PATHS);
+        final XmlResourceParser in = info.loadXmlMetaData(context.getPackageManager(), META_DATA_FILE_PROVIDER_PATHS);
         if (in == null) {
-            throw new IllegalArgumentException(
-                    "Missing " + META_DATA_FILE_PROVIDER_PATHS + " meta-data");
+            throw new IllegalArgumentException("Missing " + META_DATA_FILE_PROVIDER_PATHS + " meta-data");
         }
 
         int type;
@@ -357,12 +333,11 @@ public class FileProvider extends ContentProvider {
                 }
 
                 if (target != null) {
-                    strat.addRoot(name, buildPath(target, path));
+                    simplePathStrategy.addRoot(name, buildPath(target, path));
                 }
             }
         }
-
-        return strat;
+        return simplePathStrategy;
     }
 
     /**
@@ -402,7 +377,7 @@ public class FileProvider extends ContentProvider {
      */
     static class SimplePathStrategy implements PathStrategy {
         private final String mAuthority;
-        private final HashMap<String, File> mRoots = new HashMap<String, File>();
+        private final HashMap<String, File> mRoots = new HashMap<>();
 
         SimplePathStrategy(String authority) {
             mAuthority = authority;
@@ -424,7 +399,6 @@ public class FileProvider extends ContentProvider {
                 throw new IllegalArgumentException(
                         "Failed to resolve canonical path for " + root, e);
             }
-
             mRoots.put(name, root);
         }
 
@@ -441,15 +415,13 @@ public class FileProvider extends ContentProvider {
             Map.Entry<String, File> mostSpecific = null;
             for (Map.Entry<String, File> root : mRoots.entrySet()) {
                 final String rootPath = root.getValue().getPath();
-                if (path.startsWith(rootPath) && (mostSpecific == null
-                        || rootPath.length() > mostSpecific.getValue().getPath().length())) {
+                if (path.startsWith(rootPath) && (mostSpecific == null || rootPath.length() > mostSpecific.getValue().getPath().length())) {
                     mostSpecific = root;
                 }
             }
 
             if (mostSpecific == null) {
-                throw new IllegalArgumentException(
-                        "Failed to find configured root that contains " + path);
+                throw new IllegalArgumentException("Failed to find configured root that contains " + path);
             }
 
             // Start at first char of path under root
@@ -489,7 +461,6 @@ public class FileProvider extends ContentProvider {
             if (!file.getPath().startsWith(root.getPath())) {
                 throw new SecurityException("Resolved path jumped beyond configured root");
             }
-
             return file;
         }
     }

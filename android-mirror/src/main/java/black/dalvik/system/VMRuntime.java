@@ -1,26 +1,10 @@
 package black.dalvik.system;
 
-import top.niunaijun.blackreflection.annotation.BClassName;
-import top.niunaijun.blackreflection.annotation.BMethod;
-import top.niunaijun.blackreflection.annotation.BStaticMethod;
+import black.Reflector;
 
-@BClassName("dalvik.system.VMRuntime")
-public interface VMRuntime {
-    @BStaticMethod
-    String getCurrentInstructionSet();
+public class VMRuntime {
+    public static final Reflector REF = Reflector.on("dalvik.system.VMRuntime");
 
-    @BStaticMethod
-    Object getRuntime();
-
-    @BStaticMethod
-    Boolean is64BitAbi(String String0);
-
-    @BMethod
-    Boolean is64Bit();
-
-    @BMethod
-    Boolean isJavaDebuggable();
-
-    @BMethod
-    void setTargetSdkVersion(int int0);
+    public static Reflector.StaticMethodWrapper<Object> getRuntime = REF.staticMethod("getRuntime");
+    public static Reflector.MethodWrapper<Void> setTargetSdkVersion = REF.method("setTargetSdkVersion", int.class);
 }

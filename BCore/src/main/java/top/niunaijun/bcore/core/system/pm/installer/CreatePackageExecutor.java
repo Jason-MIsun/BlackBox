@@ -5,15 +5,6 @@ import top.niunaijun.bcore.core.system.pm.BPackageSettings;
 import top.niunaijun.bcore.entity.pm.InstallOption;
 import top.niunaijun.bcore.utils.FileUtils;
 
-/**
- * Created by Milk on 4/24/21.
- * * ∧＿∧
- * (`･ω･∥
- * 丶　つ０
- * しーＪ
- * 此处无Bug
- * 创建包相关的信息
- */
 public class CreatePackageExecutor implements Executor {
 
     @Override

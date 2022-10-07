@@ -17,16 +17,19 @@ public class TaskDescriptionCompat {
         String label = td.getLabel();
         Bitmap icon = td.getIcon();
 
-        if (label != null && icon != null)
+        if (label != null && icon != null) {
             return td;
+        }
 
         label = getTaskDescriptionLabel(BActivityThread.getUserId(), getApplicationLabel());
         Drawable drawable = getApplicationIcon();
-        if (drawable == null)
+        if (drawable == null) {
             return td;
+        }
 
         ActivityManager am = (ActivityManager) BlackBoxCore.getContext().getSystemService(Context.ACTIVITY_SERVICE);
         int iconSize = am.getLauncherLargeIconSize();
+
         icon = DrawableUtils.drawableToBitmap(drawable, iconSize, iconSize);
         td = new ActivityManager.TaskDescription(label, icon, td.getPrimaryColor());
         return td;

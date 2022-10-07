@@ -1,14 +1,11 @@
 package black.android.content.pm;
 
-import top.niunaijun.blackreflection.annotation.BClassName;
-import top.niunaijun.blackreflection.annotation.BConstructor;
-import top.niunaijun.blackreflection.annotation.BStaticField;
+import black.Reflector;
 
-@BClassName("android.content.pm.UserInfo")
-public interface UserInfo {
-    @BConstructor
-    Object _new(int id, String name, int flags);
+public class UserInfo {
+    public static final Reflector REF = Reflector.on("android.content.pm.UserInfo");
 
-    @BStaticField
-    int FLAG_PRIMARY();
+    public static Reflector.ConstructorWrapper<Object> _new = REF.constructor(int.class, String.class, int.class);
+
+    public static Reflector.FieldWrapper<Integer> FLAG_PRIMARY = REF.field("FLAG_PRIMARY");
 }

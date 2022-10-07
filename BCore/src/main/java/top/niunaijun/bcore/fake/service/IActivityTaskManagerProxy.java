@@ -4,43 +4,35 @@ import android.app.ActivityManager;
 
 import java.lang.reflect.Method;
 
-import black.android.app.BRActivityTaskManager;
-import black.android.app.BRIActivityTaskManagerStub;
-import black.android.os.BRServiceManager;
-import black.android.util.BRSingleton;
+import black.android.app.ActivityTaskManager;
+import black.android.app.IActivityTaskManager;
+import black.android.os.ServiceManager;
+import black.android.util.Singleton;
 import top.niunaijun.bcore.fake.hook.BinderInvocationStub;
 import top.niunaijun.bcore.fake.hook.MethodHook;
 import top.niunaijun.bcore.fake.hook.ProxyMethod;
 import top.niunaijun.bcore.fake.hook.ScanClass;
 import top.niunaijun.bcore.utils.compat.TaskDescriptionCompat;
 
-/**
- * Created by Milk on 3/31/21.
- * * ∧＿∧
- * (`･ω･∥
- * 丶　つ０
- * しーＪ
- * 此处无Bug
- */
 @ScanClass(ActivityManagerCommonProxy.class)
 public class IActivityTaskManagerProxy extends BinderInvocationStub {
     public static final String TAG = "ActivityTaskManager";
 
     public IActivityTaskManagerProxy() {
-        super(BRServiceManager.get().getService("activity_task"));
+        super(ServiceManager.getService.call("activity_task"));
     }
 
     @Override
     protected Object getWho() {
-        return BRIActivityTaskManagerStub.get().asInterface(BRServiceManager.get().getService("activity_task"));
+        return IActivityTaskManager.Stub.asInterface.call(ServiceManager.getService.call("activity_task"));
     }
 
     @Override
     protected void inject(Object baseInvocation, Object proxyInvocation) {
         replaceSystemService("activity_task");
-        BRActivityTaskManager.get().getService();
-        Object o = BRActivityTaskManager.get().IActivityTaskManagerSingleton();
-        BRSingleton.get(o)._set_mInstance(BRIActivityTaskManagerStub.get().asInterface(this));
+
+        Object o = ActivityTaskManager.IActivityTaskManagerSingleton.get();
+        Singleton.mInstance.set(o, IActivityTaskManager.Stub.asInterface.call(this));
     }
 
     @Override
@@ -51,6 +43,7 @@ public class IActivityTaskManagerProxy extends BinderInvocationStub {
     // for >= Android 10 && < Android 12
     @ProxyMethod("setTaskDescription")
     public static class SetTaskDescription extends MethodHook {
+
         @Override
         protected Object hook(Object who, Method method, Object[] args) throws Throwable {
             ActivityManager.TaskDescription td = (ActivityManager.TaskDescription) args[1];

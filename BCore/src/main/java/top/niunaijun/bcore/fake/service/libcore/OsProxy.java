@@ -8,7 +8,7 @@ import androidx.core.util.ObjectsCompat;
 import java.lang.reflect.Method;
 import java.util.Objects;
 
-import black.libcore.io.BRLibcore;
+import black.libcore.io.Libcore;
 import top.niunaijun.bcore.BlackBoxCore;
 import top.niunaijun.bcore.app.BActivityThread;
 import top.niunaijun.bcore.core.IOCore;
@@ -17,20 +17,12 @@ import top.niunaijun.bcore.fake.hook.MethodHook;
 import top.niunaijun.bcore.fake.hook.ProxyMethod;
 import top.niunaijun.bcore.utils.Reflector;
 
-/**
- * Created by Milk on 4/9/21.
- * * ∧＿∧
- * (`･ω･∥
- * 丶　つ０
- * しーＪ
- * 此处无Bug
- */
-public class OsStub extends ClassInvocationStub {
-    public static final String TAG = "OsStub";
+public class OsProxy extends ClassInvocationStub {
+    public static final String TAG = "OsProxy";
     private final Object mBase;
 
-    public OsStub() {
-        mBase = BRLibcore.get().os();
+    public OsProxy() {
+        mBase = Libcore.os.get();
     }
 
     @Override
@@ -40,27 +32,26 @@ public class OsStub extends ClassInvocationStub {
 
     @Override
     protected void inject(Object baseInvocation, Object proxyInvocation) {
-        BRLibcore.get()._set_os(proxyInvocation);
-    }
-
-    @Override
-    protected void onBindMethod() {
+        Libcore.os.set(proxyInvocation);
     }
 
     @Override
     public boolean isBadEnv() {
-        return BRLibcore.get().os() != getProxyInvocation();
+        return Libcore.os.get() != getProxyInvocation();
     }
 
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
         if (args != null) {
             for (int i = 0; i < args.length; i++) {
-                if (args[i] == null)
+                if (args[i] == null) {
                     continue;
+                }
+
                 if (args[i] instanceof String && ((String) args[i]).startsWith("/")) {
                     String orig = (String) args[i];
                     args[i] = IOCore.get().redirectPath(orig);
+
                     if (!ObjectsCompat.equals(orig, args[i])) {
                         Log.d(TAG, "redirectPath: " + orig + "  => " + args[i]);
                     }
@@ -71,7 +62,7 @@ public class OsStub extends ClassInvocationStub {
     }
 
     @ProxyMethod("getuid")
-    public static class getuid extends MethodHook {
+    public static class GetUID extends MethodHook {
 
         @Override
         protected Object hook(Object who, Method method, Object[] args) throws Throwable {
@@ -81,11 +72,11 @@ public class OsStub extends ClassInvocationStub {
     }
 
     @ProxyMethod("stat")
-    public static class stat extends MethodHook {
+    public static class Stat extends MethodHook {
 
         @Override
         protected Object hook(Object who, Method method, Object[] args) throws Throwable {
-            Object invoke = null;
+            Object invoke;
             try {
                 invoke = method.invoke(who, args);
             } catch (Throwable e) {
@@ -97,13 +88,13 @@ public class OsStub extends ClassInvocationStub {
     }
 
     private static int getFakeUid(int callUid) {
-        if (callUid > 0 && callUid <= Process.FIRST_APPLICATION_UID)
+        if (callUid > 0 && callUid <= Process.FIRST_APPLICATION_UID) {
             return callUid;
-            // Log.d(TAG, "getuid: " + BActivityThread.getAppPackageName() + ", " + BActivityThread.getAppUid());
+        }
+
         if (BActivityThread.isThreadInit() && BActivityThread.currentActivityThread().isInit()) {
             return BActivityThread.getBAppId();
-        } else {
-            return BlackBoxCore.getHostUid();
         }
+        return BlackBoxCore.getHostUid();
     }
 }

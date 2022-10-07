@@ -7,14 +7,6 @@ import top.niunaijun.bcore.BlackBoxCore;
 import top.niunaijun.bcore.app.BActivityThread;
 import top.niunaijun.bcore.utils.FileUtils;
 
-/**
- * Created by Milk on 4/22/21.
- * * ∧＿∧
- * (`･ω･∥
- * 丶　つ０
- * しーＪ
- * 此处无Bug
- */
 public class BEnvironment {
     private static final File sVirtualRoot = new File(BlackBoxCore.getContext().getCacheDir().getParent(), "blackbox");
     private static final File sExternalVirtualRoot = BlackBoxCore.getContext().getExternalFilesDir("blackbox");

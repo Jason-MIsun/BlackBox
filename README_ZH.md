@@ -25,7 +25,6 @@
 
 ## 如何使用
 ### Step 1.初始化，在Application中加入以下代码初始化
-
 ```java
     @Override
     protected void attachBaseContext(Context base) {
@@ -84,7 +83,6 @@
 * 小米手机上测试改机操作成功
 * 华为设备测试失败，需要增强操作
 
-
 ### 相关API
 #### 获取黑盒内已安装的应用
 ```java
@@ -109,7 +107,7 @@
 ## 如何参与开发？
 ### 应用分2个模块
 - app模块，用户操作与UI模块
-- Bcore模块，此模块为BlackBox的核心模块，负责完成整个黑盒的调度。
+- BCore模块，此模块为BlackBox的核心模块，负责完成整个黑盒的调度。
 
 如需要参与开发请直接pr就可以了，相关教程请Google或者看 [如何在 GitHub 提交第一个 pull request](https://chinese.freecodecamp.org/news/how-to-make-your-first-pull-request-on-github/)
 ### PR须知
@@ -139,7 +137,6 @@
 - [Pine](https://github.com/canyie/pine)
 
 ### License
-
 > ```
 > Copyright 2022 BlackBox
 >

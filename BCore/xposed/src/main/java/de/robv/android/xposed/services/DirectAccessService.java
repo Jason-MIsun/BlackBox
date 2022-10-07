@@ -20,12 +20,15 @@ public final class DirectAccessService extends BaseService {
         if (mode == F_OK && !file.exists()) {
             return false;
         }
+
         if ((mode & R_OK) != 0 && !file.canRead()) {
             return false;
         }
+
         if ((mode & W_OK) != 0 && !file.canWrite()) {
             return false;
         }
+
         if ((mode & X_OK) != 0 && !file.canExecute()) {
             return false;
         }

@@ -9,9 +9,6 @@ import top.niunaijun.bcore.BlackBoxCore;
 import top.niunaijun.bcore.entity.am.PendingResultData;
 import top.niunaijun.bcore.proxy.record.ProxyBroadcastRecord;
 
-/**
- * Created by BlackBox on 2022/2/25.
- */
 public class ProxyBroadcastReceiver extends BroadcastReceiver {
     public static final String TAG = "ProxyBroadcastReceiver";
 
@@ -22,6 +19,7 @@ public class ProxyBroadcastReceiver extends BroadcastReceiver {
         if (record.mIntent == null) {
             return;
         }
+
         PendingResult pendingResult = goAsync();
         try {
             BlackBoxCore.getBActivityManager().scheduleBroadcastReceiver(record.mIntent, new PendingResultData(pendingResult), record.mUserId);

@@ -19,9 +19,6 @@ import top.niunaijun.bcore.entity.am.PendingResultData;
 import top.niunaijun.bcore.proxy.ProxyBroadcastReceiver;
 import top.niunaijun.bcore.utils.Slog;
 
-/**
- * Created by BlackBox on 2022/2/28.
- */
 public class BroadcastManager implements PackageMonitor {
     public static final String TAG = "BroadcastManager";
     public static final int TIMEOUT = 9000;
@@ -41,24 +38,23 @@ public class BroadcastManager implements PackageMonitor {
                     PendingResultData data = (PendingResultData) msg.obj;
                     data.build().finish();
                     Slog.d(TAG, "Timeout Receiver: " + data);
-                } catch (Throwable ignore) {
-                }
+                } catch (Throwable ignore) { }
             }
         }
     };
 
-    public static BroadcastManager startSystem(BActivityManagerService ams, BPackageManagerService pms) {
+    public static BroadcastManager startSystem(BPackageManagerService pms) {
         if (sBroadcastManager == null) {
             synchronized (BroadcastManager.class) {
                 if (sBroadcastManager == null) {
-                    sBroadcastManager = new BroadcastManager(ams, pms);
+                    sBroadcastManager = new BroadcastManager(pms);
                 }
             }
         }
         return sBroadcastManager;
     }
 
-    public BroadcastManager(BActivityManagerService ams, BPackageManagerService pms) {
+    public BroadcastManager(BPackageManagerService pms) {
         mPms = pms;
     }
 
@@ -120,8 +116,7 @@ public class BroadcastManager implements PackageMonitor {
                     for (BroadcastReceiver broadcastReceiver : broadcastReceivers) {
                         try {
                             BlackBoxCore.getContext().unregisterReceiver(broadcastReceiver);
-                        } catch (Throwable ignored) {
-                        }
+                        } catch (Throwable ignored) { }
                     }
                 }
                 mReceivers.remove(packageName);

@@ -1,11 +1,11 @@
 package top.niunaijun.bcore.fake.service
 
-import black.android.os.BRBuild
+import black.android.os.Build
 import top.niunaijun.bcore.fake.hook.ClassInvocationStub
 
 class BuildProxy: ClassInvocationStub() {
     override fun getWho(): Any {
-       return BRBuild.get()
+       return Build.REF
     }
 
     override fun isBadEnv(): Boolean {
@@ -13,17 +13,17 @@ class BuildProxy: ClassInvocationStub() {
     }
 
     override fun inject(baseInvocation: Any?, proxyInvocation: Any?) {
-        BRBuild.get()._set_BOARD("umi")
-        BRBuild.get()._set_BRAND("Xiaomi")
-        BRBuild.get()._set_DEVICE("umi")
-        BRBuild.get()._set_DISPLAY("QKQ1.191117.002 test-keys")
-        BRBuild.get()._set_HOST("c5-miui-ota-bd074.bj")
-        BRBuild.get()._set_ID("QKQ1.191117.002")
-        BRBuild.get()._set_MANUFACTURER("Xiaomi")
-        BRBuild.get()._set_MODEL("Mi 10")
-        BRBuild.get()._set_PRODUCT("umi")
-        BRBuild.get()._set_TAGS("release-keys")
-        BRBuild.get()._set_TYPE("user")
-        BRBuild.get()._set_USER("builder")
+        Build.BOARD.set("umi")
+        Build.BRAND.set("Xiaomi")
+        Build.DEVICE.set("umi")
+        Build.DISPLAY.set("QKQ1.191117.002 test-keys")
+        Build.HOST.set("c5-miui-ota-bd074.bj")
+        Build.ID.set("QKQ1.191117.002")
+        Build.MANUFACTURER.set("Xiaomi")
+        Build.MODEL.set("Mi 10")
+        Build.PRODUCT.set("umi")
+        Build.TAGS.set("release-keys")
+        Build.TYPE.set("user")
+        Build.USER.set("builder")
     }
 }

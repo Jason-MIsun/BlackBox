@@ -12,9 +12,6 @@ import top.niunaijun.bcore.app.BActivityThread;
 import top.niunaijun.bcore.core.system.ServiceManager;
 import top.niunaijun.bcore.core.system.accounts.IBAccountManagerService;
 
-/**
- * Created by BlackBox on 2022/3/3.
- */
 public class BAccountManager extends BlackManager<IBAccountManagerService> {
     private static final BAccountManager sBAccountManager = new BAccountManager();
 
@@ -35,7 +32,6 @@ public class BAccountManager extends BlackManager<IBAccountManagerService> {
         }
         return null;
     }
-
 
     public String getUserData(Account account, String key) {
         try {
@@ -91,8 +87,7 @@ public class BAccountManager extends BlackManager<IBAccountManagerService> {
         }
     }
     
-    public void getAccountsByFeatures(IAccountManagerResponse response, String accountType,
-                               String[] features) {
+    public void getAccountsByFeatures(IAccountManagerResponse response, String accountType, String[] features) {
         try {
             getService().getAccountsByFeatures(response, accountType, features, BActivityThread.getUserId());
         } catch (RemoteException e) {
@@ -109,8 +104,7 @@ public class BAccountManager extends BlackManager<IBAccountManagerService> {
         return false;
     }
 
-    public void removeAccountAsUser(IAccountManagerResponse response, Account account,
-                             boolean expectActivityLaunch) {
+    public void removeAccountAsUser(IAccountManagerResponse response, Account account, boolean expectActivityLaunch) {
         try {
             getService().removeAccountAsUser(response, account, expectActivityLaunch, BActivityThread.getUserId());
         } catch (RemoteException e) {
@@ -127,8 +121,7 @@ public class BAccountManager extends BlackManager<IBAccountManagerService> {
         return false;
     }
 
-    public void copyAccountToUser(IAccountManagerResponse response, Account account,
-                           int userFrom, int userTo) {
+    public void copyAccountToUser(IAccountManagerResponse response, Account account, int userFrom, int userTo) {
         try {
             getService().copyAccountToUser(response, account, userFrom, userTo);
         } catch (RemoteException e) {
@@ -160,7 +153,6 @@ public class BAccountManager extends BlackManager<IBAccountManagerService> {
             e.printStackTrace();
         }
     }
-
 
     public void setPassword(Account account, String password) {
         try {
@@ -194,9 +186,8 @@ public class BAccountManager extends BlackManager<IBAccountManagerService> {
         }
     }
 
-    public void getAuthToken(IAccountManagerResponse response, Account account,
-                      String authTokenType, boolean notifyOnAuthFailure, boolean expectActivityLaunch,
-                      Bundle options) {
+    public void getAuthToken(IAccountManagerResponse response, Account account, String authTokenType, boolean notifyOnAuthFailure, boolean expectActivityLaunch,
+                             Bundle options) {
         try {
             getService().getAuthToken(response, account, authTokenType, notifyOnAuthFailure, expectActivityLaunch, options, BActivityThread.getUserId());
         } catch (RemoteException e) {
@@ -204,9 +195,8 @@ public class BAccountManager extends BlackManager<IBAccountManagerService> {
         }
     }
 
-    public void addAccount(IAccountManagerResponse response, String accountType,
-                    String authTokenType, String[] requiredFeatures, boolean expectActivityLaunch,
-                    Bundle options) {
+    public void addAccount(IAccountManagerResponse response, String accountType, String authTokenType, String[] requiredFeatures, boolean expectActivityLaunch,
+                           Bundle options) {
         try {
             getService().addAccount(response, accountType, authTokenType, requiredFeatures, expectActivityLaunch, options, BActivityThread.getUserId());
         } catch (RemoteException e) {
@@ -214,9 +204,8 @@ public class BAccountManager extends BlackManager<IBAccountManagerService> {
         }
     }
 
-    public void addAccountAsUser(IAccountManagerResponse response, String accountType,
-                          String authTokenType, String[] requiredFeatures, boolean expectActivityLaunch,
-                          Bundle options) {
+    public void addAccountAsUser(IAccountManagerResponse response, String accountType, String authTokenType, String[] requiredFeatures,
+                                 boolean expectActivityLaunch, Bundle options) {
         try {
             getService().addAccountAsUser(response, accountType, authTokenType, requiredFeatures, expectActivityLaunch, options, BActivityThread.getUserId());
         } catch (RemoteException e) {
@@ -224,8 +213,7 @@ public class BAccountManager extends BlackManager<IBAccountManagerService> {
         }
     }
 
-    public void updateCredentials(IAccountManagerResponse response, Account account,
-                           String authTokenType, boolean expectActivityLaunch, Bundle options) {
+    public void updateCredentials(IAccountManagerResponse response, Account account, String authTokenType, boolean expectActivityLaunch, Bundle options) {
         try {
             getService().updateCredentials(response, account, authTokenType, expectActivityLaunch, options, BActivityThread.getUserId());
         } catch (RemoteException e) {
@@ -233,8 +221,7 @@ public class BAccountManager extends BlackManager<IBAccountManagerService> {
         }
     }
 
-    public void editProperties(IAccountManagerResponse response, String accountType,
-                        boolean expectActivityLaunch) {
+    public void editProperties(IAccountManagerResponse response, String accountType, boolean expectActivityLaunch) {
         try {
             getService().editProperties(response, accountType, expectActivityLaunch, BActivityThread.getUserId());
         } catch (RemoteException e) {
@@ -242,8 +229,7 @@ public class BAccountManager extends BlackManager<IBAccountManagerService> {
         }
     }
 
-    public void confirmCredentialsAsUser(IAccountManagerResponse response, Account account,
-                                  Bundle options, boolean expectActivityLaunch) {
+    public void confirmCredentialsAsUser(IAccountManagerResponse response, Account account, Bundle options, boolean expectActivityLaunch) {
         try {
             getService().confirmCredentialsAsUser(response, account, options, expectActivityLaunch, BActivityThread.getUserId());
         } catch (RemoteException e) {
@@ -251,17 +237,15 @@ public class BAccountManager extends BlackManager<IBAccountManagerService> {
         }
     }
 
-    public boolean accountAuthenticated(Account account) {
+    public void accountAuthenticated(Account account) {
         try {
-            return getService().accountAuthenticated(account, BActivityThread.getUserId());
+            getService().accountAuthenticated(account, BActivityThread.getUserId());
         } catch (RemoteException e) {
             e.printStackTrace();
         }
-        return false;
     }
 
-    public void getAuthTokenLabel(IAccountManagerResponse response, String accountType,
-                           String authTokenType) {
+    public void getAuthTokenLabel(IAccountManagerResponse response, String accountType, String authTokenType) {
         try {
             getService().getAuthTokenLabel(response, accountType, authTokenType, BActivityThread.getUserId());
         } catch (RemoteException e) {
@@ -279,8 +263,7 @@ public class BAccountManager extends BlackManager<IBAccountManagerService> {
         return null;
     }
 
-    public boolean addAccountExplicitlyWithVisibility(Account account, String password, Bundle extras,
-                                               Map visibility) {
+    public boolean addAccountExplicitlyWithVisibility(Account account, String password, Bundle extras, Map visibility) {
         try {
             return getService().addAccountExplicitlyWithVisibility(account, password, extras, visibility, BActivityThread.getUserId());
         } catch (RemoteException e) {

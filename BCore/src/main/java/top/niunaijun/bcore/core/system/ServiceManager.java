@@ -16,14 +16,6 @@ import top.niunaijun.bcore.core.system.pm.BPackageManagerService;
 import top.niunaijun.bcore.core.system.pm.BXposedManagerService;
 import top.niunaijun.bcore.core.system.user.BUserManagerService;
 
-/**
- * Created by Milk on 3/31/21.
- * * ∧＿∧
- * (`･ω･∥
- * 丶　つ０
- * しーＪ
- * 此处无Bug
- */
 public class ServiceManager {
     public static final String ACTIVITY_MANAGER = "activity_manager";
     public static final String JOB_MANAGER = "job_manager";

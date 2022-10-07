@@ -190,7 +190,7 @@ public class PackageParser {
         throw new RuntimeException("Stub!");
     }
 
-    public static final boolean isApkFile(final File file) {
+    public static boolean isApkFile(final File file) {
         throw new RuntimeException("Stub!");
     }
 
@@ -708,7 +708,6 @@ public class PackageParser {
     }
 
     public static class PackageParserException extends Exception {
-
         public PackageParserException(int error, String detailMessage) {
             super(detailMessage);
             throw new RuntimeException("Stub!");
@@ -718,7 +717,6 @@ public class PackageParser {
             super(detailMessage, throwable);
             throw new RuntimeException("Stub!");
         }
-
     }
 
     public static class SigningDetails {

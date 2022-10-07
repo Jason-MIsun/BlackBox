@@ -10,14 +10,6 @@ import java.util.Objects;
 
 import top.niunaijun.bcore.BlackBoxCore;
 
-/**
- * Created by Milk on 4/20/21.
- * * ∧＿∧
- * (`･ω･∥
- * 丶　つ０
- * しーＪ
- * 此处无Bug
- */
 public class InstalledPackage implements Parcelable {
     public int userId;
     public String packageName;
@@ -41,8 +33,7 @@ public class InstalledPackage implements Parcelable {
         dest.writeString(this.packageName);
     }
 
-    public InstalledPackage() {
-    }
+    public InstalledPackage() { }
 
     public InstalledPackage(String packageName) {
         this.packageName = packageName;
@@ -55,8 +46,13 @@ public class InstalledPackage implements Parcelable {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (o == this) {
+            return true;
+        }
+
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         InstalledPackage that = (InstalledPackage) o;
         return Objects.equals(packageName, that.packageName);
     }

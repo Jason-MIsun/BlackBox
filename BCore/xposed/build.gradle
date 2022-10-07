@@ -3,12 +3,12 @@ plugins {
 }
 
 android {
-    compileSdk 32
-    ndkVersion '25.1.8937393'
+    compileSdk rootProject.ext.compileSdk
+    ndkVersion rootProject.ext.ndkVersion
 
     defaultConfig {
-        minSdk 21
-        targetSdk 32
+        minSdk rootProject.ext.minSdk
+        targetSdk rootProject.ext.targetSdk
 
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
         consumerProguardFiles 'consumer-rules.pro'
@@ -35,7 +35,7 @@ android {
     externalNativeBuild {
         cmake {
             path 'src/main/cpp/CMakeLists.txt'
-            version '3.22.1'
+            version rootProject.ext.cmakeVersion
         }
     }
 

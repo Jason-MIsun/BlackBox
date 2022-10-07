@@ -3,22 +3,13 @@ package top.niunaijun.bcore.core.system.user;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-/**
- * Created by Milk on 4/22/21.
- * * ∧＿∧
- * (`･ω･∥
- * 丶　つ０
- * しーＪ
- * 此处无Bug
- */
 public class BUserInfo implements Parcelable {
     public int id;
     public BUserStatus status;
     public String name;
     public long createTime;
 
-    BUserInfo() {
-    }
+    BUserInfo() { }
 
     @Override
     public int describeContents() {
@@ -42,6 +33,7 @@ public class BUserInfo implements Parcelable {
     }
 
     public static final Creator<BUserInfo> CREATOR = new Creator<BUserInfo>() {
+
         @Override
         public BUserInfo createFromParcel(Parcel source) {
             return new BUserInfo(source);
@@ -55,11 +47,6 @@ public class BUserInfo implements Parcelable {
 
     @Override
     public String toString() {
-        return "BUserInfo{" +
-                "id=" + id +
-                ", status=" + status +
-                ", name='" + name + '\'' +
-                ", createTime=" + createTime +
-                '}';
+        return "BUserInfo{" + "id=" + id + ", status=" + status + ", name='" + name + '\'' + ", createTime=" + createTime + '}';
     }
 }

@@ -4,27 +4,19 @@ import android.content.Context;
 
 import java.lang.reflect.Method;
 
-import black.android.content.pm.BRILauncherAppsStub;
-import black.android.os.BRServiceManager;
+import black.android.content.pm.ILauncherApps;
+import black.android.os.ServiceManager;
 import top.niunaijun.bcore.fake.hook.BinderInvocationStub;
 import top.niunaijun.bcore.utils.MethodParameterUtils;
 
-/**
- * Created by Milk on 4/13/21.
- * * ∧＿∧
- * (`･ω･∥
- * 丶　つ０
- * しーＪ
- * 此处无Bug
- */
 public class ILauncherAppsProxy extends BinderInvocationStub {
     public ILauncherAppsProxy() {
-        super(BRServiceManager.get().getService(Context.LAUNCHER_APPS_SERVICE));
+        super(ServiceManager.getService.call(Context.LAUNCHER_APPS_SERVICE));
     }
 
     @Override
     protected Object getWho() {
-        return BRILauncherAppsStub.get().asInterface(BRServiceManager.get().getService(Context.LAUNCHER_APPS_SERVICE));
+        return ILauncherApps.Stub.asInterface.call(ServiceManager.getService.call(Context.LAUNCHER_APPS_SERVICE));
     }
 
     @Override
@@ -38,14 +30,9 @@ public class ILauncherAppsProxy extends BinderInvocationStub {
     }
 
     @Override
-    protected void onBindMethod() {
-        super.onBindMethod();
-    }
-
-    @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
         MethodParameterUtils.replaceFirstAppPkg(args);
-        // todo shouldHideFromSuggestions
+        // TODO: shouldHideFromSuggestions
         return super.invoke(proxy, method, args);
     }
 }

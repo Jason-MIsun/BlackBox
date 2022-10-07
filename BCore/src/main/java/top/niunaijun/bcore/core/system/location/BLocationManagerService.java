@@ -17,8 +17,7 @@ import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
-import black.android.location.BRILocationListener;
-import black.android.location.BRILocationListenerStub;
+import black.android.location.ILocationListener;
 import top.niunaijun.bcore.BlackBoxCore;
 import top.niunaijun.bcore.core.env.BEnvironment;
 import top.niunaijun.bcore.core.system.ISystemService;
@@ -58,6 +57,7 @@ public class BLocationManagerService extends IBLocationManagerService.Stub imple
                 pkgs = new HashMap<>();
                 mLocationConfigs.put(userId, pkgs);
             }
+
             BLocationConfig config = pkgs.get(pkg);
             if (config == null) {
                 config = new BLocationConfig();
@@ -215,8 +215,11 @@ public class BLocationManagerService extends IBLocationManagerService.Stub imple
         if (listener == null || !listener.pingBinder()) {
             return;
         }
-        if (mLocationListeners.containsKey(listener))
+
+        if (mLocationListeners.containsKey(listener)) {
             return;
+        }
+
         listener.linkToDeath(new DeathRecipient() {
             @Override
             public void binderDied() {
@@ -241,24 +244,29 @@ public class BLocationManagerService extends IBLocationManagerService.Stub imple
         mThreadPool.execute(() -> {
             BLocation lastLocation = null;
             long l = System.currentTimeMillis();
+
             while (locationListener.pingBinder()) {
-                IInterface iInterface = BRILocationListenerStub.get().asInterface(locationListener);
+                IInterface iInterface = ILocationListener.Stub.asInterface.call(locationListener);
                 LocationRecord locationRecord = mLocationListeners.get(locationListener);
-                if (locationRecord == null)
+                if (locationRecord == null) {
                     continue;
+                }
+
                 BLocation location = getLocation(locationRecord.userId, locationRecord.packageName);
-                if (location == null)
+                if (location == null) {
                     continue;
+                }
+
                 if (location.equals(lastLocation) && (System.currentTimeMillis() - l) < 3000) {
                     try {
                         Thread.sleep(1000);
-                    } catch (InterruptedException ignored) {
-                    }
+                    } catch (InterruptedException ignored) { }
                     continue;
                 }
+
                 lastLocation = location;
                 l = System.currentTimeMillis();
-                BlackBoxCore.get().getHandler().post(() -> BRILocationListener.get(iInterface).onLocationChanged(location.convert2SystemLocation()));
+                BlackBoxCore.get().getHandler().post(() -> ILocationListener.onLocationChanged.call(iInterface, location.convert2SystemLocation()));
             }
         });
     }
@@ -269,16 +277,18 @@ public class BLocationManagerService extends IBLocationManagerService.Stub imple
                 Parcel parcel = Parcel.obtain();
                 AtomicFile atomicFile = new AtomicFile(BEnvironment.getFakeLocationConf());
                 FileOutputStream fileOutputStream = null;
+
                 try {
                     mGlobalConfig.writeToParcel(parcel, 0);
-
                     parcel.writeInt(mLocationConfigs.size());
+
                     for (int i = 0; i < mLocationConfigs.size(); i++) {
                         int tmpUserId = mLocationConfigs.keyAt(i);
                         HashMap<String, BLocationConfig> configArrayMap = mLocationConfigs.valueAt(i);
                         parcel.writeInt(tmpUserId);
                         parcel.writeMap(configArrayMap);
                     }
+
                     parcel.setDataPosition(0);
                     fileOutputStream = atomicFile.startWrite();
                     FileUtils.writeParcelToOutput(parcel, fileOutputStream);
@@ -297,11 +307,13 @@ public class BLocationManagerService extends IBLocationManagerService.Stub imple
     public void loadConfig() {
         Parcel parcel = Parcel.obtain();
         InputStream is = null;
+
         try {
             File fakeLocationConf = BEnvironment.getFakeLocationConf();
             if (!fakeLocationConf.exists()) {
                 return;
             }
+
             is = new FileInputStream(BEnvironment.getFakeLocationConf());
             byte[] bytes = FileUtils.toByteArray(is);
             parcel.unmarshall(bytes, 0, bytes.length);
@@ -313,6 +325,7 @@ public class BLocationManagerService extends IBLocationManagerService.Stub imple
 
             synchronized (mLocationConfigs) {
                 mLocationConfigs.clear();
+
                 int size = parcel.readInt();
                 for (int i = 0; i < size; i++) {
                     int userId = parcel.readInt();

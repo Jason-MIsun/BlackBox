@@ -9,14 +9,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
-/**
- * Created by Milk on 4/7/21.
- * * ∧＿∧
- * (`･ω･∥
- * 丶　つ０
- * しーＪ
- * 此处无Bug
- */
 public class ServiceRecord {
     private Service mService;
     private final Map<Intent.FilterComparison, BoundInfo> mBounds = new HashMap<>();
@@ -77,6 +69,7 @@ public class ServiceRecord {
             boundInfo = new BoundInfo();
             mBounds.put(filterComparison, boundInfo);
         }
+
         boundInfo.setIBinder(iBinder);
         try {
             iBinder.linkToDeath(new IBinder.DeathRecipient() {
@@ -99,8 +92,9 @@ public class ServiceRecord {
     public boolean decreaseConnectionCount(Intent intent) {
         Intent.FilterComparison filterComparison = new Intent.FilterComparison(intent);
         BoundInfo boundInfo = mBounds.get(filterComparison);
-        if (boundInfo == null)
+        if (boundInfo == null) {
             return true;
+        }
         int i = boundInfo.decrementAndGetBindCount();
         // mBounds.remove(filterComparison);
         return i <= 0;

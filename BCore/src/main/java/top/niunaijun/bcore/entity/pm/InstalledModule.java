@@ -9,14 +9,6 @@ import android.os.Parcelable;
 import top.niunaijun.bcore.BlackBoxCore;
 import top.niunaijun.bcore.core.system.user.BUserHandle;
 
-/**
- * Created by Milk on 5/2/21.
- * * ∧＿∧
- * (`･ω･∥
- * 丶　つ０
- * しーＪ
- * 此处无Bug
- */
 public class InstalledModule implements Parcelable {
     public String packageName;
     public String name;
@@ -24,8 +16,7 @@ public class InstalledModule implements Parcelable {
     public String main;
     public boolean enable;
 
-    public InstalledModule() {
-    }
+    public InstalledModule() { }
 
     public ApplicationInfo getApplication() {
         return BlackBoxCore.getBPackageManager().getApplicationInfo(packageName, PackageManager.GET_META_DATA, BUserHandle.USER_XPOSED);

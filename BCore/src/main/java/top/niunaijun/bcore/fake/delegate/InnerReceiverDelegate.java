@@ -10,18 +10,9 @@ import java.lang.ref.WeakReference;
 import java.util.HashMap;
 import java.util.Map;
 
-import black.android.content.BRIIntentReceiver;
 import top.niunaijun.bcore.app.BActivityThread;
 import top.niunaijun.bcore.proxy.record.ProxyBroadcastRecord;
 
-/**
- * Created by Milk on 4/2/21.
- * * ∧＿∧
- * (`･ω･∥
- * 丶　つ０
- * しーＪ
- * 此处无Bug
- */
 public class InnerReceiverDelegate extends IIntentReceiver.Stub {
     public static final String TAG = "InnerReceiverDelegate";
 
@@ -30,10 +21,6 @@ public class InnerReceiverDelegate extends IIntentReceiver.Stub {
 
     private InnerReceiverDelegate(IIntentReceiver iIntentReceiver) {
         this.mIntentReceiver = new WeakReference<>(iIntentReceiver);
-    }
-
-    public static InnerReceiverDelegate getDelegate(IBinder iBinder) {
-        return sInnerReceiverDelegate.get(iBinder);
     }
 
     public static IIntentReceiver createProxy(IIntentReceiver base) {
@@ -54,6 +41,7 @@ public class InnerReceiverDelegate extends IIntentReceiver.Stub {
             } catch (RemoteException e) {
                 e.printStackTrace();
             }
+
             delegate = new InnerReceiverDelegate(base);
             sInnerReceiverDelegate.put(iBinder, delegate);
         }
@@ -61,7 +49,7 @@ public class InnerReceiverDelegate extends IIntentReceiver.Stub {
     }
 
     @Override
-    public void performReceive(Intent intent, int resultCode, String data, Bundle extras, boolean ordered, boolean sticky, int sendingUser) throws RemoteException {
+    public void performReceive(Intent intent, int resultCode, String data, Bundle extras, boolean ordered, boolean sticky, int sendingUser) {
         intent.setExtrasClassLoader(BActivityThread.getApplication().getClassLoader());
         ProxyBroadcastRecord proxyBroadcastRecord = ProxyBroadcastRecord.create(intent);
         Intent perIntent;
@@ -71,9 +59,10 @@ public class InnerReceiverDelegate extends IIntentReceiver.Stub {
         } else {
             perIntent = intent;
         }
+
         IIntentReceiver iIntentReceiver = mIntentReceiver.get();
         if (iIntentReceiver != null) {
-            BRIIntentReceiver.get(iIntentReceiver).performReceive(perIntent, resultCode, data, extras, ordered, sticky, sendingUser);
+            black.android.content.IIntentReceiver.performReceive.call(iIntentReceiver, perIntent, resultCode, data, extras, ordered, sticky, sendingUser);
         }
     }
 }

@@ -2,29 +2,21 @@ package top.niunaijun.bcore.fake.service;
 
 import java.lang.reflect.Method;
 
-import black.android.os.BRServiceManager;
-import black.com.android.internal.telephony.BRITelephonyRegistryStub;
+import black.android.os.ServiceManager;
+import black.com.android.internal.telephony.ITelephonyRegistry;
 import top.niunaijun.bcore.fake.hook.BinderInvocationStub;
 import top.niunaijun.bcore.fake.hook.MethodHook;
 import top.niunaijun.bcore.fake.hook.ProxyMethod;
 import top.niunaijun.bcore.utils.MethodParameterUtils;
 
-/**
- * Created by Milk on 2021/5/17.
- * * ∧＿∧
- * (`･ω･∥
- * 丶　つ０
- * しーＪ
- * 此处无Bug
- */
 public class ITelephonyRegistryProxy extends BinderInvocationStub {
     public ITelephonyRegistryProxy() {
-        super(BRServiceManager.get().getService("telephony.registry"));
+        super(ServiceManager.getService.call("telephony.registry"));
     }
 
     @Override
     protected Object getWho() {
-        return BRITelephonyRegistryStub.get().asInterface(BRServiceManager.get().getService("telephony.registry"));
+        return ITelephonyRegistry.Stub.asInterface.call(ServiceManager.getService.call("telephony.registry"));
     }
 
     @Override
@@ -39,6 +31,7 @@ public class ITelephonyRegistryProxy extends BinderInvocationStub {
 
     @ProxyMethod("listenForSubscriber")
     public static class ListenForSubscriber extends MethodHook {
+
         @Override
         protected Object hook(Object who, Method method, Object[] args) throws Throwable {
             MethodParameterUtils.replaceFirstAppPkg(args);
@@ -48,6 +41,7 @@ public class ITelephonyRegistryProxy extends BinderInvocationStub {
 
     @ProxyMethod("listen")
     public static class Listen extends MethodHook {
+
         @Override
         protected Object hook(Object who, Method method, Object[] args) throws Throwable {
             MethodParameterUtils.replaceFirstAppPkg(args);

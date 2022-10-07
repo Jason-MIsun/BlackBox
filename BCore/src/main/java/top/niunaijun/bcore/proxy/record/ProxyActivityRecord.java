@@ -3,14 +3,6 @@ package top.niunaijun.bcore.proxy.record;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 
-/**
- * Created by Milk on 3/31/21.
- * * ∧＿∧
- * (`･ω･∥
- * 丶　つ０
- * しーＪ
- * 此处无Bug
- */
 public class ProxyActivityRecord {
     public int mUserId;
     public ActivityInfo mActivityInfo;
@@ -34,6 +26,7 @@ public class ProxyActivityRecord {
     public static ProxyActivityRecord create(Intent intent) {
         int userId = intent.getIntExtra("_B_|_user_id_", 0);
         ActivityInfo activityInfo = intent.getParcelableExtra("_B_|_activity_info_");
+
         Intent target = intent.getParcelableExtra("_B_|_target_");
         String activityToken = intent.getStringExtra("_B_|_activity_token_v_");
         return new ProxyActivityRecord(userId, activityInfo, target, activityToken);

@@ -20,14 +20,6 @@ import top.niunaijun.bcore.core.system.pm.BPackageManagerService;
 import top.niunaijun.bcore.utils.CloseUtils;
 import top.niunaijun.bcore.utils.FileUtils;
 
-/**
- * Created by Milk on 4/22/21.
- * * ∧＿∧
- * (`･ω･∥
- * 丶　つ０
- * しーＪ
- * 此处无Bug
- */
 public class BUserManagerService extends IBUserManagerService.Stub implements ISystemService {
     private static final BUserManagerService sService = new BUserManagerService();
     public final HashMap<Integer, BUserInfo> mUsers = new HashMap<>();
@@ -57,7 +49,7 @@ public class BUserManagerService extends IBUserManagerService.Stub implements IS
     }
 
     @Override
-    public BUserInfo createUser(int userId) throws RemoteException {
+    public BUserInfo createUser(int userId) {
         synchronized (mUserLock) {
             if (exists(userId)) {
                 return getUserInfo(userId);
@@ -114,9 +106,11 @@ public class BUserManagerService extends IBUserManagerService.Stub implements IS
         Parcel parcel = Parcel.obtain();
         AtomicFile atomicFile = new AtomicFile(BEnvironment.getUserInfoConf());
         FileOutputStream fileOutputStream = null;
+
         try {
             ArrayList<BUserInfo> bUsers = new ArrayList<>(mUsers.values());
             parcel.writeTypedList(bUsers);
+
             try {
                 fileOutputStream = atomicFile.startWrite();
                 FileUtils.writeParcelToOutput(parcel, fileOutputStream);
@@ -136,19 +130,23 @@ public class BUserManagerService extends IBUserManagerService.Stub implements IS
         synchronized (mUserLock) {
             Parcel parcel = Parcel.obtain();
             InputStream is = null;
+
             try {
                 File userInfoConf = BEnvironment.getUserInfoConf();
                 if (!userInfoConf.exists()) {
                     return;
                 }
+
                 is = new FileInputStream(BEnvironment.getUserInfoConf());
                 byte[] bytes = FileUtils.toByteArray(is);
                 parcel.unmarshall(bytes, 0, bytes.length);
                 parcel.setDataPosition(0);
 
                 ArrayList<BUserInfo> loadUsers = parcel.createTypedArrayList(BUserInfo.CREATOR);
-                if (loadUsers == null)
+                if (loadUsers == null) {
                     return;
+                }
+
                 synchronized (mUsers) {
                     mUsers.clear();
                     for (BUserInfo loadUser : loadUsers) {

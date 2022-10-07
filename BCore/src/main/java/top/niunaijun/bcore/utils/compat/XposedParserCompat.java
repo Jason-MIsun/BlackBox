@@ -15,14 +15,6 @@ import top.niunaijun.bcore.BlackBoxCore;
 import top.niunaijun.bcore.entity.pm.InstalledModule;
 import top.niunaijun.bcore.utils.CloseUtils;
 
-/**
- * Created by Milk on 5/2/21.
- * * ∧＿∧
- * (`･ω･∥
- * 丶　つ０
- * しーＪ
- * 此处无Bug
- */
 public class XposedParserCompat {
     public static InstalledModule parseModule(ApplicationInfo applicationInfo) {
         try {
@@ -70,10 +62,12 @@ public class XposedParserCompat {
         StringBuilder builder = new StringBuilder();
         try {
             reader = new BufferedReader(new InputStreamReader(stream));
+
             String line;
             while ((line = reader.readLine()) != null) {
-                if (line.startsWith("#"))
+                if (line.startsWith("#")) {
                     continue;
+                }
                 builder.append(line).append("\n");
             }
         } catch (Exception e) {

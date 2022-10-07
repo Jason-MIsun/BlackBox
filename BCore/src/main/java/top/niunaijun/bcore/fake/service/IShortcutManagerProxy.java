@@ -3,15 +3,12 @@ package top.niunaijun.bcore.fake.service;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ShortcutInfo;
-import android.os.Build;
-
-import androidx.annotation.RequiresApi;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 
-import black.android.content.pm.BRIShortcutServiceStub;
-import black.android.os.BRServiceManager;
+import black.android.content.pm.IShortcutService;
+import black.android.os.ServiceManager;
 import top.niunaijun.bcore.fake.hook.BinderInvocationStub;
 import top.niunaijun.bcore.fake.hook.MethodHook;
 import top.niunaijun.bcore.fake.hook.ProxyMethod;
@@ -19,28 +16,25 @@ import top.niunaijun.bcore.fake.service.base.PkgMethodProxy;
 import top.niunaijun.bcore.utils.MethodParameterUtils;
 import top.niunaijun.bcore.utils.compat.ParceledListSliceCompat;
 
-/**
- * Created by Milk on 4/5/21.
- * * ∧＿∧
- * (`･ω･∥
- * 丶　つ０
- * しーＪ
- * 此处无Bug
- * 未实现，全部拦截
- */
 public class IShortcutManagerProxy extends BinderInvocationStub {
     public IShortcutManagerProxy() {
-        super(BRServiceManager.get().getService(Context.SHORTCUT_SERVICE));
+        super(ServiceManager.getService.call(Context.SHORTCUT_SERVICE));
     }
 
     @Override
     protected Object getWho() {
-        return BRIShortcutServiceStub.get().asInterface(BRServiceManager.get().getService(Context.SHORTCUT_SERVICE));
+        return IShortcutService.Stub.asInterface.call(ServiceManager.getService.call(Context.SHORTCUT_SERVICE));
     }
 
     @Override
     protected void inject(Object baseInvocation, Object proxyInvocation) {
         replaceSystemService(Context.SHORTCUT_SERVICE);
+    }
+
+    @Override
+    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+        MethodParameterUtils.replaceAllAppPkg(args);
+        return super.invoke(proxy, method, args);
     }
 
     @Override
@@ -65,8 +59,9 @@ public class IShortcutManagerProxy extends BinderInvocationStub {
         addMethodHook(new PkgMethodProxy("removeDynamicShortcuts"));
         addMethodHook(new PkgMethodProxy("removeLongLivedShortcuts"));
         addMethodHook(new PkgMethodProxy("getManifestShortcuts") {
+
             @Override
-            protected Object hook(Object who, Method method, Object[] args) throws Throwable {
+            protected Object hook(Object who, Method method, Object[] args) {
                 return ParceledListSliceCompat.create(new ArrayList<ShortcutInfo>());
             }
         });
@@ -74,6 +69,7 @@ public class IShortcutManagerProxy extends BinderInvocationStub {
 
     @ProxyMethod("requestPinShortcut")
     public static class RequestPinShortcut extends MethodHook {
+
         @Override
         protected Object hook(Object who, Method method, Object[] args) throws Throwable {
             return true;
@@ -82,6 +78,7 @@ public class IShortcutManagerProxy extends BinderInvocationStub {
 
     @ProxyMethod("setDynamicShortcuts")
     public static class SetDynamicShortcuts extends MethodHook {
+
         @Override
         protected Object hook(Object who, Method method, Object[] args) throws Throwable {
             return true;
@@ -90,6 +87,7 @@ public class IShortcutManagerProxy extends BinderInvocationStub {
 
     @ProxyMethod("createShortcutResultIntent")
     public static class CreateShortcutResultIntent extends MethodHook {
+
         @Override
         protected Object hook(Object who, Method method, Object[] args) throws Throwable {
             return new Intent();
@@ -98,15 +96,10 @@ public class IShortcutManagerProxy extends BinderInvocationStub {
 
     @ProxyMethod("getMaxShortcutCountPerActivity")
     public static class GetMaxShortcutCountPerActivity extends MethodHook {
+
         @Override
         protected Object hook(Object who, Method method, Object[] args) throws Throwable {
             return 0;
         }
-    }
-
-    @Override
-    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-        MethodParameterUtils.replaceAllAppPkg(args);
-        return super.invoke(proxy, method, args);
     }
 }

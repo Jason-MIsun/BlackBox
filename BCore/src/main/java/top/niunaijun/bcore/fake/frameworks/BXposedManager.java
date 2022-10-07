@@ -9,14 +9,6 @@ import top.niunaijun.bcore.core.system.ServiceManager;
 import top.niunaijun.bcore.core.system.pm.IBXposedManagerService;
 import top.niunaijun.bcore.entity.pm.InstalledModule;
 
-/**
- * Created by Milk on 5/2/21.
- * * ∧＿∧
- * (`･ω･∥
- * 丶　つ０
- * しーＪ
- * 此处无Bug
- */
 public class BXposedManager extends BlackManager<IBXposedManagerService> {
     private static final BXposedManager sXposedManager = new BXposedManager();
 

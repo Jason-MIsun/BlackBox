@@ -13,14 +13,6 @@ import top.niunaijun.bcore.core.system.pm.installer.RemoveUserExecutor;
 import top.niunaijun.bcore.entity.pm.InstallOption;
 import top.niunaijun.bcore.utils.Slog;
 
-/**
- * Created by Milk on 4/21/21.
- * * ∧＿∧
- * (`･ω･∥
- * 丶　つ０
- * しーＪ
- * 此处无Bug
- */
 public class BPackageInstallerService extends IBPackageInstallerService.Stub implements ISystemService {
     private static final BPackageInstallerService sService = new BPackageInstallerService();
 
@@ -104,7 +96,5 @@ public class BPackageInstallerService extends IBPackageInstallerService.Stub imp
     }
 
     @Override
-    public void systemReady() {
-
-    }
+    public void systemReady() { }
 }

@@ -11,21 +11,13 @@ import top.niunaijun.bcore.BlackBoxCore;
 import top.niunaijun.bcore.app.BActivityThread;
 import top.niunaijun.bcore.utils.compat.BuildCompat;
 
-/**
- * Created by Milk on 4/18/21.
- * * ∧＿∧
- * (`･ω･∥
- * 丶　つ０
- * しーＪ
- * 此处无Bug
- */
 public class FileProviderHandler {
-
     public static Uri convertFileUri(Context context, Uri uri) {
         if (BuildCompat.isN()) {
             File file = convertFile(context, uri);
-            if (file == null)
+            if (file == null) {
                 return null;
+            }
             return BlackBoxCore.getBStorageManager().getUriForFile(file.getAbsolutePath());
         }
         return uri;
@@ -39,8 +31,7 @@ public class FileProviderHandler {
                 if (fileForUri != null && fileForUri.exists()) {
                     return fileForUri;
                 }
-            } catch (Exception ignored) {
-            }
+            } catch (Exception ignored) { }
         }
         return null;
     }

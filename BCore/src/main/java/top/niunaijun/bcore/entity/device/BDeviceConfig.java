@@ -3,9 +3,6 @@ package top.niunaijun.bcore.entity.device;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-/*
- * Created by BlackBoxing at 2022/08/013
- */
 public class BDeviceConfig implements Parcelable {
     @Override
     public int describeContents() {
@@ -13,7 +10,5 @@ public class BDeviceConfig implements Parcelable {
     }
 
     @Override
-    public void writeToParcel(Parcel dest, int flags) {
-
-    }
+    public void writeToParcel(Parcel dest, int flags) { }
 }

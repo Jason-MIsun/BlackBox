@@ -23,14 +23,6 @@ import top.niunaijun.bcore.core.env.BEnvironment;
 import top.niunaijun.bcore.utils.FileUtils;
 import top.niunaijun.bcore.utils.TrieTree;
 
-/**
- * Created by Milk on 4/9/21.
- * * ∧＿∧
- * (`･ω･∥
- * 丶　つ０
- * しーＪ
- * 此处无Bug
- */
 @SuppressLint("SdCardPath")
 public class IOCore {
     public static final String TAG = "IOCore";
@@ -47,8 +39,9 @@ public class IOCore {
     // 路径前缀匹配，重定向
     // /data/data/com.google/  ----->  /data/data/com.virtual/data/com.google/
     public void addRedirect(String origPath, String redirectPath) {
-        if (TextUtils.isEmpty(origPath) || TextUtils.isEmpty(redirectPath) || mRedirectMap.get(origPath) != null)
+        if (TextUtils.isEmpty(origPath) || TextUtils.isEmpty(redirectPath) || mRedirectMap.get(origPath) != null) {
             return;
+        }
         // Add the key to TrieTree
         mTrieTree.add(origPath);
         mRedirectMap.put(origPath, redirectPath);
@@ -60,8 +53,9 @@ public class IOCore {
     }
 
     public void addBlackRedirect(String path) {
-        if (TextUtils.isEmpty(path))
+        if (TextUtils.isEmpty(path)) {
             return;
+        }
         sBlackTree.add(path);
         NativeCore.addWhiteList(path);
     }
@@ -74,30 +68,35 @@ public class IOCore {
             return path;
         }
         String search = sBlackTree.search(path);
-        if (!TextUtils.isEmpty(search))
+        if (!TextUtils.isEmpty(search)) {
             return search;
+        }
 
         // Search the key from TrieTree
         String key = mTrieTree.search(path);
-        if (!TextUtils.isEmpty(key))
+        if (!TextUtils.isEmpty(key)) {
             path = path.replace(key, Objects.requireNonNull(mRedirectMap.get(key)));
+        }
         return path;
     }
 
     public File redirectPath(File path) {
-        if (path == null)
+        if (path == null) {
             return null;
+        }
         String pathStr = path.getAbsolutePath();
         return new File(redirectPath(pathStr));
     }
 
     public String redirectPath(String path, Map<String, String> rule) {
-        if (TextUtils.isEmpty(path))
+        if (TextUtils.isEmpty(path)) {
             return path;
+        }
         // Search the key from TrieTree
         String key = mTrieTree.search(path);
-        if (!TextUtils.isEmpty(key))
+        if (!TextUtils.isEmpty(key)) {
             path = path.replace(key, Objects.requireNonNull(rule.get(key)));
+        }
         return path;
     }
 
@@ -146,6 +145,7 @@ public class IOCore {
                 blackRule.add(String.format("/sdcard/%s", Environment.DIRECTORY_DCIM));
                 blackRule.add(String.format("/sdcard/%s", Environment.DIRECTORY_MUSIC));
             }
+
             if (BlackBoxCore.get().isHideRoot()) {
                 hideRoot(rule);
             }

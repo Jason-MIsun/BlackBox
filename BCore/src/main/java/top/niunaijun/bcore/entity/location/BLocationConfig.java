@@ -5,9 +5,6 @@ import android.os.Parcelable;
 
 import java.util.List;
 
-/**
- * Created by BlackBoxing on 3/8/22.
- **/
 public class BLocationConfig implements Parcelable {
     public int pattern;
     public BCell cell;
@@ -20,8 +17,7 @@ public class BLocationConfig implements Parcelable {
         return 0;
     }
 
-    public BLocationConfig() {
-    }
+    public BLocationConfig() { }
 
     public BLocationConfig(Parcel in) {
         refresh(in);

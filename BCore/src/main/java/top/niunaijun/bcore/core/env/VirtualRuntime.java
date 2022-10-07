@@ -2,8 +2,8 @@ package top.niunaijun.bcore.core.env;
 
 import android.content.pm.ApplicationInfo;
 
-import black.android.ddm.BRDdmHandleAppName;
-import black.android.os.BRProcess;
+import black.android.ddm.DdmHandleAppName;
+import black.android.os.Process;
 
 public class VirtualRuntime {
     private static String sInitialPackageName;
@@ -21,9 +21,10 @@ public class VirtualRuntime {
         if (sProcessName != null) {
             return;
         }
+
         sInitialPackageName = appInfo.packageName;
         sProcessName = processName;
-        BRProcess.get().setArgV0(processName);
-        BRDdmHandleAppName.get().setAppName(processName, 0);
+        Process.setArgV0.call(processName);
+        DdmHandleAppName.setAppName.call(processName, 0);
     }
 }

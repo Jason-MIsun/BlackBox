@@ -1,17 +1,14 @@
 package top.niunaijun.bcore.fake.service;
 
-import black.android.hardware.location.BRIContextHubServiceStub;
-import black.android.os.BRServiceManager;
+import black.android.hardware.location.IContextHubService;
+import black.android.os.ServiceManager;
 import top.niunaijun.bcore.fake.hook.BinderInvocationStub;
 import top.niunaijun.bcore.fake.service.base.ValueMethodProxy;
 import top.niunaijun.bcore.utils.compat.BuildCompat;
 
-/**
- * Created by BlackBox on 2022/3/2.
- */
 public class IContextHubServiceProxy extends BinderInvocationStub {
     public IContextHubServiceProxy() {
-        super(BRServiceManager.get().getService(getServiceName()));
+        super(ServiceManager.getService.call(getServiceName()));
     }
 
     private static String getServiceName() {
@@ -20,7 +17,7 @@ public class IContextHubServiceProxy extends BinderInvocationStub {
 
     @Override
     protected Object getWho() {
-        return BRIContextHubServiceStub.get().asInterface(BRServiceManager.get().getService(getServiceName()));
+        return IContextHubService.Stub.asInterface.call(ServiceManager.getService.call(getServiceName()));
     }
 
     @Override

@@ -1,7 +1,6 @@
 package top.niunaijun.bcore.fake.frameworks;
 
 import android.app.Activity;
-import android.app.Notification;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.pm.ProviderInfo;
@@ -18,14 +17,6 @@ import top.niunaijun.bcore.entity.am.PendingResultData;
 import top.niunaijun.bcore.entity.am.RunningAppProcessInfo;
 import top.niunaijun.bcore.entity.am.RunningServiceInfo;
 
-/**
- * Created by Milk on 4/14/21.
- * * ∧＿∧
- * (`･ω･∥
- * 丶　つ０
- * しーＪ
- * 此处无Bug
- */
 public class BActivityManager extends BlackManager<IBActivityManagerService> {
     private static final BActivityManager sActivityManager = new BActivityManager();
 
@@ -63,13 +54,12 @@ public class BActivityManager extends BlackManager<IBActivityManagerService> {
         }
     }
 
-    public int startActivityAms(int userId, Intent intent, String resolvedType, IBinder resultTo, String resultWho, int requestCode, int flags, Bundle options) {
+    public void startActivityAms(int userId, Intent intent, String resolvedType, IBinder resultTo, String resultWho, int requestCode, int flags, Bundle options) {
         try {
-            return getService().startActivityAms(userId, intent, resolvedType, resultTo, resultWho, requestCode, flags, options);
+            getService().startActivityAms(userId, intent, resolvedType, resultTo, resultWho, requestCode, flags, options);
         } catch (RemoteException e) {
             e.printStackTrace();
         }
-        return -1;
     }
 
     public int startActivities(int userId, Intent[] intent, String[] resolvedType, IBinder resultTo, Bundle options) {
@@ -119,14 +109,6 @@ public class BActivityManager extends BlackManager<IBActivityManagerService> {
     public void stopServiceToken(ComponentName componentName, IBinder token, int userId) {
         try {
             getService().stopServiceToken(componentName, token, userId);
-        } catch (RemoteException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void onStartCommand(Intent proxyIntent, int userId) {
-        try {
-            getService().onStartCommand(proxyIntent, userId);
         } catch (RemoteException e) {
             e.printStackTrace();
         }
@@ -218,7 +200,7 @@ public class BActivityManager extends BlackManager<IBActivityManagerService> {
         }
     }
 
-    public RunningAppProcessInfo getRunningAppProcesses(String callerPackage, int userId) throws RemoteException {
+    public RunningAppProcessInfo getRunningAppProcesses(String callerPackage, int userId) {
         try {
             return getService().getRunningAppProcesses(callerPackage, userId);
         } catch (RemoteException e) {
@@ -227,7 +209,7 @@ public class BActivityManager extends BlackManager<IBActivityManagerService> {
         return null;
     }
 
-    public RunningServiceInfo getRunningServices(String callerPackage, int userId) throws RemoteException {
+    public RunningServiceInfo getRunningServices(String callerPackage, int userId) {
         try {
             return getService().getRunningServices(callerPackage, userId);
         } catch (RemoteException e) {
@@ -290,13 +272,5 @@ public class BActivityManager extends BlackManager<IBActivityManagerService> {
             e.printStackTrace();
         }
         return -1;
-    }
-
-    public void setServiceForeground(ComponentName className, IBinder token, int id, Notification notification, int flags, int foregroundServiceType) {
-        try {
-            getService().setServiceForeground(className, token, id, notification, flags, foregroundServiceType, BActivityThread.getUserId());
-        } catch (RemoteException e) {
-            e.printStackTrace();
-        }
     }
 }

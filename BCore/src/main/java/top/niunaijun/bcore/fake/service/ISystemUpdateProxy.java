@@ -1,22 +1,17 @@
 package top.niunaijun.bcore.fake.service;
 
-import black.android.os.BRServiceManager;
-import black.android.view.BRIAutoFillManagerStub;
+import black.android.os.ServiceManager;
+import black.android.view.IAutoFillManager;
 import top.niunaijun.bcore.fake.hook.BinderInvocationStub;
 
-/**
- * @author Findger
- * @function
- * @date :2022/4/2 21:59
- **/
 public class ISystemUpdateProxy extends BinderInvocationStub {
     public ISystemUpdateProxy() {
-        super(BRServiceManager.get().getService("system_update"));
+        super(ServiceManager.getService.call("system_update"));
     }
 
     @Override
     protected Object getWho() {
-        return BRIAutoFillManagerStub.get().asInterface(BRServiceManager.get().getService("system_update"));
+        return IAutoFillManager.Stub.asInterface.call(ServiceManager.getService.call("system_update"));
     }
 
     @Override

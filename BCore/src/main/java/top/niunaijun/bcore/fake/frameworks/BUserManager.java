@@ -9,14 +9,6 @@ import top.niunaijun.bcore.core.system.ServiceManager;
 import top.niunaijun.bcore.core.system.user.BUserInfo;
 import top.niunaijun.bcore.core.system.user.IBUserManagerService;
 
-/**
- * Created by Milk on 4/28/21.
- * * ∧＿∧
- * (`･ω･∥
- * 丶　つ０
- * しーＪ
- * 此处无Bug
- */
 public class BUserManager extends BlackManager<IBUserManagerService> {
     private static final BUserManager sUserManager = new BUserManager();
 

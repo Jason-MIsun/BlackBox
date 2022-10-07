@@ -6,14 +6,6 @@ import android.os.Parcelable;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * Created by Milk on 5/2/21.
- * * ∧＿∧
- * (`･ω･∥
- * 丶　つ０
- * しーＪ
- * 此处无Bug
- */
 public class XposedConfig implements Parcelable {
     public boolean enable;
     public Map<String, Boolean> moduleState = new HashMap<>();
@@ -33,13 +25,13 @@ public class XposedConfig implements Parcelable {
         }
     }
 
-    public XposedConfig() {
-    }
+    public XposedConfig() { }
 
     public XposedConfig(Parcel in) {
         this.enable = in.readByte() != 0;
         int mModuleStateSize = in.readInt();
         this.moduleState = new HashMap<String, Boolean>(mModuleStateSize);
+
         for (int i = 0; i < mModuleStateSize; i++) {
             String key = in.readString();
             Boolean value = (Boolean) in.readValue(Boolean.class.getClassLoader());

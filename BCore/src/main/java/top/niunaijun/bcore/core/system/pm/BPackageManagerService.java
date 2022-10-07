@@ -1,5 +1,7 @@
 package top.niunaijun.bcore.core.system.pm;
 
+import static android.content.pm.PackageManager.MATCH_DIRECT_BOOT_UNAWARE;
+
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
@@ -14,11 +16,9 @@ import android.content.pm.ProviderInfo;
 import android.content.pm.ResolveInfo;
 import android.content.pm.ServiceInfo;
 import android.net.Uri;
-import android.os.Binder;
 import android.os.Build;
 import android.os.RemoteException;
 import android.text.TextUtils;
-import android.util.Log;
 
 import java.io.File;
 import java.io.InputStream;
@@ -48,17 +48,6 @@ import top.niunaijun.bcore.utils.Slog;
 import top.niunaijun.bcore.utils.compat.PackageParserCompat;
 import top.niunaijun.bcore.utils.compat.XposedParserCompat;
 
-import static android.content.pm.PackageManager.MATCH_DIRECT_BOOT_UNAWARE;
-
-
-/**
- * Created by Milk on 4/1/21.
- * * ∧＿∧
- * (`･ω･∥
- * 丶　つ０
- * しーＪ
- * 此处无Bug
- */
 public class BPackageManagerService extends IBPackageManagerService.Stub implements ISystemService {
     public static final String TAG = "BPackageManagerService";
     public static BPackageManagerService sService = new BPackageManagerService();
@@ -80,6 +69,7 @@ public class BPackageManagerService extends IBPackageManagerService.Stub impleme
         filter.addAction("android.intent.action.PACKAGE_ADDED");
         filter.addAction("android.intent.action.PACKAGE_REMOVED");
         filter.addDataScheme("package");
+
         BroadcastReceiver mPackageChangedHandler = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
@@ -91,13 +81,15 @@ public class BPackageManagerService extends IBPackageManagerService.Stub impleme
                 }
             }
         };
-        BlackBoxCore.getContext()
-                .registerReceiver(mPackageChangedHandler, filter);
+        BlackBoxCore.getContext().registerReceiver(mPackageChangedHandler, filter);
     }
 
     @Override
     public ApplicationInfo getApplicationInfo(String packageName, int flags, int userId) {
-        if (!sUserManager.exists(userId)) return null;
+        if (!sUserManager.exists(userId)) {
+            return null;
+        }
+
         if (Objects.equals(packageName, BlackBoxCore.getHostPkg())) {
             try {
                 return BlackBoxCore.getPackageManager().getApplicationInfo(packageName, flags);
@@ -106,7 +98,8 @@ public class BPackageManagerService extends IBPackageManagerService.Stub impleme
             }
             return null;
         }
-        flags = updateFlags(flags, userId);
+
+        flags = updateFlags(flags);
         // reader
         synchronized (mPackages) {
             // Normalize package name to handle renamed packages and static libs
@@ -121,9 +114,11 @@ public class BPackageManagerService extends IBPackageManagerService.Stub impleme
 
     @Override
     public ResolveInfo resolveService(Intent intent, int flags, String resolvedType, int userId) {
-        if (!sUserManager.exists(userId)) return null;
-        List<ResolveInfo> query = queryIntentServicesInternal(
-                intent, resolvedType, flags, userId);
+        if (!sUserManager.exists(userId)) {
+            return null;
+        }
+
+        List<ResolveInfo> query = queryIntentServicesInternal(intent, resolvedType, flags, userId);
         if (query != null) {
             if (query.size() >= 1) {
                 // If there is more than one service with the same priority,
@@ -142,6 +137,7 @@ public class BPackageManagerService extends IBPackageManagerService.Stub impleme
                 comp = intent.getComponent();
             }
         }
+
         if (comp != null) {
             final List<ResolveInfo> list = new ArrayList<>(1);
             final ServiceInfo si = getServiceInfo(comp, flags, userId);
@@ -164,8 +160,7 @@ public class BPackageManagerService extends IBPackageManagerService.Stub impleme
                 BPackageSettings bPackageSettings = mPackages.get(pkgName);
                 if (bPackageSettings != null) {
                     final BPackage pkg = bPackageSettings.pkg;
-                    return mComponentResolver.queryServices(intent, resolvedType, flags, pkg.services,
-                            userId);
+                    return mComponentResolver.queryServices(intent, resolvedType, flags, pkg.services, userId);
                 }
             } else {
                return mComponentResolver.queryServices(intent, resolvedType, flags, userId);
@@ -176,26 +171,34 @@ public class BPackageManagerService extends IBPackageManagerService.Stub impleme
 
     @Override
     public ResolveInfo resolveActivity(Intent intent, int flags, String resolvedType, int userId) {
-        if (!sUserManager.exists(userId)) return null;
+        if (!sUserManager.exists(userId)) {
+            return null;
+        }
+
         List<ResolveInfo> resolves = queryIntentActivities(intent, resolvedType, flags, userId);
-        return chooseBestActivity(intent, resolvedType, flags, resolves);
+        return chooseBestActivity(resolves);
     }
 
     @Override
     public ProviderInfo resolveContentProvider(String authority, int flags, int userId) {
-        if (!sUserManager.exists(userId)) return null;
+        if (!sUserManager.exists(userId)) {
+            return null;
+        }
+
         return mComponentResolver.queryProvider(authority, flags, userId);
     }
 
     @Override
     public ResolveInfo resolveIntent(Intent intent, String resolvedType, int flags, int userId) {
-        if (!sUserManager.exists(userId)) return null;
+        if (!sUserManager.exists(userId)) {
+            return null;
+        }
+
         List<ResolveInfo> resolves = queryIntentActivities(intent, resolvedType, flags, userId);
-        return chooseBestActivity(intent, resolvedType, flags, resolves);
+        return chooseBestActivity(resolves);
     }
 
-    private ResolveInfo chooseBestActivity(Intent intent, String resolvedType,
-                                           int flags, List<ResolveInfo> query) {
+    private ResolveInfo chooseBestActivity(List<ResolveInfo> query) {
         if (query != null) {
             final int N = query.size();
             if (N == 1) {
@@ -207,9 +210,7 @@ public class BPackageManagerService extends IBPackageManagerService.Stub impleme
                 ResolveInfo r1 = query.get(1);
                 // If the first activity has a higher priority, or a different
                 // default, then it is always desirable to pick it.
-                if (r0.priority != r1.priority
-                        || r0.preferredOrder != r1.preferredOrder
-                        || r0.isDefault != r1.isDefault) {
+                if (r0.priority != r1.priority || r0.preferredOrder != r1.preferredOrder || r0.isDefault != r1.isDefault) {
                     return query.get(0);
                 }
             }
@@ -217,8 +218,7 @@ public class BPackageManagerService extends IBPackageManagerService.Stub impleme
         return null;
     }
 
-    private List<ResolveInfo> queryIntentActivities(Intent intent,
-                                                    String resolvedType, int flags, int userId) {
+    private List<ResolveInfo> queryIntentActivities(Intent intent, String resolvedType, int flags, int userId) {
         ComponentName comp = intent.getComponent();
         if (comp == null) {
             if (intent.getSelector() != null) {
@@ -249,21 +249,21 @@ public class BPackageManagerService extends IBPackageManagerService.Stub impleme
     }
 
     @Override
-    public List<ResolveInfo> queryIntentServices(
-            Intent intent, int flags, int userId) {
+    public List<ResolveInfo> queryIntentServices(Intent intent, int flags, int userId) {
         final String resolvedType = intent.resolveTypeIfNeeded(BlackBoxCore.getContext().getContentResolver());
         return this.queryIntentServicesInternal(intent, resolvedType, flags, userId);
     }
 
-    private ActivityInfo getActivity(ComponentName component, int flags,
-                                     int userId) {
-        flags = updateFlags(flags, userId);
+    private ActivityInfo getActivity(ComponentName component, int flags, int userId) {
+        flags = updateFlags(flags);
         synchronized (mPackages) {
             BPackage.Activity a = mComponentResolver.getActivity(component);
 
             if (a != null) {
                 BPackageSettings ps = mSettings.mPackages.get(component.getPackageName());
-                if (ps == null) return null;
+                if (ps == null) {
+                    return null;
+                }
                 return PackageManagerCompat.generateActivityInfo(a, flags, ps.readUserState(userId), userId);
             }
         }
@@ -276,13 +276,15 @@ public class BPackageManagerService extends IBPackageManagerService.Stub impleme
         if (processByPid != null) {
             return processByPid.buid;
         }
-
         return -1;
     }
 
     @Override
     public PackageInfo getPackageInfo(String packageName, int flags, int userId) {
-        if (!sUserManager.exists(userId)) return null;
+        if (!sUserManager.exists(userId)) {
+            return null;
+        }
+
         if (Objects.equals(packageName, BlackBoxCore.getHostPkg())) {
             try {
                 return BlackBoxCore.getPackageManager().getPackageInfo(packageName, flags);
@@ -292,13 +294,15 @@ public class BPackageManagerService extends IBPackageManagerService.Stub impleme
             return null;
         }
 
-        flags = updateFlags(flags, userId);
-        BPackageSettings ps = null;
+        flags = updateFlags(flags);
+        BPackageSettings ps;
+
         // reader
         synchronized (mPackages) {
             // Normalize package name to handle renamed packages and static libs
             ps = mPackages.get(packageName);
         }
+
         if (ps != null) {
             return PackageManagerCompat.generatePackageInfo(ps, flags, ps.readUserState(userId), userId);
         }
@@ -307,14 +311,19 @@ public class BPackageManagerService extends IBPackageManagerService.Stub impleme
 
     @Override
     public ServiceInfo getServiceInfo(ComponentName component, int flags, int userId) {
-        if (!sUserManager.exists(userId)) return null;
+        if (!sUserManager.exists(userId)) {
+            return null;
+        }
+
         synchronized (mPackages) {
             BPackage.Service s = mComponentResolver.getService(component);
+
             if (s != null) {
                 BPackageSettings ps = mPackages.get(component.getPackageName());
-                if (ps == null) return null;
-                return PackageManagerCompat.generateServiceInfo(
-                        s, flags, ps.readUserState(userId), userId);
+                if (ps == null) {
+                    return null;
+                }
+                return PackageManagerCompat.generateServiceInfo(s, flags, ps.readUserState(userId), userId);
             }
         }
         return null;
@@ -322,14 +331,19 @@ public class BPackageManagerService extends IBPackageManagerService.Stub impleme
 
     @Override
     public ActivityInfo getReceiverInfo(ComponentName component, int flags, int userId) {
-        if (!sUserManager.exists(userId)) return null;
+        if (!sUserManager.exists(userId)) {
+            return null;
+        }
+
         synchronized (mPackages) {
             BPackage.Activity a = mComponentResolver.getReceiver(component);
+
             if (a != null) {
                 BPackageSettings ps = mPackages.get(component.getPackageName());
-                if (ps == null) return null;
-                return PackageManagerCompat.generateActivityInfo(
-                        a, flags, ps.readUserState(userId), userId);
+                if (ps == null) {
+                    return null;
+                }
+                return PackageManagerCompat.generateActivityInfo(a, flags, ps.readUserState(userId), userId);
             }
         }
         return null;
@@ -337,15 +351,19 @@ public class BPackageManagerService extends IBPackageManagerService.Stub impleme
 
     @Override
     public ActivityInfo getActivityInfo(ComponentName component, int flags, int userId) {
-        if (!sUserManager.exists(userId)) return null;
+        if (!sUserManager.exists(userId)) {
+            return null;
+        }
+
         synchronized (mPackages) {
             BPackage.Activity a = mComponentResolver.getActivity(component);
 
             if (a != null) {
                 BPackageSettings ps = mPackages.get(component.getPackageName());
-                if (ps == null) return null;
-                return PackageManagerCompat.generateActivityInfo(
-                        a, flags, ps.readUserState(userId), userId);
+                if (ps == null) {
+                    return null;
+                }
+                return PackageManagerCompat.generateActivityInfo(a, flags, ps.readUserState(userId), userId);
             }
         }
         return null;
@@ -356,11 +374,13 @@ public class BPackageManagerService extends IBPackageManagerService.Stub impleme
         if (!sUserManager.exists(userId)) return null;
         synchronized (mPackages) {
             BPackage.Provider p = mComponentResolver.getProvider(component);
+
             if (p != null) {
                 BPackageSettings ps = mPackages.get(component.getPackageName());
-                if (ps == null) return null;
-                return PackageManagerCompat.generateProviderInfo(
-                        p, flags, ps.readUserState(userId), userId);
+                if (ps == null) {
+                    return null;
+                }
+                return PackageManagerCompat.generateProviderInfo(p, flags, ps.readUserState(userId), userId);
             }
         }
         return null;
@@ -368,28 +388,21 @@ public class BPackageManagerService extends IBPackageManagerService.Stub impleme
 
     @Override
     public List<ApplicationInfo> getInstalledApplications(int flags, int userId) {
-        return getInstalledApplicationsListInternal(flags, userId, Binder.getCallingUid());
+        return getInstalledApplicationsListInternal(flags, userId);
     }
 
     @Override
     public List<PackageInfo> getInstalledPackages(int flags, int userId) {
-        final int callingUid = Binder.getCallingUid();
-        /*if (getInstantAppPackageName(callingUid) != null) {
-            return ParceledListSlice.emptyList();
-        }*/
-        if (!sUserManager.exists(userId)) return Collections.emptyList();
+        if (!sUserManager.exists(userId)) {
+            return Collections.emptyList();
+        }
 
         // writer
         synchronized (mPackages) {
             ArrayList<PackageInfo> list;
             list = new ArrayList<>(mPackages.size());
+
             for (BPackageSettings ps : mPackages.values()) {
-                /*if (filterSharedLibPackageLPr(ps, callingUid, userId, flags)) {
-                    continue;
-                }
-                if (filterAppAccessLPr(ps, callingUid, userId)) {
-                    continue;
-                */
                 PackageInfo pi = getPackageInfo(ps.pkg.packageName, flags, userId);
                 if (pi != null) {
                     list.add(pi);
@@ -399,26 +412,23 @@ public class BPackageManagerService extends IBPackageManagerService.Stub impleme
         }
     }
 
-    private List<ApplicationInfo> getInstalledApplicationsListInternal(int flags, int userId,
-                                                                       int callingUid) {
-        if (!sUserManager.exists(userId)) return Collections.emptyList();
+    private List<ApplicationInfo> getInstalledApplicationsListInternal(int flags, int userId) {
+        if (!sUserManager.exists(userId)) {
+            return Collections.emptyList();
+        }
 
-        // Writer
+        // writer
         synchronized (mPackages) {
             ArrayList<ApplicationInfo> list;
             list = new ArrayList<>(mPackages.size());
             Collection<BPackageSettings> packageSettings = mPackages.values();
+
             for (BPackageSettings ps : packageSettings) {
-                /*if (filterSharedLibPackageLPr(ps, Binder.getCallingUid(), userId, flags)) {
+                if (GmsCore.isGoogleAppOrService(ps.pkg.packageName)) {
                     continue;
                 }
-                if (filterAppAccessLPr(ps, callingUid, userId)) {
-                    continue;
-                }*/
-                if (GmsCore.isGoogleAppOrService(ps.pkg.packageName))
-                    continue;
-                ApplicationInfo ai = PackageManagerCompat.generateApplicationInfo(ps.pkg, flags,
-                        ps.readUserState(userId), userId);
+
+                ApplicationInfo ai = PackageManagerCompat.generateApplicationInfo(ps.pkg, flags, ps.readUserState(userId), userId);
                 if (ai != null) {
                     list.add(ai);
                 }
@@ -428,8 +438,11 @@ public class BPackageManagerService extends IBPackageManagerService.Stub impleme
     }
 
     @Override
-    public List<ResolveInfo> queryIntentActivities(Intent intent, int flags, String resolvedType, int userId) throws RemoteException {
-        if (!sUserManager.exists(userId)) return Collections.emptyList();
+    public List<ResolveInfo> queryIntentActivities(Intent intent, int flags, String resolvedType, int userId) {
+        if (!sUserManager.exists(userId)) {
+            return Collections.emptyList();
+        }
+
         final String pkgName = intent.getPackage();
         ComponentName comp = intent.getComponent();
         if (comp == null) {
@@ -463,9 +476,9 @@ public class BPackageManagerService extends IBPackageManagerService.Stub impleme
                 if (bPackageSettings != null) {
                     final BPackage pkg = bPackageSettings.pkg;
 
-                    result = mComponentResolver.queryActivities(
-                            intent, resolvedType, flags, pkg.activities, userId);
+                    result = mComponentResolver.queryActivities(intent, resolvedType, flags, pkg.activities, userId);
                 }
+
                 if (result == null || result.size() == 0) {
                     // the caller wants to resolve for a particular package; however, there
                     // were no installed results, so, try to find an ephemeral result
@@ -480,8 +493,10 @@ public class BPackageManagerService extends IBPackageManagerService.Stub impleme
     }
 
     @Override
-    public List<ResolveInfo> queryBroadcastReceivers(Intent intent, int flags, String resolvedType, int userId) throws RemoteException {
-        if (!sUserManager.exists(userId)) return Collections.emptyList();
+    public List<ResolveInfo> queryBroadcastReceivers(Intent intent, int flags, String resolvedType, int userId) {
+        if (!sUserManager.exists(userId)) {
+            return Collections.emptyList();
+        }
 
         ComponentName comp = intent.getComponent();
         if (comp == null) {
@@ -490,6 +505,7 @@ public class BPackageManagerService extends IBPackageManagerService.Stub impleme
                 comp = intent.getComponent();
             }
         }
+
         if (comp != null) {
             final List<ResolveInfo> list = new ArrayList<>(1);
             final ActivityInfo ai = getReceiverInfo(comp, flags, userId);
@@ -511,8 +527,7 @@ public class BPackageManagerService extends IBPackageManagerService.Stub impleme
             BPackageSettings bPackageSettings = mPackages.get(pkgName);
             if (bPackageSettings != null) {
                 final BPackage pkg = bPackageSettings.pkg;
-                return mComponentResolver.queryReceivers(
-                        intent, resolvedType, flags, pkg.receivers, userId);
+                return mComponentResolver.queryReceivers(intent, resolvedType, flags, pkg.receivers, userId);
             } else {
                 return mComponentResolver.queryReceivers(intent, resolvedType, flags, userId);
             }
@@ -521,12 +536,15 @@ public class BPackageManagerService extends IBPackageManagerService.Stub impleme
 
     @Override
     public List<ProviderInfo> queryContentProviders(String processName, int uid, int flags, int userId) throws RemoteException {
-        if (!sUserManager.exists(userId)) return Collections.emptyList();
+        if (!sUserManager.exists(userId)) {
+            return Collections.emptyList();
+        }
 
         List<ProviderInfo> providers = new ArrayList<>();
-        if (TextUtils.isEmpty(processName))
+        if (TextUtils.isEmpty(processName)) {
             return providers;
-        providers.addAll(mComponentResolver.queryProviders(processName, null, flags, userId));
+        }
+        providers.addAll(mComponentResolver.queryProviders(processName, flags, userId));
         return providers;
     }
 
@@ -542,21 +560,20 @@ public class BPackageManagerService extends IBPackageManagerService.Stub impleme
         synchronized (mInstallLock) {
             synchronized (mPackages) {
                 BPackageSettings ps = mPackages.get(packageName);
-                if (ps == null)
+                if (ps == null) {
                     return;
+                }
+
                 if (ps.installOption.isFlag(InstallOption.FLAG_XPOSED) && userId != BUserHandle.USER_XPOSED) {
                     return;
                 }
+
                 if (!isInstalled(packageName, userId)) {
                     return;
                 }
+
                 boolean removeApp = ps.getUserState().size() <= 1;
                 BProcessManagerService.get().killPackageAsUser(packageName, userId);
-                int i = BPackageInstallerService.get().uninstallPackageAsUser(ps, removeApp, userId);
-                if (i < 0) {
-                    // todo
-                }
-
                 if (removeApp) {
                     mSettings.removePackage(packageName);
                     mComponentResolver.removeAllComponents(ps.pkg);
@@ -574,8 +591,10 @@ public class BPackageManagerService extends IBPackageManagerService.Stub impleme
         synchronized (mInstallLock) {
             synchronized (mPackages) {
                 BPackageSettings ps = mPackages.get(packageName);
-                if (ps == null)
+                if (ps == null) {
                     return;
+                }
+
                 BProcessManagerService.get().killAllByPackageName(packageName);
                 if (ps.installOption.isFlag(InstallOption.FLAG_XPOSED)) {
                     for (BUserInfo user : BUserManagerService.get().getAllUsers()) {
@@ -594,6 +613,7 @@ public class BPackageManagerService extends IBPackageManagerService.Stub impleme
                         onPackageUninstalled(packageName, true, userId);
                     }
                 }
+
                 mSettings.removePackage(packageName);
                 mComponentResolver.removeAllComponents(ps.pkg);
             }
@@ -606,10 +626,6 @@ public class BPackageManagerService extends IBPackageManagerService.Stub impleme
             return;
         }
         BProcessManagerService.get().killPackageAsUser(packageName, userId);
-        BPackageSettings ps = mPackages.get(packageName);
-        if (ps == null)
-            return;
-        int i = BPackageInstallerService.get().clearPackage(ps, userId);
     }
 
     @Override
@@ -628,18 +644,25 @@ public class BPackageManagerService extends IBPackageManagerService.Stub impleme
 
     @Override
     public boolean isInstalled(String packageName, int userId) {
-        if (!sUserManager.exists(userId)) return false;
+        if (!sUserManager.exists(userId)) {
+            return false;
+        }
+
         synchronized (mPackages) {
             BPackageSettings ps = mPackages.get(packageName);
-            if (ps == null)
+            if (ps == null) {
                 return false;
+            }
             return ps.getInstalled(userId);
         }
     }
 
     @Override
     public List<InstalledPackage> getInstalledPackagesAsUser(int userId) {
-        if (!sUserManager.exists(userId)) return Collections.emptyList();
+        if (!sUserManager.exists(userId)) {
+            return Collections.emptyList();
+        }
+
         synchronized (mPackages) {
             List<InstalledPackage> installedPackages = new ArrayList<>();
             for (BPackageSettings ps : mPackages.values()) {
@@ -655,8 +678,11 @@ public class BPackageManagerService extends IBPackageManagerService.Stub impleme
     }
 
     @Override
-    public String[] getPackagesForUid(int uid, int userId) throws RemoteException {
-        if (!sUserManager.exists(userId)) return new String[]{};
+    public String[] getPackagesForUid(int uid, int userId) {
+        if (!sUserManager.exists(userId)) {
+            return new String[]{};
+        }
+
         synchronized (mPackages) {
             List<String> packages = new ArrayList<>();
             for (BPackageSettings ps : mPackages.values()) {
@@ -665,6 +691,7 @@ public class BPackageManagerService extends IBPackageManagerService.Stub impleme
                     packages.add(packageName);
                 }
             }
+
             if (packages.isEmpty()) {
                 ProcessRecord processByPid = BProcessManagerService.get().findProcessByPid(getCallingPid());
                 if (processByPid != null) {
@@ -679,10 +706,12 @@ public class BPackageManagerService extends IBPackageManagerService.Stub impleme
         long l = System.currentTimeMillis();
         InstallResult result = new InstallResult();
         File apkFile = null;
+
         try {
             if (!sUserManager.exists(userId)) {
                 sUserManager.createUser(userId);
             }
+
             if (option.isFlag(InstallOption.FLAG_URI_FILE)) {
                 apkFile = new File(BEnvironment.getCacheDir(), UUID.randomUUID().toString() + ".apk");
                 InputStream inputStream = BlackBoxCore.getContext().getContentResolver().openInputStream(Uri.parse(file));
@@ -695,12 +724,12 @@ public class BPackageManagerService extends IBPackageManagerService.Stub impleme
                 return new InstallResult().installError("Please install the XP module in XP module management");
             }
             if (option.isFlag(InstallOption.FLAG_XPOSED) && !XposedParserCompat.isXPModule(apkFile.getAbsolutePath())) {
-                return new InstallResult().installError("not a XP module");
+                return new InstallResult().installError("Not a XP module");
             }
 
             PackageInfo packageArchiveInfo = BlackBoxCore.getPackageManager().getPackageArchiveInfo(apkFile.getAbsolutePath(), 0);
             if (packageArchiveInfo == null) {
-                return result.installError("getPackageArchiveInfo error.Please check whether APK is normal.");
+                return result.installError("getPackageArchiveInfo error. Please check whether APK is normal.");
             }
 
             boolean support = AbiUtils.isSupport(apkFile);
@@ -709,12 +738,13 @@ public class BPackageManagerService extends IBPackageManagerService.Stub impleme
                 return result.installError(packageArchiveInfo.packageName,
                         msg + "\n" + (BlackBoxCore.is64Bit() ? "The box does not support 32-bit Application" : "The box does not support 64-bit Application"));
             }
+
             PackageParser.Package aPackage = parserApk(apkFile.getAbsolutePath());
             if (aPackage == null) {
-                return result.installError("parser apk error.");
+                return result.installError("Parser apk error.");
             }
-            result.packageName = aPackage.packageName;
 
+            result.packageName = aPackage.packageName;
             if (option.isFlag(InstallOption.FLAG_SYSTEM)) {
                 aPackage.applicationInfo = BlackBoxCore.getPackageManager().getPackageInfo(aPackage.packageName, 0).applicationInfo;
             }
@@ -725,12 +755,14 @@ public class BPackageManagerService extends IBPackageManagerService.Stub impleme
 
             int i = BPackageInstallerService.get().installPackageAsUser(bPackageSettings, userId);
             if (i < 0) {
-                return result.installError("install apk error.");
+                return result.installError("Install apk error.");
             }
+
             synchronized (mPackages) {
                 bPackageSettings.setInstalled(true, userId);
                 bPackageSettings.save();
             }
+
             mComponentResolver.removeAllComponents(bPackageSettings.pkg);
             mComponentResolver.addAllComponents(bPackageSettings.pkg);
             mSettings.scanPackage(aPackage.packageName);
@@ -749,7 +781,7 @@ public class BPackageManagerService extends IBPackageManagerService.Stub impleme
 
     private PackageParser.Package parserApk(String file) {
         try {
-            PackageParser parser = PackageParserCompat.createParser(new File(file));
+            PackageParser parser = PackageParserCompat.createParser();
             PackageParser.Package aPackage = PackageParserCompat.parsePackage(parser, new File(file), 0);
             PackageParserCompat.collectCertificates(parser, aPackage, 0);
             return aPackage;
@@ -769,38 +801,24 @@ public class BPackageManagerService extends IBPackageManagerService.Stub impleme
     /**
      * Update given flags based on encryption status of current user.
      */
-    private int updateFlags(int flags, int userId) {
-        if ((flags & (MATCH_DIRECT_BOOT_UNAWARE
-                | PackageManager.MATCH_DIRECT_BOOT_AWARE)) != 0) {
-            // Caller expressed an explicit opinion about what encryption
-            // aware/unaware components they want to see, so fall through and
-            // give them what they want
-        } else {
-            // Caller expressed no opinion, so match based on user state
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                flags |= PackageManager.MATCH_DIRECT_BOOT_AWARE | MATCH_DIRECT_BOOT_UNAWARE;
-            }
+    private int updateFlags(int flags) {
+        // Caller expressed no opinion, so match based on user state
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            flags |= PackageManager.MATCH_DIRECT_BOOT_AWARE | MATCH_DIRECT_BOOT_UNAWARE;
         }
         return flags;
     }
 
     public int getAppId(String packageName) {
         BPackageSettings bPackageSettings = mPackages.get(packageName);
-        if (bPackageSettings != null)
+        if (bPackageSettings != null) {
             return bPackageSettings.appId;
+        }
         return -1;
-    }
-
-    Settings getSettings() {
-        return mSettings;
     }
 
     public void addPackageMonitor(PackageMonitor monitor) {
         mPackageMonitors.add(monitor);
-    }
-
-    public void removePackageMonitor(PackageMonitor monitor) {
-        mPackageMonitors.remove(monitor);
     }
 
     void onPackageUninstalled(String packageName, boolean isRemove, int userId) {

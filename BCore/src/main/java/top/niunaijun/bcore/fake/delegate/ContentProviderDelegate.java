@@ -9,29 +9,15 @@ import java.lang.reflect.Proxy;
 import java.util.HashSet;
 import java.util.Set;
 
-import black.android.app.BRActivityThread;
-import black.android.app.BRActivityThreadProviderClientRecordP;
-import black.android.app.BRIActivityManagerContentProviderHolder;
-import black.android.content.BRContentProviderHolderOreo;
-import black.android.providers.BRSettingsContentProviderHolder;
-import black.android.providers.BRSettingsGlobal;
-import black.android.providers.BRSettingsNameValueCache;
-import black.android.providers.BRSettingsNameValueCacheOreo;
-import black.android.providers.BRSettingsSecure;
-import black.android.providers.BRSettingsSystem;
+import black.android.app.ActivityThread;
+import black.android.app.IActivityManager;
+import black.android.content.ContentProviderHolderOreo;
+import black.android.providers.Settings;
 import top.niunaijun.bcore.BlackBoxCore;
 import top.niunaijun.bcore.fake.service.context.providers.ContentProviderStub;
 import top.niunaijun.bcore.fake.service.context.providers.SystemProviderStub;
 import top.niunaijun.bcore.utils.compat.BuildCompat;
 
-/**
- * Created by Milk on 3/31/21.
- * * ∧＿∧
- * (`･ω･∥
- * 丶　つ０
- * しーＪ
- * 此处无Bug
- */
 public class ContentProviderDelegate {
     public static final String TAG = "ContentProviderDelegate";
     private static final Set<String> sInjected = new HashSet<>();
@@ -39,13 +25,15 @@ public class ContentProviderDelegate {
     public static void update(Object holder, String auth) {
         IInterface iInterface;
         if (BuildCompat.isOreo()) {
-            iInterface = BRContentProviderHolderOreo.get(holder).provider();
+            iInterface = ContentProviderHolderOreo.provider.get(holder);
         } else {
-            iInterface = BRIActivityManagerContentProviderHolder.get(holder).provider();
+            iInterface = IActivityManager.ContentProviderHolder.provider.get(holder);
         }
 
-        if (iInterface instanceof Proxy)
+        if (iInterface instanceof Proxy) {
             return;
+        }
+
         IInterface bContentProvider;
         switch (auth) {
             case "media":
@@ -57,10 +45,11 @@ public class ContentProviderDelegate {
                 bContentProvider = new ContentProviderStub().wrapper(iInterface, BlackBoxCore.getHostPkg());
                 break;
         }
+
         if (BuildCompat.isOreo()) {
-            BRContentProviderHolderOreo.get(holder)._set_provider(bContentProvider);
+            ContentProviderHolderOreo.provider.set(holder, bContentProvider);
         } else {
-            BRIActivityManagerContentProviderHolder.get(holder)._set_provider(bContentProvider);
+            IActivityManager.ContentProviderHolder.provider.set(holder, bContentProvider);
         }
     }
 
@@ -69,35 +58,39 @@ public class ContentProviderDelegate {
 
         BlackBoxCore.getContext().getContentResolver().call(Uri.parse("content://settings"), "", null, null);
         Object activityThread = BlackBoxCore.mainThread();
-        ArrayMap<Object, Object> map = (ArrayMap<Object, Object>) BRActivityThread.get(activityThread).mProviderMap();
+        ArrayMap<Object, Object> map = (ArrayMap<Object, Object>) ActivityThread.mProviderMap.get(activityThread);
 
         for (Object value : map.values()) {
-            String[] mNames = BRActivityThreadProviderClientRecordP.get(value).mNames();
+            String[] mNames = ActivityThread.ProviderClientRecordP.mNames.get(value);
             if (mNames == null || mNames.length <= 0) {
                 continue;
             }
+
             String providerName = mNames[0];
             if (!sInjected.contains(providerName)) {
                 sInjected.add(providerName);
-                final IInterface iInterface = BRActivityThreadProviderClientRecordP.get(value).mProvider();
-                BRActivityThreadProviderClientRecordP.get(value)._set_mProvider(new ContentProviderStub().wrapper(iInterface, BlackBoxCore.getHostPkg()));
-                BRActivityThreadProviderClientRecordP.get(value)._set_mNames(new String[]{providerName});
+
+                final IInterface iInterface = ActivityThread.ProviderClientRecordP.mProvider.get(value);
+                ActivityThread.ProviderClientRecordP.mProvider.set(value, new ContentProviderStub().wrapper(iInterface, BlackBoxCore.getHostPkg()));
+                ActivityThread.ProviderClientRecordP.mNames.set(value, new String[]{providerName});
             }
         }
     }
 
     public static void clearSettingProvider() {
         Object cache;
-        cache = BRSettingsSystem.get().sNameValueCache();
+        cache = Settings.System.sNameValueCache.get();
         if (cache != null) {
             clearContentProvider(cache);
         }
-        cache = BRSettingsSecure.get().sNameValueCache();
+
+        cache = Settings.Secure.sNameValueCache.get();
         if (cache != null) {
             clearContentProvider(cache);
         }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1 && BRSettingsGlobal.getRealClass() != null) {
-            cache = BRSettingsGlobal.get().sNameValueCache();
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+            cache = Settings.Global.sNameValueCache.get();
             if (cache != null) {
                 clearContentProvider(cache);
             }
@@ -106,12 +99,12 @@ public class ContentProviderDelegate {
 
     private static void clearContentProvider(Object cache) {
         if (BuildCompat.isOreo()) {
-            Object holder = BRSettingsNameValueCacheOreo.get(cache).mProviderHolder();
+            Object holder = Settings.NameValueCacheOreo.mProviderHolder.get(cache);
             if (holder != null) {
-                BRSettingsContentProviderHolder.get(holder)._set_mContentProvider(null);
+                Settings.ContentProviderHolder.mContentProvider.set(holder, null);
             }
         } else {
-            BRSettingsNameValueCache.get(cache)._set_mContentProvider(null);
+            Settings.NameValueCache.mContentProvider.set(cache, null);
         }
     }
 }

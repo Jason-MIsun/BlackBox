@@ -5,9 +5,9 @@ import android.os.storage.StorageVolume;
 
 import java.lang.reflect.Method;
 
-import black.android.os.BRServiceManager;
-import black.android.os.mount.BRIMountServiceStub;
-import black.android.os.storage.BRIStorageManagerStub;
+import black.android.os.ServiceManager;
+import black.android.os.mount.IMountService;
+import black.android.os.storage.IStorageManager;
 import top.niunaijun.bcore.BlackBoxCore;
 import top.niunaijun.bcore.app.BActivityThread;
 import top.niunaijun.bcore.fake.hook.BinderInvocationStub;
@@ -15,26 +15,18 @@ import top.niunaijun.bcore.fake.hook.MethodHook;
 import top.niunaijun.bcore.fake.hook.ProxyMethod;
 import top.niunaijun.bcore.utils.compat.BuildCompat;
 
-/**
- * Created by Milk on 4/10/21.
- * * ∧＿∧
- * (`･ω･∥
- * 丶　つ０
- * しーＪ
- * 此处无Bug
- */
 public class IStorageManagerProxy extends BinderInvocationStub {
     public IStorageManagerProxy() {
-        super(BRServiceManager.get().getService("mount"));
+        super(ServiceManager.getService.call("mount"));
     }
 
     @Override
     protected Object getWho() {
         IInterface mount;
         if (BuildCompat.isOreo()) {
-            mount = BRIStorageManagerStub.get().asInterface(BRServiceManager.get().getService("mount"));
+            mount = IStorageManager.Stub.asInterface.call(ServiceManager.getService.call("mount"));
         } else {
-            mount = BRIMountServiceStub.get().asInterface(BRServiceManager.get().getService("mount"));
+            mount = IMountService.Stub.asInterface.call(ServiceManager.getService.call("mount"));
         }
         return mount;
     }
@@ -51,6 +43,7 @@ public class IStorageManagerProxy extends BinderInvocationStub {
 
     @ProxyMethod("getVolumeList")
     public static class GetVolumeList extends MethodHook {
+
         @Override
         protected Object hook(Object who, Method method, Object[] args) throws Throwable {
             if (args == null) {
@@ -60,10 +53,12 @@ public class IStorageManagerProxy extends BinderInvocationStub {
                 }
                 return volumeList;
             }
+
             try {
                 int uid = (int) args[0];
                 String packageName = (String) args[1];
                 int flags = (int) args[2];
+
                 StorageVolume[] volumeList = BlackBoxCore.getBStorageManager().getVolumeList(uid, packageName, flags, BActivityThread.getUserId());
                 if (volumeList == null) {
                     return method.invoke(who, args);
@@ -76,7 +71,8 @@ public class IStorageManagerProxy extends BinderInvocationStub {
     }
 
     @ProxyMethod("mkdirs")
-    public static class mkdirs extends MethodHook {
+    public static class MkDirs extends MethodHook {
+
         @Override
         protected Object hook(Object who, Method method, Object[] args) throws Throwable {
             return 0;

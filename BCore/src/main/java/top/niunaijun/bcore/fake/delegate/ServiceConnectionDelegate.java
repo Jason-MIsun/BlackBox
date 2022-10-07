@@ -9,17 +9,9 @@ import android.os.RemoteException;
 import java.util.HashMap;
 import java.util.Map;
 
-import black.android.app.BRIServiceConnectionO;
+import black.android.app.IServiceConnectionO;
 import top.niunaijun.bcore.utils.compat.BuildCompat;
 
-/**
- * Created by Milk on 4/2/21.
- * * ∧＿∧
- * (`･ω･∥
- * 丶　つ０
- * しーＪ
- * 此处无Bug
- */
 public class ServiceConnectionDelegate extends IServiceConnection.Stub {
     private static final Map<IBinder, ServiceConnectionDelegate> sServiceConnectDelegate = new HashMap<>();
     private final IServiceConnection mConn;
@@ -49,6 +41,7 @@ public class ServiceConnectionDelegate extends IServiceConnection.Stub {
             } catch (RemoteException e) {
                 e.printStackTrace();
             }
+
             delegate = new ServiceConnectionDelegate(base, intent.getComponent());
             sServiceConnectDelegate.put(iBinder, delegate);
         }
@@ -62,7 +55,7 @@ public class ServiceConnectionDelegate extends IServiceConnection.Stub {
 
     public void connected(ComponentName name, IBinder service, boolean dead) throws RemoteException {
         if (BuildCompat.isOreo()) {
-            BRIServiceConnectionO.get(mConn).connected(mComponentName, service, dead);
+            IServiceConnectionO.connected.call(mConn, mComponentName, service, dead);
         } else {
             mConn.connected(name, service);
         }

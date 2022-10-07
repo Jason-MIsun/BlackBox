@@ -4,7 +4,6 @@ import android.text.TextUtils;
 
 import top.niunaijun.bcore.utils.Reflector;
 
-
 public class SystemPropertiesCompat {
     public static String get(String key, String def) {
         try {
@@ -28,10 +27,6 @@ public class SystemPropertiesCompat {
         return null;
     }
 
-    public static boolean isExist(String key) {
-        return !TextUtils.isEmpty(get(key));
-    }
-
     public static int getInt(String key, int def) {
         try {
             return Reflector.on("android.os.SystemProperties")
@@ -41,5 +36,9 @@ public class SystemPropertiesCompat {
             e.printStackTrace();
         }
         return def;
+    }
+
+    public static boolean isExist(String key) {
+        return !TextUtils.isEmpty(get(key));
     }
 }

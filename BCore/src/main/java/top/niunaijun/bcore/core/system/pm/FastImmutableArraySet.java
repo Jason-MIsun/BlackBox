@@ -16,6 +16,8 @@
 
 package top.niunaijun.bcore.core.system.pm;
 
+import androidx.annotation.NonNull;
+
 import java.util.AbstractSet;
 import java.util.Iterator;
 
@@ -35,6 +37,7 @@ public final class FastImmutableArraySet<T> extends AbstractSet<T> {
         mContents = contents;
     }
 
+    @NonNull
     @Override
     public Iterator<T> iterator() {
         FastIterator<T> it = mIterator;

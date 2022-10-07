@@ -23,14 +23,13 @@ import android.os.Process;
 import org.lsposed.hiddenapibypass.HiddenApiBypass;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import black.android.app.BRActivityThread;
-import black.android.os.BRUserHandle;
+import black.android.app.ActivityThread;
+import black.android.os.UserHandle;
 import top.niunaijun.bcore.app.LauncherActivity;
 import top.niunaijun.bcore.app.configuration.AppLifecycleCallback;
 import top.niunaijun.bcore.app.configuration.ClientConfiguration;
@@ -60,14 +59,6 @@ import top.niunaijun.bcore.utils.compat.BundleCompat;
 import top.niunaijun.bcore.utils.compat.XposedParserCompat;
 import top.niunaijun.bcore.utils.provider.ProviderCall;
 
-/**
- * Created by Milk on 3/30/21.
- * * ∧＿∧
- * (`･ω･∥
- * 丶　つ０
- * しーＪ
- * 此处无Bug
- */
 @SuppressLint({"StaticFieldLeak", "NewApi"})
 public class BlackBoxCore extends ClientConfiguration {
     public static final String TAG = "BlackBoxCore";
@@ -81,7 +72,7 @@ public class BlackBoxCore extends ClientConfiguration {
     private final List<AppLifecycleCallback> mAppLifecycleCallbacks = new ArrayList<>();
     private final Handler mHandler = new Handler(Looper.getMainLooper());
     private final int mHostUid = Process.myUid();
-    private final int mHostUserId = BRUserHandle.get().myUserId();
+    private final int mHostUserId = UserHandle.myUserId.call();
 
     public static BlackBoxCore get() {
         return sBlackBoxCore;
@@ -141,13 +132,11 @@ public class BlackBoxCore extends ClientConfiguration {
         } else {
             mProcessType = ProcessType.BAppClient;
         }
+
         if (BlackBoxCore.get().isBlackProcess()) {
             BEnvironment.load();
-            if (processName.endsWith("p0")) {
-				// android.os.Debug.waitForDebugger();
-            }
-			// android.os.Debug.waitForDebugger();
         }
+
         if (isServerProcess()) {
             if (clientConfiguration.isEnableDaemonService()) {
                 Intent intent = new Intent();
@@ -159,12 +148,12 @@ public class BlackBoxCore extends ClientConfiguration {
                 }
             }
         }
+
         xcrash.XCrash.init(context);
         HookManager.get().init();
     }
 
     public void doCreate() {
-        // fix contentProvider
         if (isBlackProcess()) {
             ContentProviderDelegate.init();
         }
@@ -174,9 +163,8 @@ public class BlackBoxCore extends ClientConfiguration {
     }
 
     public static Object mainThread() {
-        return BRActivityThread.get().currentActivityThread();
+        return ActivityThread.currentActivityThread.call();
     }
-
 
     public void startActivity(Intent intent, int userId) {
         if (mClientConfiguration.isEnableLauncherActivity()) {
@@ -207,6 +195,7 @@ public class BlackBoxCore extends ClientConfiguration {
         if (launchIntentForPackage == null) {
             return false;
         }
+
         startActivity(launchIntentForPackage, userId);
         return true;
     }
@@ -356,10 +345,12 @@ public class BlackBoxCore extends ClientConfiguration {
         if (binder != null && binder.isBinderAlive()) {
             return binder;
         }
+
         Bundle bundle = new Bundle();
         bundle.putString("_B_|_server_name_", name);
         Bundle vm = ProviderCall.callSafely(ProxyManifest.getBindProvider(), "VM", null, bundle);
         binder = BundleCompat.getBinder(vm, "_B_|_server_");
+
         Slog.d(TAG, "getService: " + name + ", " + binder);
         mServices.put(name, binder);
         return binder;
@@ -434,6 +425,7 @@ public class BlackBoxCore extends ClientConfiguration {
                 break;
             }
         }
+
         if (processName == null) {
             throw new RuntimeException("processName = null");
         }
@@ -452,9 +444,9 @@ public class BlackBoxCore extends ClientConfiguration {
         NotificationManager nm = (NotificationManager) BlackBoxCore.getContext().getSystemService(Context.NOTIFICATION_SERVICE);
         String CHANNEL_ONE_ID = BlackBoxCore.getContext().getPackageName() + ".blackbox_core";
         String CHANNEL_ONE_NAME = "blackbox_core";
+
         if (BuildCompat.isOreo()) {
-            NotificationChannel notificationChannel = new NotificationChannel(CHANNEL_ONE_ID,
-                    CHANNEL_ONE_NAME, NotificationManager.IMPORTANCE_HIGH);
+            NotificationChannel notificationChannel = new NotificationChannel(CHANNEL_ONE_ID, CHANNEL_ONE_NAME, NotificationManager.IMPORTANCE_HIGH);
             notificationChannel.enableLights(true);
             notificationChannel.setLightColor(Color.RED);
             notificationChannel.setShowBadge(true);

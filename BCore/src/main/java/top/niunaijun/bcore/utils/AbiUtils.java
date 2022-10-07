@@ -11,14 +11,6 @@ import java.util.zip.ZipFile;
 
 import top.niunaijun.bcore.BlackBoxCore;
 
-/**
- * Created by Milk on 3/2/21.
- * * ∧＿∧
- * (`･ω･∥
- * 丶　つ０
- * しーＪ
- * 此处无Bug
- */
 public class AbiUtils {
     private final Set<String> mLibs = new HashSet<>();
     private static final Map<File, AbiUtils> sAbiUtilsMap = new HashMap<>();
@@ -29,6 +21,7 @@ public class AbiUtils {
             abiUtils = new AbiUtils(apkFile);
             sAbiUtilsMap.put(apkFile, abiUtils);
         }
+
         if (abiUtils.isEmptyAib()) {
             return true;
         }
@@ -45,9 +38,11 @@ public class AbiUtils {
         try {
             zipFile = new ZipFile(apkFile);
             Enumeration<? extends ZipEntry> entries = zipFile.entries();
+
             while (entries.hasMoreElements()) {
                 ZipEntry zipEntry = entries.nextElement();
                 String name = zipEntry.getName();
+
                 if (name.startsWith("lib/arm64-v8a")) {
                     mLibs.add("arm64-v8a");
                 } else if (name.startsWith("lib/armeabi")) {

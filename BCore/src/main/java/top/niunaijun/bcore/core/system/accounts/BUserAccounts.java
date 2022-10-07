@@ -9,9 +9,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Created by BlackBox on 2022/3/3.
- */
 public class BUserAccounts implements Parcelable {
     public final Object lock = new Object();
 
@@ -35,8 +32,9 @@ public class BUserAccounts implements Parcelable {
 
     public BAccount getAccount(Account account) {
         for (BAccount bAccount : accounts) {
-            if (bAccount.isMatch(account))
+            if (bAccount.isMatch(account)) {
                 return bAccount;
+            }
         }
         return null;
     }
@@ -48,22 +46,25 @@ public class BUserAccounts implements Parcelable {
 
     public Map<String, Integer> getVisibility(Account account) {
         BAccount bAccount = getAccount(account);
-        if (bAccount == null)
+        if (bAccount == null) {
             return new HashMap<>();
+        }
         return bAccount.visibility;
     }
 
     public Map<String, String> getAccountUserData(Account account) {
         BAccount bAccount = getAccount(account);
-        if (bAccount == null)
+        if (bAccount == null) {
             return new HashMap<>();
+        }
         return bAccount.accountUserData;
     }
 
     public Map<String, String> getAuthToken(Account account) {
         BAccount bAccount = getAccount(account);
-        if (bAccount == null)
+        if (bAccount == null) {
             return new HashMap<>();
+        }
         return bAccount.authTokens;
     }
 
@@ -103,28 +104,10 @@ public class BUserAccounts implements Parcelable {
         dest.writeTypedList(this.accounts);
     }
 
-    public void readFromParcel(Parcel source) {
-        this.userId = source.readInt();
-        this.accounts = source.createTypedArrayList(BAccount.CREATOR);
-    }
-
-    public BUserAccounts() {
-    }
+    public BUserAccounts() { }
 
     protected BUserAccounts(Parcel in) {
         this.userId = in.readInt();
         this.accounts = in.createTypedArrayList(BAccount.CREATOR);
     }
-
-    public static final Creator<BUserAccounts> CREATOR = new Creator<BUserAccounts>() {
-        @Override
-        public BUserAccounts createFromParcel(Parcel source) {
-            return new BUserAccounts(source);
-        }
-
-        @Override
-        public BUserAccounts[] newArray(int size) {
-            return new BUserAccounts[size];
-        }
-    };
 }

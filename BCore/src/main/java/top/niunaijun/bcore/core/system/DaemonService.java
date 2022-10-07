@@ -12,15 +12,6 @@ import androidx.core.app.NotificationCompat;
 import top.niunaijun.bcore.BlackBoxCore;
 import top.niunaijun.bcore.utils.compat.BuildCompat;
 
-
-/**
- * Created by Milk on 3/2/21.
- * * ∧＿∧
- * (`･ω･∥
- * 丶　つ０
- * しーＪ
- * 此处无Bug
- */
 public class DaemonService extends Service {
     public static final String TAG = "DaemonService";
     private static final int NOTIFY_ID = BlackBoxCore.getHostPkg().hashCode();

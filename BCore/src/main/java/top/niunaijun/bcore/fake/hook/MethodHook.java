@@ -4,20 +4,12 @@ import java.lang.reflect.Method;
 
 import top.niunaijun.bcore.BlackBoxCore;
 
-/**
- * Created by Milk on 3/30/21.
- * * ∧＿∧
- * (`･ω･∥
- * 丶　つ０
- * しーＪ
- * 此处无Bug
- */
 public abstract class MethodHook {
     protected String getMethodName() {
         return null;
     }
 
-    protected Object afterHook(Object result) throws Throwable {
+    protected Object afterHook(Object result) {
         return result;
     }
 

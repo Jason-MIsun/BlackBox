@@ -1,29 +1,20 @@
 package top.niunaijun.bcore.fake.service;
 
 import android.content.Context;
-import android.os.Build;
-import android.os.IBinder;
 
-import androidx.annotation.RequiresApi;
-
-import black.android.os.BRServiceManager;
-import black.android.view.BRIGraphicsStatsStub;
+import black.android.os.ServiceManager;
+import black.android.view.IGraphicsStats;
 import top.niunaijun.bcore.fake.hook.BinderInvocationStub;
 import top.niunaijun.bcore.fake.service.base.PkgMethodProxy;
 
-/**
- * @author Findger
- * @function
- * @date :2022/4/2 22:40
- **/
 public class IFingerprintManagerProxy extends BinderInvocationStub {
     public IFingerprintManagerProxy() {
-        super(BRServiceManager.get().getService(Context.FINGERPRINT_SERVICE));
+        super(ServiceManager.getService.call(Context.FINGERPRINT_SERVICE));
     }
 
     @Override
     protected Object getWho() {
-        return BRIGraphicsStatsStub.get().asInterface(BRServiceManager.get().getService(Context.FINGERPRINT_SERVICE));
+        return IGraphicsStats.Stub.asInterface.call(ServiceManager.getService.call(Context.FINGERPRINT_SERVICE));
     }
 
     @Override

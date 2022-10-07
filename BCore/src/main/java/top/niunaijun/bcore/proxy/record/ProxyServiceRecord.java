@@ -6,14 +6,6 @@ import android.os.IBinder;
 
 import top.niunaijun.bcore.utils.compat.BundleCompat;
 
-/**
- * Created by Milk on 4/1/21.
- * * ∧＿∧
- * (`･ω･∥
- * 丶　つ０
- * しーＪ
- * 此处无Bug
- */
 public class ProxyServiceRecord {
     public Intent mServiceIntent;
     public ServiceInfo mServiceInfo;
@@ -40,8 +32,10 @@ public class ProxyServiceRecord {
     public static ProxyServiceRecord create(Intent intent) {
         Intent target = intent.getParcelableExtra("_B_|_target_");
         ServiceInfo serviceInfo = intent.getParcelableExtra("_B_|_service_info_");
+
         int userId = intent.getIntExtra("_B_|_user_id_", 0);
         int startId = intent.getIntExtra("_B_|_start_id_", 0);
+
         IBinder token = BundleCompat.getBinder(intent, "_B_|_token_");
         return new ProxyServiceRecord(target, serviceInfo, token, userId, startId);
     }

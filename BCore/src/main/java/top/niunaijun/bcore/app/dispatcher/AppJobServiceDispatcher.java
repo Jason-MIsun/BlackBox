@@ -11,14 +11,6 @@ import top.niunaijun.bcore.BlackBoxCore;
 import top.niunaijun.bcore.app.BActivityThread;
 import top.niunaijun.bcore.entity.JobRecord;
 
-/**
- * Created by Milk on 4/1/21.
- * * ∧＿∧
- * (`･ω･∥
- * 丶　つ０
- * しーＪ
- * 此处无Bug
- */
 public class AppJobServiceDispatcher {
     private static final AppJobServiceDispatcher sServiceDispatcher = new AppJobServiceDispatcher();
     private final Map<Integer, JobRecord> mJobRecords = new HashMap<>();
@@ -30,8 +22,9 @@ public class AppJobServiceDispatcher {
     public boolean onStartJob(JobParameters params) {
         try {
             JobService jobService = getJobService(params.getJobId());
-            if (jobService == null)
+            if (jobService == null) {
                 return false;
+            }
             return jobService.onStartJob(params);
         } catch (Exception e) {
             e.printStackTrace();
@@ -41,14 +34,17 @@ public class AppJobServiceDispatcher {
 
     public boolean onStopJob(JobParameters params) {
         JobService jobService = getJobService(params.getJobId());
-        if (jobService == null)
+        if (jobService == null) {
             return false;
-        boolean b = jobService.onStopJob(params);
+        }
+
+        boolean isStopJob = jobService.onStopJob(params);
         jobService.onDestroy();
+
         synchronized (mJobRecords) {
             mJobRecords.remove(params.getJobId());
         }
-        return b;
+        return isStopJob;
     }
 
     public void onConfigurationChanged(Configuration newConfig) {
@@ -89,14 +85,18 @@ public class AppJobServiceDispatcher {
             if (jobRecord != null && jobRecord.mJobService != null) {
                 return jobRecord.mJobService;
             }
+
             try {
                 JobRecord record = BlackBoxCore.getBJobManager().queryJobRecord(BActivityThread.getAppProcessName(), jobId);
                 if (record == null) {
                     return null;
                 }
+
                 record.mJobService = BActivityThread.currentActivityThread().createJobService(record.mServiceInfo);
-                if (record.mJobService == null)
+                if (record.mJobService == null) {
                     return null;
+                }
+
                 mJobRecords.put(jobId, record);
                 return record.mJobService;
             } catch (Throwable t) {

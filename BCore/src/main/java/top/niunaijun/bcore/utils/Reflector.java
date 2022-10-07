@@ -1,10 +1,7 @@
 package top.niunaijun.bcore.utils;
 
-
 import android.annotation.SuppressLint;
 import android.os.Build;
-
-import androidx.annotation.RequiresApi;
 
 import org.lsposed.hiddenapibypass.HiddenApiBypass;
 
@@ -17,11 +14,11 @@ import java.lang.reflect.Modifier;
 import java.util.List;
 
 public class Reflector {
-    public static final String LOG_TAG = "Reflector";
+    public static final String TAG = "Reflector";
 
     protected Class<?> mType;
     protected Object mCaller;
-    protected Constructor mConstructor;
+    protected Constructor<?> mConstructor;
     protected Field mField;
     protected Method mMethod;
 
@@ -51,9 +48,7 @@ public class Reflector {
         return on(caller.getClass()).bind(caller);
     }
 
-    protected Reflector() {
-
-    }
+    protected Reflector() { }
 
     @SuppressLint("NewApi")
     public Reflector constructor(Class<?>... parameterTypes) throws Exception {
@@ -73,10 +68,9 @@ public class Reflector {
         if (mConstructor == null) {
             throw new Exception("Constructor was null!");
         }
+
         try {
             return (R) mConstructor.newInstance(initargs);
-        } catch (InvocationTargetException e) {
-            throw new Exception("Oops!", e.getTargetException());
         } catch (Throwable e) {
             throw new Exception("Oops!", e);
         }
@@ -93,6 +87,7 @@ public class Reflector {
         if (member == null) {
             throw new Exception(name + " was null!");
         }
+
         if (caller == null && !Modifier.isStatic(member.getModifiers())) {
             throw new Exception("Need a caller!");
         }
@@ -101,11 +96,6 @@ public class Reflector {
 
     public Reflector bind(Object caller) throws Exception {
         mCaller = checked(caller);
-        return this;
-    }
-
-    public Reflector unbind() {
-        mCaller = null;
         return this;
     }
 
@@ -133,24 +123,24 @@ public class Reflector {
         }
     }
 
-    @SuppressLint("NewApi")
     protected Field findInstanceField(String name) throws NoSuchFieldException {
-        List<Field> allInstanceFields = HiddenApiBypass.getInstanceFields(mType);
-        for (Field f : allInstanceFields) {
-            if (f.getName().equals(name)) {
-                return f;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            List<Field> allInstanceFields = HiddenApiBypass.getInstanceFields(mType);
+            for (Field field : allInstanceFields) {
+                if (field.getName().equals(name)) {
+                    return field;
+                }
             }
         }
         throw new NoSuchFieldException();
     }
 
-    @SuppressWarnings("unchecked")
     protected Field findStaticField(String name) throws NoSuchFieldException {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
             List<Field> allStaticFields = HiddenApiBypass.getStaticFields(mType);
-            for (Field f : allStaticFields) {
-                if (f.getName().equals(name)) {
-                    return f;
+            for (Field field : allStaticFields) {
+                if (field.getName().equals(name)) {
+                    return field;
                 }
             }
         }
@@ -201,7 +191,7 @@ public class Reflector {
     protected Method findMethod(String name, Class<?>... parameterTypes) throws NoSuchMethodException {
         try {
             return mType.getMethod(name, parameterTypes);
-        } catch (Exception e) {
+        } catch (NoSuchMethodException e) {
             return HiddenApiBypass.getDeclaredMethod(mType, name, parameterTypes);
         }
     }
@@ -215,8 +205,6 @@ public class Reflector {
         check(caller, mMethod, "Method");
         try {
             return (R) mMethod.invoke(caller, args);
-        } catch (InvocationTargetException e) {
-            throw new Exception("Oops!", e.getTargetException());
         } catch (Throwable e) {
             throw new Exception("Oops!", e);
         }
@@ -225,14 +213,5 @@ public class Reflector {
     @SuppressLint("NewApi")
     public static <R> R invoke(Class<?> clazz, Object thiz, String methodName, Object... args) {
         return (R) HiddenApiBypass.invoke(clazz, thiz, methodName, args);
-    }
-
-    public static Method findMethodByFirstName(Class<?> clazz, String methodName) {
-        for (Method declaredMethod : clazz.getDeclaredMethods()) {
-            if (methodName.equals(declaredMethod.getName())) {
-                return declaredMethod;
-            }
-        }
-        return null;
     }
 }

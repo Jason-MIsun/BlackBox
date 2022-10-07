@@ -7,9 +7,6 @@ import android.os.Parcelable;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 
-/**
- * Created by BlackBox on 2022/3/3.
- */
 public class BAccount implements Parcelable {
     public Account account;
     public String password;
@@ -42,17 +39,7 @@ public class BAccount implements Parcelable {
         dest.writeLong(this.updateLastAuthenticatedTime);
     }
 
-    public void readFromParcel(Parcel source) {
-        this.account = source.readParcelable(Account.class.getClassLoader());
-        this.password = source.readString();
-        this.accountUserData = (HashMap<String, String>) source.readSerializable();
-        this.visibility = (HashMap<String, Integer>) source.readSerializable();
-        this.authTokens = (HashMap<String, String>) source.readSerializable();
-        this.updateLastAuthenticatedTime = source.readLong();
-    }
-
-    public BAccount() {
-    }
+    public BAccount() { }
 
     protected BAccount(Parcel in) {
         this.account = in.readParcelable(Account.class.getClassLoader());

@@ -5,17 +5,14 @@ import android.os.IBinder;
 
 import java.lang.reflect.Method;
 
-import black.android.app.BRActivityClient;
-import black.android.util.BRSingleton;
+import black.android.app.ActivityClient;
+import black.android.util.Singleton;
 import top.niunaijun.bcore.fake.frameworks.BActivityManager;
 import top.niunaijun.bcore.fake.hook.ClassInvocationStub;
 import top.niunaijun.bcore.fake.hook.MethodHook;
 import top.niunaijun.bcore.fake.hook.ProxyMethod;
 import top.niunaijun.bcore.utils.compat.TaskDescriptionCompat;
 
-/**
- * Created by BlackBox on 2022/2/22.
- */
 public class IActivityClientProxy extends ClassInvocationStub {
     public static final String TAG = "IActivityClientProxy";
     private final Object who;
@@ -29,16 +26,17 @@ public class IActivityClientProxy extends ClassInvocationStub {
         if (who != null) {
             return who;
         }
-        Object instance = BRActivityClient.get().getInstance();
-        Object singleton = BRActivityClient.get(instance).INTERFACE_SINGLETON();
-        return BRSingleton.get(singleton).get();
+
+        Object instance = ActivityClient.getInstance.call();
+        Object singleton = ActivityClient.INTERFACE_SINGLETON.get(instance);
+        return Singleton.get.call(singleton);
     }
 
     @Override
     protected void inject(Object baseInvocation, Object proxyInvocation) {
-        Object instance = BRActivityClient.get().getInstance();
-        Object singleton = BRActivityClient.get(instance).INTERFACE_SINGLETON();
-        BRSingleton.get(singleton)._set_mInstance(proxyInvocation);
+        Object instance = ActivityClient.getInstance.call();
+        Object singleton = ActivityClient.INTERFACE_SINGLETON.get(instance);
+        Singleton.mInstance.set(singleton, proxyInvocation);
     }
 
     @Override
@@ -58,6 +56,7 @@ public class IActivityClientProxy extends ClassInvocationStub {
 
     @ProxyMethod("finishActivity")
     public static class FinishActivity extends MethodHook {
+
         @Override
         protected Object hook(Object who, Method method, Object[] args) throws Throwable {
             IBinder token = (IBinder) args[0];
@@ -68,6 +67,7 @@ public class IActivityClientProxy extends ClassInvocationStub {
 
     @ProxyMethod("activityResumed")
     public static class ActivityResumed extends MethodHook {
+
         @Override
         protected Object hook(Object who, Method method, Object[] args) throws Throwable {
             IBinder token = (IBinder) args[0];
@@ -78,6 +78,7 @@ public class IActivityClientProxy extends ClassInvocationStub {
 
     @ProxyMethod("activityDestroyed")
     public static class ActivityDestroyed extends MethodHook {
+
         @Override
         protected Object hook(Object who, Method method, Object[] args) throws Throwable {
             IBinder token = (IBinder) args[0];
@@ -89,6 +90,7 @@ public class IActivityClientProxy extends ClassInvocationStub {
     // for >= Android 12
     @ProxyMethod("setTaskDescription")
     public static class SetTaskDescription extends MethodHook {
+
         @Override
         protected Object hook(Object who, Method method, Object[] args) throws Throwable {
             ActivityManager.TaskDescription td = (ActivityManager.TaskDescription) args[1];

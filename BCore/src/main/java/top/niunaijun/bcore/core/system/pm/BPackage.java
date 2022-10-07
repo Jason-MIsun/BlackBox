@@ -31,14 +31,14 @@ import top.niunaijun.bcore.utils.compat.BuildCompat;
  * 此处无Bug
  */
 public class BPackage implements Parcelable {
-    public ArrayList<Activity> activities = new ArrayList<Activity>(0);
-    public ArrayList<Activity> receivers = new ArrayList<Activity>(0);
-    public ArrayList<Provider> providers = new ArrayList<Provider>(0);
-    public ArrayList<Service> services = new ArrayList<Service>(0);
-    public ArrayList<Instrumentation> instrumentation = new ArrayList<Instrumentation>(0);
-    public ArrayList<Permission> permissions = new ArrayList<Permission>(0);
-    public ArrayList<PermissionGroup> permissionGroups = new ArrayList<PermissionGroup>(0);
-    public ArrayList<String> requestedPermissions = new ArrayList<String>();
+    public ArrayList<Activity> activities;
+    public ArrayList<Activity> receivers;
+    public ArrayList<Provider> providers;
+    public ArrayList<Service> services;
+    public ArrayList<Instrumentation> instrumentation;
+    public ArrayList<Permission> permissions;
+    public ArrayList<PermissionGroup> permissionGroups;
+    public ArrayList<String> requestedPermissions = new ArrayList<>();
     public Signature[] mSignatures;
     public SigningDetails mSigningDetails;
     public Bundle mAppMetaData;
@@ -55,9 +55,9 @@ public class BPackage implements Parcelable {
 
     public int mSharedUserLabel;
     // Applications hardware preferences
-    public ArrayList<ConfigurationInfo> configPreferences = null;
+    public ArrayList<ConfigurationInfo> configPreferences;
     // Applications requested features
-    public ArrayList<FeatureInfo> reqFeatures = null;
+    public ArrayList<FeatureInfo> reqFeatures;
 
     public InstallOption installOption;
 
@@ -68,6 +68,7 @@ public class BPackage implements Parcelable {
             for (ActivityIntentInfo intent : selfActivity.intents) {
                 intent.activity = selfActivity;
             }
+
             selfActivity.owner = this;
             this.activities.add(selfActivity);
         }
@@ -78,6 +79,7 @@ public class BPackage implements Parcelable {
             for (ActivityIntentInfo intent : selfReceiver.intents) {
                 intent.activity = selfReceiver;
             }
+
             selfReceiver.owner = this;
             this.receivers.add(selfReceiver);
         }
@@ -88,6 +90,7 @@ public class BPackage implements Parcelable {
             for (ProviderIntentInfo intent : selfProvider.intents) {
                 intent.provider = selfProvider;
             }
+
             selfProvider.owner = this;
             this.providers.add(selfProvider);
         }
@@ -98,6 +101,7 @@ public class BPackage implements Parcelable {
             for (ServiceIntentInfo intent : selfService.intents) {
                 intent.service = selfService;
             }
+
             selfService.owner = this;
             this.services.add(selfService);
         }
@@ -130,6 +134,7 @@ public class BPackage implements Parcelable {
         } else {
             this.mSignatures = aPackage.mSignatures;
         }
+
         this.mAppMetaData = aPackage.mAppMetaData;
         // this.mExtras = new BPackageSettings((PackageSetting) aPackage.mExtras);
         this.packageName = aPackage.packageName;
@@ -154,6 +159,7 @@ public class BPackage implements Parcelable {
             for (ActivityIntentInfo intent : activity.intents) {
                 intent.activity = activity;
             }
+
             activity.owner = this;
             this.activities.add(activity);
         }
@@ -165,6 +171,7 @@ public class BPackage implements Parcelable {
             for (ActivityIntentInfo intent : activity.intents) {
                 intent.activity = activity;
             }
+
             activity.owner = this;
             this.receivers.add(activity);
         }
@@ -176,6 +183,7 @@ public class BPackage implements Parcelable {
             for (ProviderIntentInfo intent : provider.intents) {
                 intent.provider = provider;
             }
+
             provider.owner = this;
             this.providers.add(provider);
         }
@@ -187,6 +195,7 @@ public class BPackage implements Parcelable {
             for (ServiceIntentInfo intent : service.intents) {
                 intent.service = service;
             }
+
             service.owner = this;
             this.services.add(service);
         }
@@ -219,6 +228,7 @@ public class BPackage implements Parcelable {
         if (BuildCompat.isPie()) {
             this.mSigningDetails = in.readParcelable(SigningDetails.class.getClassLoader());
         }
+
         this.mSignatures = in.createTypedArray(Signature.CREATOR);
         this.mAppMetaData = in.readBundle(Bundle.class.getClassLoader());
         // this.mExtras = in.readParcelable(BPackageSettings.class.getClassLoader());
@@ -243,9 +253,11 @@ public class BPackage implements Parcelable {
         public Activity(PackageParser.Activity activity) {
             super(activity);
             this.info = activity.info;
+
             if (activity.intents != null) {
                 int size = activity.intents.size();
                 this.intents = new ArrayList<>(size);
+
                 for (PackageParser.ActivityIntentInfo intent : activity.intents) {
                     this.intents.add(new ActivityIntentInfo(intent));
                 }
@@ -257,6 +269,7 @@ public class BPackage implements Parcelable {
             this.info = parcel.readParcelable(ActivityInfo.class.getClassLoader());
             int N = parcel.readInt();
             this.intents = new ArrayList<>(N);
+
             while (N-- > 0) {
                 IntentInfo intentInfo = parcel.readParcelable(BPackage.class.getClassLoader());
                 this.intents.add(new ActivityIntentInfo(intentInfo));
@@ -270,9 +283,11 @@ public class BPackage implements Parcelable {
         public Service(PackageParser.Service service) {
             super(service);
             info = service.info;
+
             if (service.intents != null) {
                 int size = service.intents.size();
                 intents = new ArrayList<>(size);
+
                 for (PackageParser.ServiceIntentInfo intent : service.intents) {
                     intents.add(new ServiceIntentInfo(intent));
                 }
@@ -284,6 +299,7 @@ public class BPackage implements Parcelable {
             info = parcel.readParcelable(ServiceInfo.class.getClassLoader());
             int N = parcel.readInt();
             intents = new ArrayList<>(N);
+
             while (N-- > 0) {
                 IntentInfo intentInfo = parcel.readParcelable(BPackage.class.getClassLoader());
                 intents.add(new ServiceIntentInfo(intentInfo));
@@ -297,9 +313,11 @@ public class BPackage implements Parcelable {
         public Provider(PackageParser.Provider provider) {
             super(provider);
             info = provider.info;
+
             if (provider.intents != null) {
                 int size = provider.intents.size();
                 intents = new ArrayList<>(size);
+
                 for (PackageParser.ProviderIntentInfo intent : provider.intents) {
                     intents.add(new ProviderIntentInfo(intent));
                 }
@@ -311,6 +329,7 @@ public class BPackage implements Parcelable {
             info = parcel.readParcelable(ProviderInfo.class.getClassLoader());
             int N = parcel.readInt();
             intents = new ArrayList<>(N);
+
             while (N-- > 0) {
                 IntentInfo intentInfo = parcel.readParcelable(BPackage.class.getClassLoader());
                 intents.add(new ProviderIntentInfo(intentInfo));
@@ -324,9 +343,11 @@ public class BPackage implements Parcelable {
         public Instrumentation(PackageParser.Instrumentation instrumentation) {
             super(instrumentation);
             info = instrumentation.info;
+
             if (instrumentation.intents != null) {
                 int size = instrumentation.intents.size();
                 this.intents = new ArrayList<>(size);
+
                 for (PackageParser.IntentInfo intent : instrumentation.intents) {
                     this.intents.add(new IntentInfo(intent));
                 }
@@ -338,6 +359,7 @@ public class BPackage implements Parcelable {
             this.info = parcel.readParcelable(InstrumentationInfo.class.getClassLoader());
             int N = parcel.readInt();
             this.intents = new ArrayList<>(N);
+
             while (N-- > 0) {
                 IntentInfo intentInfo = parcel.readParcelable(BPackage.class.getClassLoader());
                 this.intents.add(intentInfo);
@@ -351,9 +373,11 @@ public class BPackage implements Parcelable {
         public Permission(PackageParser.Permission permission) {
             super(permission);
             this.info = permission.info;
+
             if (permission.intents != null) {
                 int size = permission.intents.size();
                 this.intents = new ArrayList<>(size);
+
                 for (PackageParser.IntentInfo intent : permission.intents) {
                     this.intents.add(new IntentInfo(intent));
                 }
@@ -365,6 +389,7 @@ public class BPackage implements Parcelable {
             this.info = parcel.readParcelable(Permission.class.getClassLoader());
             int N = parcel.readInt();
             this.intents = new ArrayList<>(N);
+
             while (N-- > 0) {
                 IntentInfo intentInfo = parcel.readParcelable(BPackage.class.getClassLoader());
                 this.intents.add(intentInfo);
@@ -378,9 +403,11 @@ public class BPackage implements Parcelable {
         public PermissionGroup(PackageParser.PermissionGroup group) {
             super(group);
             this.info = group.info;
+
             if (group.intents != null) {
                 int size = group.intents.size();
                 this.intents = new ArrayList<>(size);
+
                 for (PackageParser.IntentInfo intent : group.intents) {
                     this.intents.add(new IntentInfo(intent));
                 }
@@ -392,6 +419,7 @@ public class BPackage implements Parcelable {
             this.info = parcel.readParcelable(PermissionGroup.class.getClassLoader());
             int N = parcel.readInt();
             this.intents = new ArrayList<>(N);
+
             while (N-- > 0) {
                 IntentInfo intentInfo = parcel.readParcelable(BPackage.class.getClassLoader());
                 this.intents.add(intentInfo);
@@ -438,8 +466,6 @@ public class BPackage implements Parcelable {
     public static final class SigningDetails implements Parcelable {
         public Signature[] signatures;
 
-        public static final PackageParser.SigningDetails UNKNOWN = null;
-
         @Override
         public int describeContents() {
             return 0;
@@ -458,7 +484,7 @@ public class BPackage implements Parcelable {
             }
         }
 
-        protected SigningDetails(Parcel in) {
+        private SigningDetails(Parcel in) {
             this.signatures = in.createTypedArray(Signature.CREATOR);
         }
 
@@ -565,8 +591,7 @@ public class BPackage implements Parcelable {
                 return componentName;
             }
             if (className != null) {
-                componentName = new ComponentName(owner.packageName,
-                        className);
+                componentName = new ComponentName(owner.packageName, className);
             }
             return componentName;
         }
@@ -581,11 +606,12 @@ public class BPackage implements Parcelable {
     public void writeToParcel(Parcel dest, int flags) {
         int size = this.activities.size();
         dest.writeInt(size);
+
         for (Activity activity : this.activities) {
             dest.writeString(activity.className);
             dest.writeBundle(activity.metaData);
-
             dest.writeParcelable(activity.info, flags);
+
             if (activity.intents != null) {
                 int N = activity.intents.size();
                 dest.writeInt(N);
@@ -599,11 +625,12 @@ public class BPackage implements Parcelable {
 
         size = this.receivers.size();
         dest.writeInt(size);
+
         for (Activity receiver : this.receivers) {
             dest.writeString(receiver.className);
             dest.writeBundle(receiver.metaData);
-
             dest.writeParcelable(receiver.info, flags);
+
             if (receiver.intents != null) {
                 int N = receiver.intents.size();
                 dest.writeInt(N);
@@ -617,11 +644,12 @@ public class BPackage implements Parcelable {
 
         size = this.providers.size();
         dest.writeInt(size);
+
         for (Provider provider : this.providers) {
             dest.writeString(provider.className);
             dest.writeBundle(provider.metaData);
-
             dest.writeParcelable(provider.info, flags);
+
             if (provider.intents != null) {
                 int N = provider.intents.size();
                 dest.writeInt(N);
@@ -635,11 +663,12 @@ public class BPackage implements Parcelable {
 
         size = this.services.size();
         dest.writeInt(size);
+
         for (Service service : this.services) {
             dest.writeString(service.className);
             dest.writeBundle(service.metaData);
-
             dest.writeParcelable(service.info, flags);
+
             if (service.intents != null) {
                 int N = service.intents.size();
                 dest.writeInt(N);
@@ -653,11 +682,12 @@ public class BPackage implements Parcelable {
 
         size = this.instrumentation.size();
         dest.writeInt(size);
+
         for (Instrumentation instrumentation : this.instrumentation) {
             dest.writeString(instrumentation.className);
             dest.writeBundle(instrumentation.metaData);
-
             dest.writeParcelable(instrumentation.info, flags);
+
             if (instrumentation.intents != null) {
                 int N = instrumentation.intents.size();
                 dest.writeInt(N);
@@ -671,11 +701,12 @@ public class BPackage implements Parcelable {
 
         size = this.permissions.size();
         dest.writeInt(size);
+
         for (Permission permission : this.permissions) {
             dest.writeString(permission.className);
             dest.writeBundle(permission.metaData);
-
             dest.writeParcelable(permission.info, flags);
+
             if (permission.intents != null) {
                 int N = permission.intents.size();
                 dest.writeInt(N);
@@ -689,11 +720,12 @@ public class BPackage implements Parcelable {
 
         size = this.permissionGroups.size();
         dest.writeInt(size);
+
         for (PermissionGroup permissionGroup : this.permissionGroups) {
             dest.writeString(permissionGroup.className);
             dest.writeBundle(permissionGroup.metaData);
-
             dest.writeParcelable(permissionGroup.info, flags);
+
             if (permissionGroup.intents != null) {
                 int N = permissionGroup.intents.size();
                 dest.writeInt(N);
@@ -709,6 +741,7 @@ public class BPackage implements Parcelable {
         if (BuildCompat.isPie()) {
             dest.writeParcelable(this.mSigningDetails, flags);
         }
+
         dest.writeTypedArray(this.mSignatures, flags);
         dest.writeBundle(this.mAppMetaData);
         // dest.writeParcelable(this.mExtras, flags);

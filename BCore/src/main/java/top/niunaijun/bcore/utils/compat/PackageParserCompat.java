@@ -1,5 +1,10 @@
 package top.niunaijun.bcore.utils.compat;
 
+import static android.os.Build.VERSION_CODES.LOLLIPOP;
+import static android.os.Build.VERSION_CODES.LOLLIPOP_MR1;
+import static android.os.Build.VERSION_CODES.M;
+import static android.os.Build.VERSION_CODES.N;
+
 import android.content.pm.PackageParser;
 import android.content.pm.PackageParser.Package;
 import android.os.Build;
@@ -7,70 +12,60 @@ import android.util.DisplayMetrics;
 
 import java.io.File;
 
-import black.android.content.pm.BRPackageParser;
-import black.android.content.pm.BRPackageParserLollipop;
-import black.android.content.pm.BRPackageParserLollipop22;
-import black.android.content.pm.BRPackageParserMarshmallow;
-import black.android.content.pm.BRPackageParserNougat;
-import black.android.content.pm.BRPackageParserPie;
-
+import black.android.content.pm.PackageParserLollipop;
+import black.android.content.pm.PackageParserLollipop22;
+import black.android.content.pm.PackageParserMarshmallow;
+import black.android.content.pm.PackageParserNougat;
+import black.android.content.pm.PackageParserPie;
 import top.niunaijun.bcore.BlackBoxCore;
 
-import static android.os.Build.VERSION_CODES.LOLLIPOP;
-import static android.os.Build.VERSION_CODES.LOLLIPOP_MR1;
-import static android.os.Build.VERSION_CODES.M;
-import static android.os.Build.VERSION_CODES.N;
-
 public class PackageParserCompat {
-    public static final int[] GIDS = new int[]{};
     private static final int API_LEVEL = Build.VERSION.SDK_INT;
-    private static final int myUserId = 0;
 
-    public static PackageParser createParser(File packageFile) {
+    public static PackageParser createParser() {
         if (BuildCompat.isQ()) {
-            PackageParser packageParser = BRPackageParserPie.get()._new();
+            PackageParser packageParser = PackageParserPie._new.newInstance();
             packageParser.setCallback(new PackageParser.CallbackImpl(BlackBoxCore.getPackageManager()));
             return packageParser;
-        }else if (API_LEVEL >= 28) {
-            return BRPackageParserPie.get()._new();
-        }else if (API_LEVEL >= M) {
-            return BRPackageParserMarshmallow.get()._new();
+        } else if (API_LEVEL >= 28) {
+            return PackageParserPie._new.newInstance();
+        } else if (API_LEVEL >= M) {
+            return PackageParserMarshmallow._new.newInstance();
         } else if (API_LEVEL >= LOLLIPOP_MR1) {
-            return BRPackageParserLollipop22.get()._new();
+            return PackageParserLollipop22._new.newInstance();
         } else if (API_LEVEL >= LOLLIPOP) {
-            return BRPackageParserLollipop.get()._new();
+            return PackageParserLollipop._new.newInstance();
         }
         return null;
     }
 
-    public static Package parsePackage(PackageParser parser, File packageFile, int flags) throws Throwable {
+    public static Package parsePackage(PackageParser parser, File packageFile, int flags) {
         if (BuildCompat.isPie()) {
-            return BRPackageParserPie.getWithException(parser).parsePackage(packageFile, flags);
+            return PackageParserPie.parsePackage.call(parser, packageFile, flags);
         } else if (API_LEVEL >= M) {
-            return BRPackageParserMarshmallow.getWithException(parser).parsePackage(packageFile, flags);
+            return PackageParserMarshmallow.parsePackage.call(parser, packageFile, flags);
         } else if (API_LEVEL >= LOLLIPOP_MR1) {
-            return BRPackageParserLollipop22.getWithException(parser).parsePackage(packageFile, flags);
+            return PackageParserLollipop22.parsePackage.call(parser, packageFile, flags);
         } else if (API_LEVEL >= LOLLIPOP) {
-            return BRPackageParserLollipop.getWithException(parser).parsePackage(packageFile, flags);
+            return PackageParserLollipop.parsePackage.call(parser, packageFile, flags);
         } else {
-            return BRPackageParser.getWithException(parser).parsePackage(packageFile, null,
-                    new DisplayMetrics(), flags);
+            return black.android.content.pm.PackageParser.parsePackage.call(parser, packageFile, null, new DisplayMetrics(), flags);
         }
     }
 
-    public static void collectCertificates(PackageParser parser, Package p, int flags) throws Throwable {
+    public static void collectCertificates(PackageParser parser, Package p, int flags) {
         if (BuildCompat.isPie()) {
-            BRPackageParserPie.getWithException().collectCertificates(p, true/*skipVerify*/);
+            PackageParserPie.collectCertificates.call(p, true);
         } else if (API_LEVEL >= N) {
-            BRPackageParserNougat.getWithException().collectCertificates(p, flags);
+            PackageParserNougat.collectCertificates.call(p, flags);
         } else if (API_LEVEL >= M) {
-            BRPackageParserMarshmallow.getWithException(parser).collectCertificates(p, flags);
+            PackageParserMarshmallow.collectCertificates.call(parser, p, flags);
         } else if (API_LEVEL >= LOLLIPOP_MR1) {
-            BRPackageParserLollipop22.getWithException(parser).collectCertificates(p, flags);
+            PackageParserLollipop22.collectCertificates.call(parser, p, flags);
         } else if (API_LEVEL >= LOLLIPOP) {
-            BRPackageParserLollipop.getWithException(parser).collectCertificates(p, flags);
+            PackageParserLollipop.collectCertificates.call(parser, p, flags);
         } else {
-            BRPackageParser.get(parser).collectCertificates(p, flags);
+            black.android.content.pm.PackageParser.collectCertificates.call(parser, p, flags);
         }
     }
 }

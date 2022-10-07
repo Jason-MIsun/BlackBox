@@ -1,10 +1,7 @@
 package top.niunaijun.bcore.fake.delegate;
 
-
-import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.Application;
-import android.app.Fragment;
 import android.app.Instrumentation;
 import android.app.UiAutomation;
 import android.content.ComponentName;
@@ -16,21 +13,16 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.PersistableBundle;
-import android.os.UserHandle;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 
 import androidx.annotation.RequiresApi;
 
 import top.niunaijun.bcore.BlackBoxCore;
-import top.niunaijun.bcore.app.BActivityThread;
 import top.niunaijun.bcore.app.configuration.AppLifecycleCallback;
-import top.niunaijun.bcore.utils.Reflector;
 
 public class BaseInstrumentationDelegate extends Instrumentation {
-
     protected Instrumentation mBaseInstrumentation;
-
 
     @Override
     public void onCreate(Bundle arguments) {
@@ -365,90 +357,5 @@ public class BaseInstrumentationDelegate extends Instrumentation {
     @Override
     public UiAutomation getUiAutomation() {
         return mBaseInstrumentation.getUiAutomation();
-    }
-
-    public ActivityResult execStartActivity(Context context, IBinder binder, IBinder binder1, Activity activity, Intent intent, int i, Bundle bundle) throws Throwable {
-        if(intent == null) return null;
-        return invokeExecStartActivity(mBaseInstrumentation,
-                Context.class,
-                IBinder.class,
-                IBinder.class,
-                Activity.class,
-                Intent.class,
-                Integer.TYPE,
-                Bundle.class).callByCaller(mBaseInstrumentation, new Object[]{context, binder, binder1, activity, intent, i, bundle});
-    }
-
-    public ActivityResult execStartActivity(Context context, IBinder binder, IBinder binder1, String str, Intent intent, int i, Bundle bundle) throws Throwable {
-        if(intent == null) return null;
-        return invokeExecStartActivity(mBaseInstrumentation,
-                Context.class,
-                IBinder.class,
-                IBinder.class,
-                String.class,
-                Intent.class,
-                Integer.TYPE,
-                Bundle.class).callByCaller(mBaseInstrumentation, new Object[]{context, binder, binder1, str, intent, i, bundle});
-    }
-
-    public ActivityResult execStartActivity(Context context, IBinder binder, IBinder binder1, Fragment fragment, Intent intent, int i) throws Throwable {
-        if(intent == null) return null;
-        return invokeExecStartActivity(mBaseInstrumentation,
-                Context.class,
-                IBinder.class,
-                IBinder.class,
-                Fragment.class,
-                Intent.class,
-                Integer.TYPE).callByCaller(mBaseInstrumentation, new Object[]{context, binder, binder1, fragment, intent, i});
-    }
-
-    public ActivityResult execStartActivity(Context context, IBinder binder, IBinder binder1, Activity activity, Intent intent, int i) throws Throwable {
-        if(intent == null) return null;
-        return invokeExecStartActivity(mBaseInstrumentation,
-                Context.class,
-                IBinder.class,
-                IBinder.class,
-                Activity.class,
-                Intent.class,
-                Integer.TYPE).callByCaller(mBaseInstrumentation, new Object[]{context, binder, binder1, activity, intent, i});
-    }
-
-    public ActivityResult execStartActivity(Context context, IBinder binder, IBinder binder1, Fragment fragment, Intent intent, int i, Bundle bundle) throws Throwable {
-        if(intent == null) return null;
-        return invokeExecStartActivity(mBaseInstrumentation,
-                Context.class,
-                IBinder.class,
-                IBinder.class,
-                Fragment.class,
-                Intent.class,
-                Integer.TYPE,
-                Bundle.class).callByCaller(mBaseInstrumentation, new Object[]{context, binder, binder1, fragment, intent, i, bundle});
-    }
-
-    @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
-    public ActivityResult execStartActivity(Context context, IBinder iBinder, IBinder iBinder2, Activity activity, Intent intent, int i, Bundle bundle, UserHandle userHandle) throws Throwable {
-        if(intent == null) return null;
-        return invokeExecStartActivity(mBaseInstrumentation,
-                Context.class,
-                IBinder.class,
-                IBinder.class,
-                Activity.class,
-                Intent.class,
-                Integer.TYPE,
-                Bundle.class,
-                UserHandle.class).callByCaller(mBaseInstrumentation, new Object[]{context, iBinder, iBinder2, activity, intent, i, bundle, userHandle});
-    }
-
-    private static Reflector invokeExecStartActivity(Object obj, Class<?>... args) throws NoSuchMethodException {
-        Class<?> cls = obj.getClass();
-        while (cls != null) {
-            try {
-                return Reflector.on(obj.getClass())
-                        .method("execStartActivity", args);
-            } catch (Exception e) {
-                cls = cls.getSuperclass();
-            }
-        }
-        throw new NoSuchMethodException();
     }
 }

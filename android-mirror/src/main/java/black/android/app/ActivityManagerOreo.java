@@ -2,15 +2,12 @@ package black.android.app;
 
 import android.os.IInterface;
 
-import top.niunaijun.blackreflection.annotation.BClassName;
-import top.niunaijun.blackreflection.annotation.BStaticField;
-import top.niunaijun.blackreflection.annotation.BStaticMethod;
+import black.Reflector;
 
-@BClassName("android.app.ActivityManager")
-public interface ActivityManagerOreo {
-    @BStaticField
-    Object IActivityManagerSingleton();
+public class ActivityManagerOreo {
+    public static final Reflector REF = Reflector.on("android.app.ActivityManager");
 
-    @BStaticMethod
-    IInterface getService();
+    public static Reflector.FieldWrapper<Object> IActivityManagerSingleton = REF.field("IActivityManagerSingleton");
+
+    public static Reflector.StaticMethodWrapper<IInterface> getService = REF.staticMethod("getService");
 }

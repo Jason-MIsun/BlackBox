@@ -3,14 +3,10 @@ package top.niunaijun.bcore.core.system.accounts;
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.ServiceInfo;
-import android.content.res.AssetManager;
 import android.content.res.Resources;
 import android.content.res.XmlResourceParser;
 import android.os.Bundle;
 
-import black.android.content.res.BRAssetManager;
-import top.niunaijun.bcore.core.system.pm.BPackageManagerService;
-import top.niunaijun.bcore.core.system.pm.BPackageSettings;
 import top.niunaijun.bcore.core.system.pm.PackageManagerCompat;
 
 public class RegisteredServicesParser {
@@ -21,8 +17,9 @@ public class RegisteredServicesParser {
             if (xmlId != 0) {
                 try {
                     Resources resources = getResources(context, serviceInfo.applicationInfo);
-                    if (resources == null)
+                    if (resources == null) {
                         return null;
+                    }
                     return resources.getXml(xmlId);
                 } catch (Exception e) {
                     e.printStackTrace();

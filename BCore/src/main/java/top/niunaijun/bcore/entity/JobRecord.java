@@ -6,23 +6,13 @@ import android.content.pm.ServiceInfo;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-
-/**
- * Created by Milk on 4/2/21.
- * * ∧＿∧
- * (`･ω･∥
- * 丶　つ０
- * しーＪ
- * 此处无Bug
- */
 public class JobRecord implements Parcelable {
     public JobInfo mJobInfo;
     public ServiceInfo mServiceInfo;
 
     public JobService mJobService;
 
-    public JobRecord() {
-    }
+    public JobRecord() { }
 
     @Override
     public int describeContents() {

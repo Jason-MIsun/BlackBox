@@ -5,14 +5,6 @@ import android.os.Parcelable;
 
 import java.util.jar.Attributes;
 
-/**
- * Created by Milk on 2021/5/7.
- * * ∧＿∧
- * (`･ω･∥
- * 丶　つ０
- * しーＪ
- * 此处无Bug
- */
 public class ManifestDigest implements Parcelable {
     ManifestDigest(final byte[] digest) {
         throw new RuntimeException("Stub!");

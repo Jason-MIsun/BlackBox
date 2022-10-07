@@ -8,12 +8,10 @@ import android.content.pm.ResolveInfo;
 import android.content.pm.ServiceInfo;
 import android.os.Binder;
 import android.os.RemoteException;
-import android.text.TextUtils;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import black.android.app.job.BRJobInfo;
 import top.niunaijun.bcore.BlackBoxCore;
 import top.niunaijun.bcore.core.system.BProcessManagerService;
 import top.niunaijun.bcore.core.system.ISystemService;
@@ -22,14 +20,6 @@ import top.niunaijun.bcore.core.system.pm.BPackageManagerService;
 import top.niunaijun.bcore.entity.JobRecord;
 import top.niunaijun.bcore.proxy.ProxyManifest;
 
-/**
- * Created by Milk on 4/2/21.
- * * ∧＿∧
- * (`･ω･∥
- * 丶　つ０
- * しーＪ
- * 此处无Bug
- */
 public class BJobManagerService extends IBJobManagerService.Stub implements ISystemService {
     private static final BJobManagerService sService = new BJobManagerService();
 
@@ -49,14 +39,14 @@ public class BJobManagerService extends IBJobManagerService.Stub implements ISys
         if (resolveInfo == null) {
             return info;
         }
+
         ServiceInfo serviceInfo = resolveInfo.serviceInfo;
         ProcessRecord processRecord = BProcessManagerService.get().findProcessRecord(serviceInfo.packageName, serviceInfo.processName, userId);
         if (processRecord == null) {
-            processRecord = BProcessManagerService.get().
-                    startProcessLocked(serviceInfo.packageName, serviceInfo.processName, userId, -1, Binder.getCallingPid());
+            processRecord = BProcessManagerService.get().startProcessLocked(serviceInfo.packageName, serviceInfo.processName, userId,
+                    -1, Binder.getCallingPid());
             if (processRecord == null) {
-                throw new RuntimeException(
-                        "Unable to create Process " + serviceInfo.processName);
+                throw new RuntimeException("Unable to create Process " + serviceInfo.processName);
             }
         }
         return scheduleJob(processRecord, info, serviceInfo);
@@ -73,20 +63,12 @@ public class BJobManagerService extends IBJobManagerService.Stub implements ISys
         jobRecord.mServiceInfo = serviceInfo;
 
         mJobRecords.put(formatKey(processRecord.processName, info.getId()), jobRecord);
-        BRJobInfo.get(info)._set_service(new ComponentName(BlackBoxCore.getHostPkg(), ProxyManifest.getProxyJobService(processRecord.bpid)));
+        black.android.app.job.JobInfo.service.set(info, new ComponentName(BlackBoxCore.getHostPkg(), ProxyManifest.getProxyJobService(processRecord.bpid)));
         return info;
     }
 
     @Override
-    public void cancelAll(String processName, int userId) {
-        /*if (TextUtils.isEmpty(processName)) return;
-        for (String key : mJobRecords.keySet()) {
-            if (key.startsWith(processName + "_")) {
-                JobRecord jobRecord = mJobRecords.get(key);
-                // todo
-            }
-        }*/
-    }
+    public void cancelAll(String processName, int userId) { }
 
     @Override
     public int cancel(String processName, int jobId, int userId) throws RemoteException {
@@ -98,7 +80,5 @@ public class BJobManagerService extends IBJobManagerService.Stub implements ISys
     }
 
     @Override
-    public void systemReady() {
-
-    }
+    public void systemReady() { }
 }

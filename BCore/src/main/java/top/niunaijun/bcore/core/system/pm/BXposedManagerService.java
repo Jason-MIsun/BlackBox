@@ -22,14 +22,6 @@ import top.niunaijun.bcore.utils.CloseUtils;
 import top.niunaijun.bcore.utils.FileUtils;
 import top.niunaijun.bcore.utils.compat.XposedParserCompat;
 
-/**
- * Created by Milk on 5/2/21.
- * * ∧＿∧
- * (`･ω･∥
- * 丶　つ０
- * しーＪ
- * 此处无Bug
- */
 public class BXposedManagerService extends IBXposedManagerService.Stub implements ISystemService, PackageMonitor {
     private static final BXposedManagerService sService = new BXposedManagerService();
 
@@ -42,8 +34,7 @@ public class BXposedManagerService extends IBXposedManagerService.Stub implement
         return sService;
     }
 
-    public BXposedManagerService() {
-    }
+    public BXposedManagerService() { }
 
     @Override
     public void systemReady() {
@@ -91,13 +82,16 @@ public class BXposedManagerService extends IBXposedManagerService.Stub implement
         List<ApplicationInfo> installedApplications = mPms.getInstalledApplications(PackageManager.GET_META_DATA, BUserHandle.USER_XPOSED);
         synchronized (mCacheModule) {
             for (ApplicationInfo installedApplication : installedApplications) {
-                if (mCacheModule.containsKey(installedApplication.packageName))
+                if (mCacheModule.containsKey(installedApplication.packageName)) {
                     continue;
+                }
+
                 InstalledModule installedModule = XposedParserCompat.parseModule(installedApplication);
                 if (installedModule != null) {
                     mCacheModule.put(installedApplication.packageName, installedModule);
                 }
             }
+
             ArrayList<InstalledModule> installedModules = new ArrayList<>(mCacheModule.values());
             for (InstalledModule installedModule : installedModules) {
                 installedModule.enable = isModuleEnable(installedModule.packageName);
@@ -113,6 +107,7 @@ public class BXposedManagerService extends IBXposedManagerService.Stub implement
             saveModuleStateLw();
             return;
         }
+
         Parcel parcel = null;
         try {
             parcel = FileUtils.readToParcel(xpModuleConf);
@@ -130,10 +125,12 @@ public class BXposedManagerService extends IBXposedManagerService.Stub implement
         Parcel parcel = Parcel.obtain();
         AtomicFile atomicFile = new AtomicFile(BEnvironment.getXPModuleConf());
         FileOutputStream fileOutputStream = null;
+
         try {
             mXposedConfig.writeToParcel(parcel, 0);
             parcel.setDataPosition(0);
             fileOutputStream = atomicFile.startWrite();
+
             FileUtils.writeParcelToOutput(parcel, fileOutputStream);
             atomicFile.finishWrite(fileOutputStream);
         } catch (Exception ignored) {
@@ -149,9 +146,11 @@ public class BXposedManagerService extends IBXposedManagerService.Stub implement
         if (userId != BUserHandle.USER_XPOSED && userId != BUserHandle.USER_ALL) {
             return;
         }
+
         synchronized (mCacheModule) {
             mCacheModule.remove(packageName);
         }
+
         synchronized (mLock) {
             mXposedConfig.moduleState.remove(packageName);
             saveModuleStateLw();
@@ -163,9 +162,11 @@ public class BXposedManagerService extends IBXposedManagerService.Stub implement
         if (userId != BUserHandle.USER_XPOSED && userId != BUserHandle.USER_ALL) {
             return;
         }
+
         synchronized (mCacheModule) {
             mCacheModule.remove(packageName);
         }
+
         synchronized (mLock) {
             mXposedConfig.moduleState.put(packageName, false);
             saveModuleStateLw();

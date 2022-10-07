@@ -4,14 +4,6 @@ import androidx.annotation.NonNull;
 
 import top.niunaijun.bcore.BlackBoxCore;
 
-/**
- * Created by Milk on 4/30/21.
- * * ∧＿∧
- * (`･ω･∥
- * 丶　つ０
- * しーＪ
- * 此处无Bug
- */
 public class CrashHandler implements Thread.UncaughtExceptionHandler {
     private final Thread.UncaughtExceptionHandler mDefaultHandler;
 

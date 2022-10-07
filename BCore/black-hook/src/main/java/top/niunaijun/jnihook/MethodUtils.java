@@ -1,13 +1,5 @@
 package top.niunaijun.jnihook;
 
-/**
- * Created by Milk on 3/8/21.
- * * ∧＿∧
- * (`･ω･∥
- * 丶　つ０
- * しーＪ
- * 此处无Bug
- */
 import androidx.annotation.Keep;
 
 import java.lang.reflect.Method;

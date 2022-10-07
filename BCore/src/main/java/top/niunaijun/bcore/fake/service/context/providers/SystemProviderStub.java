@@ -4,25 +4,18 @@ import android.os.IInterface;
 
 import java.lang.reflect.Method;
 
-import black.android.content.BRAttributionSource;
+import black.android.content.AttributionSource;
 import top.niunaijun.bcore.BlackBoxCore;
 import top.niunaijun.bcore.fake.hook.ClassInvocationStub;
 import top.niunaijun.bcore.utils.compat.ContextCompat;
 
-/**
- * Created by Milk on 4/8/21.
- * * ∧＿∧
- * (`･ω･∥
- * 丶　つ０
- * しーＪ
- * 此处无Bug
- */
 public class SystemProviderStub extends ClassInvocationStub implements BContentProvider {
     private IInterface mBase;
 
     @Override
     public IInterface wrapper(IInterface contentProviderProxy, String appPkg) {
         mBase = contentProviderProxy;
+
         injectHook();
         return (IInterface) getProxyInvocation();
     }
@@ -33,14 +26,10 @@ public class SystemProviderStub extends ClassInvocationStub implements BContentP
     }
 
     @Override
-    protected void inject(Object baseInvocation, Object proxyInvocation) {
-
-    }
+    protected void inject(Object baseInvocation, Object proxyInvocation) { }
 
     @Override
-    protected void onBindMethod() {
-
-    }
+    protected void onBindMethod() { }
 
     @Override
     public boolean isBadEnv() {
@@ -52,11 +41,12 @@ public class SystemProviderStub extends ClassInvocationStub implements BContentP
         if ("asBinder".equals(method.getName())) {
             return method.invoke(mBase, args);
         }
+
         if (args != null && args.length > 0) {
             Object arg = args[0];
             if (arg instanceof String) {
                 args[0] = BlackBoxCore.getHostPkg();
-            } else if (arg.getClass().getName().equals(BRAttributionSource.getRealClass().getName())) {
+            } else if (arg.getClass().getName().equals(AttributionSource.REF.getClazz().getName())) {
                 ContextCompat.fixAttributionSourceState(arg, BlackBoxCore.getHostUid());
             }
         }

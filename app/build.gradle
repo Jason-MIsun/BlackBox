@@ -8,7 +8,7 @@ android {
 
     defaultConfig {
         applicationId "top.niunaijun.blackbox"
-        minSdk rootProject.ext.minSdkVersion
+        minSdk rootProject.ext.minSdk
         targetSdk rootProject.ext.targetSdk
         versionCode rootProject.ext.versionCode
         versionName rootProject.ext.versionName

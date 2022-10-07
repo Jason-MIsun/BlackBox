@@ -6,19 +6,9 @@ import android.content.pm.ActivityInfo
 import android.os.Binder
 import android.os.IBinder
 import android.util.Log
-import top.niunaijun.bcore.core.system.am.TaskRecord
 import top.niunaijun.bcore.core.system.ProcessRecord
-import top.niunaijun.bcore.core.system.am.ActivityRecord
 import java.util.*
 
-/**
- * Created by Milk on 4/9/21.
- * * ∧＿∧
- * (`･ω･∥
- * 丶　つ０
- * しーＪ
- * 此处无Bug
- */
 class ActivityRecord : Binder() {
     @JvmField
     var task: TaskRecord? = null
@@ -43,12 +33,7 @@ class ActivityRecord : Binder() {
 
     companion object {
         @JvmStatic
-        fun create(
-            intent: Intent?,
-            info: ActivityInfo,
-            resultTo: IBinder?,
-            userId: Int
-        ): ActivityRecord {
+        fun create(intent: Intent?, info: ActivityInfo, resultTo: IBinder?, userId: Int): ActivityRecord {
             val record = ActivityRecord()
             record.intent = intent
             record.info = info
@@ -56,6 +41,7 @@ class ActivityRecord : Binder() {
             record.resultTo = resultTo
             record.userId = userId
             record.mBToken = UUID.randomUUID().toString()
+
             Log.d("ActivityRecord", record.toString())
             return record
         }

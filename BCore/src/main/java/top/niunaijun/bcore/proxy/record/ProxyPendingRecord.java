@@ -4,14 +4,6 @@ import android.content.Intent;
 
 import androidx.annotation.NonNull;
 
-/**
- * Created by Milk on 3/31/21.
- * * ∧＿∧
- * (`･ω･∥
- * 丶　つ０
- * しーＪ
- * 此处无Bug
- */
 public class ProxyPendingRecord {
     public int mUserId;
     public Intent mTarget;
@@ -35,9 +27,6 @@ public class ProxyPendingRecord {
     @NonNull
     @Override
     public String toString() {
-        return "ProxyPendingActivityRecord{" +
-                "mUserId=" + mUserId +
-                ", mTarget=" + mTarget +
-                '}';
+        return "ProxyPendingActivityRecord{" + "mUserId=" + mUserId + ", mTarget=" + mTarget + '}';
     }
 }

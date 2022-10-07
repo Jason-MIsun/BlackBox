@@ -1,6 +1,5 @@
 package top.niunaijun.bcore.core.system.pm.installer;
 
-
 import java.io.File;
 import java.io.IOException;
 
@@ -10,15 +9,6 @@ import top.niunaijun.bcore.entity.pm.InstallOption;
 import top.niunaijun.bcore.utils.FileUtils;
 import top.niunaijun.bcore.utils.NativeUtils;
 
-/**
- * Created by Milk on 4/24/21.
- * * ∧＿∧
- * (`･ω･∥
- * 丶　つ０
- * しーＪ
- * 此处无Bug
- * 拷贝文件相关
- */
 public class CopyExecutor implements Executor {
 
     @Override
@@ -50,8 +40,6 @@ public class CopyExecutor implements Executor {
                 e.printStackTrace();
                 return -1;
             }
-        } else if (option.isFlag(InstallOption.FLAG_SYSTEM)) {
-            // 系统安装
         }
         return 0;
     }

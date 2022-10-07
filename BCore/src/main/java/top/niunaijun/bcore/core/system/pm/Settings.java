@@ -24,14 +24,6 @@ import top.niunaijun.bcore.utils.FileUtils;
 import top.niunaijun.bcore.utils.Slog;
 import top.niunaijun.bcore.utils.compat.PackageParserCompat;
 
-/**
- * Created by Milk on 4/13/21.
- * * ∧＿∧
- * (`･ω･∥
- * 丶　つ０
- * しーＪ
- * 此处无Bug
- */
 /*public*/ class Settings {
     public static final String TAG = "Settings";
 
@@ -55,6 +47,7 @@ import top.niunaijun.bcore.utils.compat.PackageParserCompat;
         origSettings.installOption = installOption;
         origSettings.pkg.mExtras = origSettings;
         origSettings.pkg.applicationInfo = PackageManagerCompat.generateApplicationInfo(origSettings.pkg, 0, BPackageUserState.create(), 0);
+
         synchronized (mPackages) {
             pkgSettings = mPackages.get(name);
             if (pkgSettings != null) {
@@ -71,9 +64,10 @@ import top.niunaijun.bcore.utils.compat.PackageParserCompat;
     }
 
     boolean registerAppIdLPw(BPackageSettings p) {
-        boolean createdNew = false;
+        boolean createdNew;
         String sharedUserId = p.pkg.mSharedUserId;
         SharedUserSetting sharedUserSetting = null;
+
         if (sharedUserId != null) {
             sharedUserSetting = mSharedUsers.get(sharedUserId);
             if (sharedUserSetting == null) {
@@ -82,18 +76,16 @@ import top.niunaijun.bcore.utils.compat.PackageParserCompat;
                 mSharedUsers.put(sharedUserId, sharedUserSetting);
             }
         }
+
         if (sharedUserSetting != null) {
             p.appId = sharedUserSetting.userId;
             Slog.d(TAG, p.pkg.packageName + " sharedUserId = " + sharedUserId + ", setAppId = " + p.appId);
         }
+
         if (p.appId == 0) {
             // Assign new user ID
             p.appId = acquireAndRegisterNewAppIdLPw(p);
         }
-        /*PackageManagerService.reportSettingsProblem(Log.WARN,
-			"Package " + p.name + " could not be assigned a valid UID");
-        throw new PackageManagerException(INSTALL_FAILED_INSUFFICIENT_STORAGE,
-			"Package " + p.name + " could not be assigned a valid UID");*/
         createdNew = p.appId >= 0;
         saveUidLP();
         SharedUserSetting.saveSharedUsers();
@@ -103,8 +95,9 @@ import top.niunaijun.bcore.utils.compat.PackageParserCompat;
     private int acquireAndRegisterNewAppIdLPw(BPackageSettings obj) {
         // Let's be stupidly inefficient for now...
         Integer integer = mAppIds.get(obj.pkg.packageName);
-        if (integer != null)
+        if (integer != null) {
             return integer;
+        }
 
         if (mCurrUid >= Process.LAST_APPLICATION_UID) {
             return -1;
@@ -118,6 +111,7 @@ import top.niunaijun.bcore.utils.compat.PackageParserCompat;
         Parcel parcel = Parcel.obtain();
         FileOutputStream fileOutputStream = null;
         AtomicFile atomicFile = new AtomicFile(BEnvironment.getUidConf());
+
         try {
             Set<String> pkgName = mPackages.keySet();
             for (String s : new HashSet<>(mAppIds.keySet())) {
@@ -164,11 +158,14 @@ import top.niunaijun.bcore.utils.compat.PackageParserCompat;
             File appRootDir = BEnvironment.getAppRootDir();
             FileUtils.mkdirs(appRootDir);
             File[] apps = appRootDir.listFiles();
-            for (File app : apps) {
-                if (!app.isDirectory()) {
-                    continue;
+
+            if (apps != null) {
+                for (File app : apps) {
+                    if (!app.isDirectory()) {
+                        continue;
+                    }
+                    scanPackage(app.getName());
                 }
-                scanPackage(app.getName());
             }
         }
     }
@@ -183,6 +180,7 @@ import top.niunaijun.bcore.utils.compat.PackageParserCompat;
         String packageName = app.getName();
         Parcel packageSettingsIn = Parcel.obtain();
         File packageConf = BEnvironment.getPackageConf(packageName);
+
         try {
             byte[] bPackageSettingsBytes = FileUtils.toByteArray(packageConf);
 
@@ -203,6 +201,7 @@ import top.niunaijun.bcore.utils.compat.PackageParserCompat;
             } else {
                 bPackageSettings.pkg.applicationInfo = PackageManagerCompat.generateApplicationInfo(bPackageSettings.pkg, 0, BPackageUserState.create(), 0);
             }
+
             bPackageSettings.save();
             mPackages.put(bPackageSettings.pkg.packageName, bPackageSettings);
             Slog.d(TAG, "loaded Package: " + packageName);
@@ -225,6 +224,7 @@ import top.niunaijun.bcore.utils.compat.PackageParserCompat;
         if (aPackage == null) {
             throw new RuntimeException("parser apk error.");
         }
+
         aPackage.applicationInfo = BlackBoxCore.getPackageManager().getPackageInfo(aPackage.packageName, 0).applicationInfo;
         return getPackageLPw(aPackage.packageName, aPackage, option);
     }
@@ -235,7 +235,7 @@ import top.niunaijun.bcore.utils.compat.PackageParserCompat;
 
     private PackageParser.Package parserApk(String file) {
         try {
-            PackageParser parser = PackageParserCompat.createParser(new File(file));
+            PackageParser parser = PackageParserCompat.createParser();
             PackageParser.Package aPackage = PackageParserCompat.parsePackage(parser, new File(file), 0);
             PackageParserCompat.collectCertificates(parser, aPackage, 0);
             return aPackage;

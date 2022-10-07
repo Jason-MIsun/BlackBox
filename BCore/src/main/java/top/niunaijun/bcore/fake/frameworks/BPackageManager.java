@@ -19,16 +19,7 @@ import top.niunaijun.bcore.core.system.ServiceManager;
 import top.niunaijun.bcore.core.system.pm.IBPackageManagerService;
 import top.niunaijun.bcore.entity.pm.InstallOption;
 import top.niunaijun.bcore.entity.pm.InstallResult;
-import top.niunaijun.bcore.entity.pm.InstalledPackage;
 
-/**
- * Created by Milk on 4/14/21.
- * * ∧＿∧
- * (`･ω･∥
- * 丶　つ０
- * しーＪ
- * 此处无Bug
- */
 public class BPackageManager extends BlackManager<IBPackageManagerService> {
     private static final BPackageManager sPackageManager = new BPackageManager();
 
@@ -45,10 +36,8 @@ public class BPackageManager extends BlackManager<IBPackageManagerService> {
         Intent intentToResolve = new Intent(Intent.ACTION_MAIN);
         intentToResolve.addCategory(Intent.CATEGORY_INFO);
         intentToResolve.setPackage(packageName);
-        List<ResolveInfo> ris = queryIntentActivities(intentToResolve,
-                0,
-                intentToResolve.resolveTypeIfNeeded(BlackBoxCore.getContext().getContentResolver()),
-                userId);
+        List<ResolveInfo> ris = queryIntentActivities(intentToResolve, 0,
+                intentToResolve.resolveTypeIfNeeded(BlackBoxCore.getContext().getContentResolver()), userId);
 
         // Otherwise, try to find a main launcher activity.
         if (ris == null || ris.size() <= 0) {
@@ -56,18 +45,16 @@ public class BPackageManager extends BlackManager<IBPackageManagerService> {
             intentToResolve.removeCategory(Intent.CATEGORY_INFO);
             intentToResolve.addCategory(Intent.CATEGORY_LAUNCHER);
             intentToResolve.setPackage(packageName);
-            ris = queryIntentActivities(intentToResolve,
-                    0,
-                    intentToResolve.resolveTypeIfNeeded(BlackBoxCore.getContext().getContentResolver()),
-                    userId);
+            ris = queryIntentActivities(intentToResolve, 0, intentToResolve.resolveTypeIfNeeded(BlackBoxCore.getContext().getContentResolver()), userId);
         }
+
         if (ris == null || ris.size() <= 0) {
             return null;
         }
+
         Intent intent = new Intent(intentToResolve);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        intent.setClassName(ris.get(0).activityInfo.packageName,
-                ris.get(0).activityInfo.name);
+        intent.setClassName(ris.get(0).activityInfo.packageName, ris.get(0).activityInfo.name);
         return intent;
     }
 
@@ -263,15 +250,6 @@ public class BPackageManager extends BlackManager<IBPackageManagerService> {
             e.printStackTrace();
         }
         return false;
-    }
-
-    public List<InstalledPackage> getInstalledPackagesAsUser(int userId) {
-        try {
-            return getService().getInstalledPackagesAsUser(userId);
-        } catch (RemoteException e) {
-            e.printStackTrace();
-        }
-        return Collections.emptyList();
     }
 
     public String[] getPackagesForUid(int uid) {

@@ -2,10 +2,10 @@ package top.niunaijun.bcore.fake.service;
 
 import android.content.pm.PackageManager;
 
-import black.android.app.BRActivityThread;
-import black.android.app.BRContextImpl;
-import black.android.os.BRServiceManager;
-import black.android.permission.BRIPermissionManagerStub;
+import black.android.app.ActivityThread;
+import black.android.app.ContextImpl;
+import black.android.os.ServiceManager;
+import black.android.permission.IPermissionManager;
 import top.niunaijun.bcore.BlackBoxCore;
 import top.niunaijun.bcore.fake.hook.BinderInvocationStub;
 import top.niunaijun.bcore.fake.service.base.PkgMethodProxy;
@@ -13,29 +13,25 @@ import top.niunaijun.bcore.fake.service.base.ValueMethodProxy;
 import top.niunaijun.bcore.utils.Reflector;
 import top.niunaijun.bcore.utils.compat.BuildCompat;
 
-/**
- * Created by BlackBox on 2022/3/2.
- */
 public class IPermissionManagerProxy extends BinderInvocationStub {
     public static final String TAG = "IPermissionManagerProxy";
 
-    private static final String P = "permissionmgr";
-
     public IPermissionManagerProxy() {
-        super(BRServiceManager.get().getService(P));
+        super(ServiceManager.getService.call("permissionmgr"));
     }
 
     @Override
     protected Object getWho() {
-        return BRIPermissionManagerStub.get().asInterface(BRServiceManager.get().getService(P));
+        return IPermissionManager.Stub.asInterface.call(ServiceManager.getService.call("permissionmgr"));
     }
 
     @Override
     protected void inject(Object baseInvocation, Object proxyInvocation) {
         replaceSystemService("permissionmgr");
-        BRActivityThread.getWithException()._set_sPermissionManager(proxyInvocation);
-        Object systemContext = BRActivityThread.get(BlackBoxCore.mainThread()).getSystemContext();
-        PackageManager packageManager = BRContextImpl.get(systemContext).mPackageManager();
+        ActivityThread.sPermissionManager.set(proxyInvocation);
+
+        Object systemContext = ActivityThread.getSystemContext.call(BlackBoxCore.mainThread());
+        PackageManager packageManager = ContextImpl.mPackageManager.get(systemContext);
         if (packageManager != null) {
             try {
                 Reflector.on("android.app.ApplicationPackageManager")
@@ -59,6 +55,7 @@ public class IPermissionManagerProxy extends BinderInvocationStub {
         addMethodHook(new ValueMethodProxy("removeOnPermissionsChangeListener", 0));
         addMethodHook(new ValueMethodProxy("checkDeviceIdentifierAccess", false));
         addMethodHook(new PkgMethodProxy("shouldShowRequestPermissionRationale"));
+
         if (BuildCompat.isOreo()) {
             addMethodHook(new ValueMethodProxy("notifyDexLoad", 0));
             addMethodHook(new ValueMethodProxy("notifyPackageUse", 0));

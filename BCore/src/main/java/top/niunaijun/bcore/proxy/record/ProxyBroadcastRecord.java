@@ -4,14 +4,6 @@ import android.content.Intent;
 
 import androidx.annotation.NonNull;
 
-/**
- * Created by Milk on 4/7/21.
- * * ∧＿∧
- * (`･ω･∥
- * 丶　つ０
- * しーＪ
- * 此处无Bug
- */
 public class ProxyBroadcastRecord {
     public Intent mIntent;
     public int mUserId;
@@ -35,9 +27,6 @@ public class ProxyBroadcastRecord {
     @NonNull
     @Override
     public String toString() {
-        return "ProxyBroadcastRecord{" +
-                "mIntent=" + mIntent +
-                ", mUserId=" + mUserId +
-                '}';
+        return "ProxyBroadcastRecord{" + "mIntent=" + mIntent + ", mUserId=" + mUserId + '}';
     }
 }

@@ -12,9 +12,6 @@ import top.niunaijun.bcore.core.system.location.IBLocationManagerService;
 import top.niunaijun.bcore.entity.location.BCell;
 import top.niunaijun.bcore.entity.location.BLocation;
 
-/**
- * Created by BlackBoxing on 3/8/22.
- **/
 public class BLocationManager extends BlackManager<IBLocationManagerService> {
     private static final BLocationManager sLocationManager = new BLocationManager();
 
@@ -56,22 +53,6 @@ public class BLocationManager extends BlackManager<IBLocationManagerService> {
         return CLOSE_MODE;
     }
 
-    public void setCell(int userId, String pkg, BCell cell) {
-        try {
-            getService().setCell(userId, pkg, cell);
-        } catch (RemoteException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void setAllCell(int userId, String pkg, List<BCell> cells) {
-        try {
-            getService().setAllCell(userId, pkg, cells);
-        } catch (RemoteException e) {
-            e.printStackTrace();
-        }
-    }
-
     public List<BCell> getNeighboringCell(int userId, String pkg) {
         try {
             return getService().getNeighboringCell(userId, pkg);
@@ -79,47 +60,6 @@ public class BLocationManager extends BlackManager<IBLocationManagerService> {
             e.printStackTrace();
         }
         return null;
-    }
-
-    public List<BCell> getGlobalNeighboringCell() {
-        try {
-            return getService().getGlobalNeighboringCell();
-        } catch (RemoteException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-    public void setNeighboringCell(int userId, String pkg, List<BCell> cells) {
-        try {
-            getService().setNeighboringCell(userId, pkg, cells);
-        } catch (RemoteException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void setGlobalCell(BCell cell) {
-        try {
-            getService().setGlobalCell(cell);
-        } catch (RemoteException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void setGlobalAllCell(List<BCell> cells) {
-        try {
-            getService().setGlobalAllCell(cells);
-        } catch (RemoteException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void setGlobalNeighboringCell(List<BCell> cells) {
-        try {
-            getService().setGlobalNeighboringCell(cells);
-        } catch (RemoteException e) {
-            e.printStackTrace();
-        }
     }
 
     public BCell getCell(int userId, String pkg) {
@@ -151,23 +91,6 @@ public class BLocationManager extends BlackManager<IBLocationManagerService> {
     public BLocation getLocation(int userId, String pkg) {
         try {
             return getService().getLocation(userId, pkg);
-        } catch (RemoteException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-    public void setGlobalLocation(BLocation location) {
-        try {
-            getService().setGlobalLocation(location);
-        } catch (RemoteException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public BLocation getGlobalLocation() {
-        try {
-            return getService().getGlobalLocation();
         } catch (RemoteException e) {
             e.printStackTrace();
         }

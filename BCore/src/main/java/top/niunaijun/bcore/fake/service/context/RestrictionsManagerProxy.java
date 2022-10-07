@@ -4,29 +4,21 @@ import android.content.Context;
 
 import java.lang.reflect.Method;
 
-import black.android.content.BRIRestrictionsManagerStub;
-import black.android.os.BRServiceManager;
+import black.android.content.IRestrictionsManager;
+import black.android.os.ServiceManager;
 import top.niunaijun.bcore.BlackBoxCore;
 import top.niunaijun.bcore.fake.hook.BinderInvocationStub;
 import top.niunaijun.bcore.fake.hook.MethodHook;
 import top.niunaijun.bcore.fake.hook.ProxyMethod;
 
-/**
- * Created by Milk on 4/8/21.
- * * ∧＿∧
- * (`･ω･∥
- * 丶　つ０
- * しーＪ
- * 此处无Bug
- */
-public class RestrictionsManagerStub extends BinderInvocationStub {
-    public RestrictionsManagerStub() {
-        super(BRServiceManager.get().getService(Context.RESTRICTIONS_SERVICE));
+public class RestrictionsManagerProxy extends BinderInvocationStub {
+    public RestrictionsManagerProxy() {
+        super(ServiceManager.getService.call(Context.RESTRICTIONS_SERVICE));
     }
 
     @Override
     protected Object getWho() {
-        return BRIRestrictionsManagerStub.get().asInterface(BRServiceManager.get().getService(Context.RESTRICTIONS_SERVICE));
+        return IRestrictionsManager.Stub.asInterface.call(ServiceManager.getService.call(Context.RESTRICTIONS_SERVICE));
     }
 
     @Override

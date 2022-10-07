@@ -16,23 +16,13 @@ import top.niunaijun.bcore.entity.pm.InstallOption;
 import top.niunaijun.bcore.utils.CloseUtils;
 import top.niunaijun.bcore.utils.FileUtils;
 
-/**
- * Created by Milk on 4/21/21.
- * * ∧＿∧
- * (`･ω･∥
- * 丶　つ０
- * しーＪ
- * 此处无Bug
- */
 public class BPackageSettings implements Parcelable {
     public BPackage pkg;
     public int appId;
     public InstallOption installOption;
     public Map<Integer, BPackageUserState> userState = new HashMap<>();
-    static final BPackageUserState DEFAULT_USER_STATE = new BPackageUserState();
 
-    public BPackageSettings() {
-    }
+    public BPackageSettings() { }
 
     public List<BPackageUserState> getUserState() {
         return new ArrayList<>(userState.values());
@@ -50,22 +40,6 @@ public class BPackageSettings implements Parcelable {
         return readUserState(userId).installed;
     }
 
-    public boolean getStopped(int userId) {
-        return readUserState(userId).stopped;
-    }
-
-    public void setStopped(boolean stop, int userId) {
-        modifyUserState(userId).stopped = stop;
-    }
-
-    public boolean getHidden(int userId) {
-        return readUserState(userId).hidden;
-    }
-
-    public void setHidden(boolean hidden, int userId) {
-        modifyUserState(userId).hidden = hidden;
-    }
-
     public void removeUser(int userId) {
         userState.remove(userId);
     }
@@ -75,6 +49,7 @@ public class BPackageSettings implements Parcelable {
         if (state == null) {
             state = new BPackageUserState();
         }
+
         state = new BPackageUserState(state);
         // xp模块所有用户可见、如果开启的话
         if (installOption.isFlag(InstallOption.FLAG_XPOSED) &&
@@ -82,6 +57,7 @@ public class BPackageSettings implements Parcelable {
                 BXposedManagerService.get().isXPEnable()) {
             state.installed = true;
         }
+
         if (userId == BUserHandle.USER_ALL) {
             state.installed = true;
         }
@@ -102,10 +78,12 @@ public class BPackageSettings implements Parcelable {
             Parcel parcel = Parcel.obtain();
             AtomicFile atomicFile = new AtomicFile(BEnvironment.getPackageConf(pkg.packageName));
             FileOutputStream fileOutputStream = null;
+
             try {
                 writeToParcel(parcel, 0);
                 parcel.setDataPosition(0);
                 fileOutputStream = atomicFile.startWrite();
+
                 FileUtils.writeParcelToOutput(parcel, fileOutputStream);
                 atomicFile.finishWrite(fileOutputStream);
                 return true;
@@ -131,6 +109,7 @@ public class BPackageSettings implements Parcelable {
         dest.writeInt(this.appId);
         dest.writeParcelable(this.installOption, flags);
         dest.writeInt(this.userState.size());
+
         for (Map.Entry<Integer, BPackageUserState> entry : this.userState.entrySet()) {
             dest.writeValue(entry.getKey());
             dest.writeParcelable(entry.getValue(), flags);
@@ -142,7 +121,8 @@ public class BPackageSettings implements Parcelable {
         this.appId = in.readInt();
         this.installOption = in.readParcelable(InstallOption.class.getClassLoader());
         int userStateSize = in.readInt();
-        this.userState = new HashMap<Integer, BPackageUserState>(userStateSize);
+        this.userState = new HashMap<>(userStateSize);
+
         for (int i = 0; i < userStateSize; i++) {
             Integer key = (Integer) in.readValue(Integer.class.getClassLoader());
             BPackageUserState value = in.readParcelable(BPackageUserState.class.getClassLoader());

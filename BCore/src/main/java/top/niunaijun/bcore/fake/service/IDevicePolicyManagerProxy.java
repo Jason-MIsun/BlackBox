@@ -5,29 +5,21 @@ import android.content.Context;
 
 import java.lang.reflect.Method;
 
-import black.android.app.admin.BRIDevicePolicyManagerStub;
-import black.android.os.BRServiceManager;
+import black.android.app.admin.IDevicePolicyManager;
+import black.android.os.ServiceManager;
 import top.niunaijun.bcore.fake.hook.BinderInvocationStub;
 import top.niunaijun.bcore.fake.hook.MethodHook;
 import top.niunaijun.bcore.fake.hook.ProxyMethod;
 import top.niunaijun.bcore.utils.MethodParameterUtils;
 
-/**
- * Created by Milk on 2021/5/17.
- * * ∧＿∧
- * (`･ω･∥
- * 丶　つ０
- * しーＪ
- * 此处无Bug
- */
 public class IDevicePolicyManagerProxy extends BinderInvocationStub {
     public IDevicePolicyManagerProxy() {
-        super(BRServiceManager.get().getService(Context.DEVICE_POLICY_SERVICE));
+        super(ServiceManager.getService.call(Context.DEVICE_POLICY_SERVICE));
     }
 
     @Override
     protected Object getWho() {
-        return BRIDevicePolicyManagerStub.get().asInterface(BRServiceManager.get().getService(Context.DEVICE_POLICY_SERVICE));
+        return IDevicePolicyManager.Stub.asInterface.call(ServiceManager.getService.call(Context.DEVICE_POLICY_SERVICE));
     }
 
     @Override
@@ -42,6 +34,7 @@ public class IDevicePolicyManagerProxy extends BinderInvocationStub {
 
     @ProxyMethod("getStorageEncryptionStatus")
     public static class GetStorageEncryptionStatus extends MethodHook {
+
         @Override
         protected Object hook(Object who, Method method, Object[] args) throws Throwable {
             MethodParameterUtils.replaceFirstAppPkg(args);
@@ -51,6 +44,7 @@ public class IDevicePolicyManagerProxy extends BinderInvocationStub {
 
     @ProxyMethod("getDeviceOwnerComponent")
     public static class GetDeviceOwnerComponent extends MethodHook {
+
         @Override
         protected Object hook(Object who, Method method, Object[] args) throws Throwable {
             return new ComponentName("", "");
@@ -58,7 +52,8 @@ public class IDevicePolicyManagerProxy extends BinderInvocationStub {
     }
 
     @ProxyMethod("getDeviceOwnerName")
-    public static class getDeviceOwnerName extends MethodHook {
+    public static class GetDeviceOwnerName extends MethodHook {
+
         @Override
         protected Object hook(Object who, Method method, Object[] args) throws Throwable {
             return "BlackBox";
@@ -66,7 +61,8 @@ public class IDevicePolicyManagerProxy extends BinderInvocationStub {
     }
 
     @ProxyMethod("getProfileOwnerName")
-    public static class getProfileOwnerName extends MethodHook {
+    public static class GetProfileOwnerName extends MethodHook {
+
         @Override
         protected Object hook(Object who, Method method, Object[] args) throws Throwable {
             return "BlackBox";
@@ -74,7 +70,8 @@ public class IDevicePolicyManagerProxy extends BinderInvocationStub {
     }
 
     @ProxyMethod("isDeviceProvisioned")
-    public static class isDeviceProvisioned extends MethodHook {
+    public static class IsDeviceProvisioned extends MethodHook {
+
         @Override
         protected Object hook(Object who, Method method, Object[] args) throws Throwable {
             return true;

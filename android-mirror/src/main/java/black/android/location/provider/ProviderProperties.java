@@ -1,28 +1,10 @@
 package black.android.location.provider;
 
-import top.niunaijun.blackreflection.annotation.BClassName;
-import top.niunaijun.blackreflection.annotation.BField;
+import black.Reflector;
 
-@BClassName("android.location.provider.ProviderProperties")
-public interface ProviderProperties {
-    @BField
-    boolean mHasNetworkRequirement();
+public class ProviderProperties {
+    public static final Reflector REF = Reflector.on("android.location.provider.ProviderProperties");
 
-    @BField
-    boolean mHasSatelliteRequirement();
-
-    @BField
-    boolean mHasCellRequirement();
-
-    @BField
-    boolean mHasMonetaryCost();
-
-    @BField
-    boolean mHasAltitudeSupport();
-
-    @BField
-    boolean mHasSpeedSupport();
-
-    @BField
-    boolean mHasBearingSupport();
+    public static Reflector.FieldWrapper<Boolean> mHasNetworkRequirement = REF.field("mHasNetworkRequirement");
+    public static Reflector.FieldWrapper<Boolean> mHasCellRequirement = REF.field("mHasCellRequirement");
 }

@@ -12,47 +12,39 @@ import android.util.Log;
 
 import java.lang.reflect.Field;
 
-import black.android.app.BRActivity;
-import black.android.app.BRActivityThread;
+import black.android.app.ActivityThread;
 import top.niunaijun.bcore.BlackBoxCore;
 import top.niunaijun.bcore.app.BActivityThread;
 import top.niunaijun.bcore.fake.hook.HookManager;
 import top.niunaijun.bcore.fake.hook.IInjectHook;
 import top.niunaijun.bcore.fake.service.HCallbackProxy;
 import top.niunaijun.bcore.fake.service.IActivityClientProxy;
-import top.niunaijun.bcore.utils.HackAppUtils;
 import top.niunaijun.bcore.utils.compat.ActivityCompat;
 import top.niunaijun.bcore.utils.compat.ActivityManagerCompat;
 import top.niunaijun.bcore.utils.compat.ContextCompat;
 
 public final class AppInstrumentation extends BaseInstrumentationDelegate implements IInjectHook {
-
     private static final String TAG = AppInstrumentation.class.getSimpleName();
 
-    private static AppInstrumentation sAppInstrumentation;
+    private static final class SAppInstrumentationHolder {
+        static final AppInstrumentation sAppInstrumentation = new AppInstrumentation();
+    }
 
     public static AppInstrumentation get() {
-        if (sAppInstrumentation == null) {
-            synchronized (AppInstrumentation.class) {
-                if (sAppInstrumentation == null) {
-                    sAppInstrumentation = new AppInstrumentation();
-                }
-            }
-        }
-        return sAppInstrumentation;
+        return SAppInstrumentationHolder.sAppInstrumentation;
     }
 
-    public AppInstrumentation() {
-    }
+    public AppInstrumentation() { }
 
     @Override
     public void injectHook() {
         try {
             Instrumentation mInstrumentation = getCurrInstrumentation();
-            if (mInstrumentation == this || checkInstrumentation(mInstrumentation))
+            if (mInstrumentation == this || checkInstrumentation(mInstrumentation)) {
                 return;
+            }
             mBaseInstrumentation = mInstrumentation;
-            BRActivityThread.get(BlackBoxCore.mainThread())._set_mInstrumentation(this);
+            ActivityThread.mInstrumentation.set(BlackBoxCore.mainThread(), this);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -60,7 +52,7 @@ public final class AppInstrumentation extends BaseInstrumentationDelegate implem
 
     private Instrumentation getCurrInstrumentation() {
         Object currentActivityThread = BlackBoxCore.mainThread();
-        return BRActivityThread.get(currentActivityThread).mInstrumentation();
+        return ActivityThread.mInstrumentation.get(currentActivityThread);
     }
 
     @Override
@@ -72,10 +64,12 @@ public final class AppInstrumentation extends BaseInstrumentationDelegate implem
         if (instrumentation instanceof AppInstrumentation) {
             return true;
         }
+
         Class<?> clazz = instrumentation.getClass();
         if (Instrumentation.class.equals(clazz)) {
             return false;
         }
+
         do {
             assert clazz != null;
             Field[] fields = clazz.getDeclaredFields();
@@ -103,10 +97,10 @@ public final class AppInstrumentation extends BaseInstrumentationDelegate implem
 
     private void checkActivity(Activity activity) {
         Log.d(TAG, "callActivityOnCreate: " + activity.getClass().getName());
-        HackAppUtils.hackActivity(activity.getPackageName(), activity.getClassLoader());
         checkHCallback();
         HookManager.get().checkEnv(IActivityClientProxy.class);
-        ActivityInfo info = BRActivity.get(activity).mActivityInfo();
+
+        ActivityInfo info = black.android.app.Activity.mActivityInfo.get(activity);
         ContextCompat.fix(activity);
         ActivityCompat.fix(activity);
         if (info.theme != 0) {

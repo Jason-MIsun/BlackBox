@@ -4,49 +4,35 @@ import android.os.IInterface;
 
 import java.lang.reflect.Method;
 
-import black.android.hardware.display.BRDisplayManagerGlobal;
+import black.android.hardware.display.DisplayManagerGlobal;
 import top.niunaijun.bcore.fake.hook.ClassInvocationStub;
 import top.niunaijun.bcore.fake.hook.MethodHook;
 import top.niunaijun.bcore.fake.hook.ProxyMethod;
-import top.niunaijun.bcore.fake.service.base.PkgMethodProxy;
 import top.niunaijun.bcore.utils.MethodParameterUtils;
 
-/**
- * Created by Milk on 4/16/21.
- * * ∧＿∧
- * (`･ω･∥
- * 丶　つ０
- * しーＪ
- * 此处无Bug
- */
 public class IDisplayManagerProxy extends ClassInvocationStub {
-    public IDisplayManagerProxy() {
-    }
+    public IDisplayManagerProxy() { }
 
     @Override
     protected Object getWho() {
-        return BRDisplayManagerGlobal.get(BRDisplayManagerGlobal.get().getInstance()).mDm();
+        return DisplayManagerGlobal.mDm.get(DisplayManagerGlobal.getInstance.call());
     }
 
     @Override
     protected void inject(Object baseInvocation, Object proxyInvocation) {
-        Object dmg = BRDisplayManagerGlobal.get().getInstance();
-        BRDisplayManagerGlobal.get(dmg)._set_mDm(getProxyInvocation());
+        Object dmg = DisplayManagerGlobal.getInstance.call();
+        DisplayManagerGlobal.mDm.set(dmg, getProxyInvocation());
     }
 
     @Override
     public boolean isBadEnv() {
-        Object dmg = BRDisplayManagerGlobal.get().getInstance();
-        IInterface mDm = BRDisplayManagerGlobal.get(dmg).mDm();
+        Object dmg = DisplayManagerGlobal.getInstance.call();
+        IInterface mDm = DisplayManagerGlobal.mDm.get(dmg);
         return mDm != getProxyInvocation();
     }
 
     @ProxyMethod("createVirtualDisplay")
     public static class CreateVirtualDisplay extends MethodHook {
-        @Override
-        protected String getMethodName() {
-            return "createVirtualDisplay";
-        }
 
         @Override
         protected Object hook(Object who, Method method, Object[] args) throws Throwable {

@@ -1,20 +1,13 @@
 package black.android.os;
 
-import top.niunaijun.blackreflection.annotation.BClassName;
-import top.niunaijun.blackreflection.annotation.BStaticField;
-import top.niunaijun.blackreflection.annotation.BStaticMethod;
+import black.Reflector;
 
-@BClassName("android.os.StrictMode")
-public interface StrictMode {
-    @BStaticField
-    int DETECT_VM_FILE_URI_EXPOSURE();
+public class StrictMode {
+    public static final Reflector REF = Reflector.on("android.os.StrictMode");
 
-    @BStaticField
-    int PENALTY_DEATH_ON_FILE_URI_EXPOSURE();
+    public static Reflector.FieldWrapper<Integer> DETECT_VM_FILE_URI_EXPOSURE = REF.field("DETECT_VM_FILE_URI_EXPOSURE");
+    public static Reflector.FieldWrapper<Integer> PENALTY_DEATH_ON_FILE_URI_EXPOSURE = REF.field("PENALTY_DEATH_ON_FILE_URI_EXPOSURE");
+    public static Reflector.FieldWrapper<Integer> sVmPolicyMask = REF.field("sVmPolicyMask");
 
-    @BStaticField
-    int sVmPolicyMask();
-
-    @BStaticMethod
-    void disableDeathOnFileUriExposure();
+    public static Reflector.StaticMethodWrapper<Void> disableDeathOnFileUriExposure = REF.staticMethod("disableDeathOnFileUriExposure");
 }

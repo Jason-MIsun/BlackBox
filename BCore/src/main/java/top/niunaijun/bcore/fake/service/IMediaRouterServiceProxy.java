@@ -4,29 +4,32 @@ import android.content.Context;
 
 import java.lang.reflect.Method;
 
-import black.android.media.BRIMediaRouterServiceStub;
-import black.android.os.BRServiceManager;
+import black.android.media.IMediaRouterService;
+import black.android.os.ServiceManager;
 import top.niunaijun.bcore.fake.hook.BinderInvocationStub;
 import top.niunaijun.bcore.fake.hook.MethodHook;
 import top.niunaijun.bcore.fake.hook.ProxyMethod;
 import top.niunaijun.bcore.utils.MethodParameterUtils;
 
-/**
- * Created by BlackBox on 2022/3/1.
- */
 public class IMediaRouterServiceProxy extends BinderInvocationStub {
     public IMediaRouterServiceProxy() {
-        super(BRServiceManager.get().getService(Context.MEDIA_ROUTER_SERVICE));
+        super(ServiceManager.getService.call(Context.MEDIA_ROUTER_SERVICE));
     }
 
     @Override
     protected Object getWho() {
-        return BRIMediaRouterServiceStub.get().asInterface(BRServiceManager.get().getService(Context.MEDIA_ROUTER_SERVICE));
+        return IMediaRouterService.Stub.asInterface.call(ServiceManager.getService.call(Context.MEDIA_ROUTER_SERVICE));
     }
 
     @Override
     protected void inject(Object baseInvocation, Object proxyInvocation) {
         replaceSystemService(Context.MEDIA_ROUTER_SERVICE);
+    }
+
+    @Override
+    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+        MethodParameterUtils.replaceFirstAppPkg(args);
+        return super.invoke(proxy, method, args);
     }
 
     @Override
@@ -36,18 +39,18 @@ public class IMediaRouterServiceProxy extends BinderInvocationStub {
 
     @ProxyMethod("registerClientAsUser")
     public static class registerClientAsUser extends MethodHook {
+
         @Override
         protected Object hook(Object who, Method method, Object[] args) throws Throwable {
-            MethodParameterUtils.replaceFirstAppPkg(args);
             return method.invoke(who, args);
         }
     }
 
     @ProxyMethod("registerRouter2")
     public static class registerRouter2 extends MethodHook {
+
         @Override
         protected Object hook(Object who, Method method, Object[] args) throws Throwable {
-            MethodParameterUtils.replaceFirstAppPkg(args);
             return method.invoke(who, args);
         }
     }

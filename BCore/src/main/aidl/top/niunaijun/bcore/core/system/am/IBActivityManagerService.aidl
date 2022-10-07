@@ -32,7 +32,6 @@ interface IBActivityManagerService {
 
     void stopServiceToken(in ComponentName className, in IBinder token, int userId);
 
-    void onStartCommand(in Intent proxyIntent, int userId);
     UnbindRecord onServiceUnbind(in Intent proxyIntent, int userId);
     void onServiceDestroy(in Intent proxyIntent, int userId);
 
@@ -57,6 +56,4 @@ interface IBActivityManagerService {
     void getIntentSender(in IBinder target, String packageName, int uid, int userId);
     String getPackageForIntentSender(in IBinder target, int userId);
     int getUidForIntentSender(in IBinder target, int userId);
-
-    void setServiceForeground(in ComponentName className, in IBinder token, int id, in Notification notification, int flags, int foregroundServiceType, int userId);
 }

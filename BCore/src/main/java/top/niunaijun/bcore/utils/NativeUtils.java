@@ -14,15 +14,6 @@ import java.util.Enumeration;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
-
-/**
- * Created by Milk on 2/24/21.
- * * ∧＿∧
- * (`･ω･∥
- * 丶　つ０
- * しーＪ
- * 此处无Bug
- */
 public class NativeUtils {
     public static final String TAG = "NativeUtils";
 
@@ -31,6 +22,7 @@ public class NativeUtils {
         if (!nativeLibDir.exists()) {
             nativeLibDir.mkdirs();
         }
+
         try (ZipFile zipfile = new ZipFile(apk.getAbsolutePath())) {
             if (findAndCopyNativeLib(zipfile, Build.CPU_ABI, nativeLibDir)) {
                 return;
@@ -49,7 +41,7 @@ public class NativeUtils {
         byte[] buffer = null;
         String libPrefix = "lib/" + cpuArch + "/";
         ZipEntry entry;
-        Enumeration e = zipfile.entries();
+        Enumeration<?> e = zipfile.entries();
 
         while (e.hasMoreElements()) {
             entry = (ZipEntry) e.nextElement();
@@ -57,6 +49,7 @@ public class NativeUtils {
             if (!findLib && !entryName.startsWith("lib/")) {
                 continue;
             }
+
             findLib = true;
             if (!entryName.endsWith(".so") || !entryName.startsWith(libPrefix)) {
                 continue;
@@ -70,16 +63,13 @@ public class NativeUtils {
 
             String libName = entryName.substring(entryName.lastIndexOf('/') + 1);
             Log.d(TAG, "verify so " + libName);
-            /*File abiDir = new File(nativeLibDir, cpuArch);
-            if (!abiDir.exists()) {
-                abiDir.mkdirs();
-            }*/
 
             File libFile = new File(nativeLibDir, libName);
             if (libFile.exists() && libFile.length() == entry.getSize()) {
                 Log.d(TAG, libName + " skip copy");
                 continue;
             }
+
             FileOutputStream fos = new FileOutputStream(libFile);
             Log.d(TAG, "copy so " + entry.getName() + " of " + cpuArch);
             copySo(buffer, zipfile.getInputStream(entry), fos);
@@ -89,7 +79,6 @@ public class NativeUtils {
             Log.d(TAG, "Fast skip all!");
             return true;
         }
-
         return findSo;
     }
 
@@ -101,6 +90,7 @@ public class NativeUtils {
         while ((count = bufferedInput.read(buffer)) > 0) {
             bufferedOutput.write(buffer, 0, count);
         }
+
         bufferedOutput.flush();
         bufferedOutput.close();
         output.close();

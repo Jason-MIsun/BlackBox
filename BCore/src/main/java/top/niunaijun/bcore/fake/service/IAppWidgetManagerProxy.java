@@ -4,28 +4,20 @@ import android.content.Context;
 
 import java.lang.reflect.Method;
 
-import black.android.os.BRServiceManager;
-import black.com.android.internal.appwidget.BRIAppWidgetServiceStub;
+import black.android.os.ServiceManager;
+import black.com.android.internal.appwidget.IAppWidgetService;
 import top.niunaijun.bcore.fake.hook.BinderInvocationStub;
 import top.niunaijun.bcore.fake.service.base.ValueMethodProxy;
 import top.niunaijun.bcore.utils.MethodParameterUtils;
 
-/**
- * Created by Milk on 4/5/21.
- * * ∧＿∧
- * (`･ω･∥
- * 丶　つ０
- * しーＪ
- * 此处无Bug
- */
 public class IAppWidgetManagerProxy extends BinderInvocationStub {
     public IAppWidgetManagerProxy() {
-        super(BRServiceManager.get().getService(Context.APPWIDGET_SERVICE));
+        super(ServiceManager.getService.call(Context.APPWIDGET_SERVICE));
     }
 
     @Override
     protected Object getWho() {
-        return BRIAppWidgetServiceStub.get().asInterface(BRServiceManager.get().getService(Context.APPWIDGET_SERVICE));
+        return IAppWidgetService.Stub.asInterface.call(ServiceManager.getService.call(Context.APPWIDGET_SERVICE));
     }
 
     @Override

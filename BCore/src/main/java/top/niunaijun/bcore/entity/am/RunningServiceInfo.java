@@ -6,10 +6,6 @@ import android.os.Parcelable;
 
 import java.util.ArrayList;
 import java.util.List;
-
-/**
- * Created by BlackBox on 2022/2/25.
- */
 public class RunningServiceInfo implements Parcelable {
     public List<ActivityManager.RunningServiceInfo> mRunningServiceInfoList;
 
@@ -21,10 +17,6 @@ public class RunningServiceInfo implements Parcelable {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeTypedList(this.mRunningServiceInfoList);
-    }
-
-    public void readFromParcel(Parcel source) {
-        this.mRunningServiceInfoList = source.createTypedArrayList(ActivityManager.RunningServiceInfo.CREATOR);
     }
 
     public RunningServiceInfo() {

@@ -16,7 +16,6 @@
 
 package top.niunaijun.bcore.core.system.user;
 
-import android.os.Binder;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.os.Process;
@@ -54,21 +53,7 @@ public final class BUserHandle implements Parcelable {
      */
     public static final BUserHandle CURRENT = new BUserHandle(USER_CURRENT);
 
-    /**
-     * @hide A user id to indicate that we would like to send to the current
-     * user, but if this is calling from a user process then we will send it
-     * to the caller's user instead of failing with a security exception
-     */
-    public static final int USER_CURRENT_OR_SELF = -3;
-
     public static final int USER_XPOSED = -4;
-
-    /**
-     * @hide A user handle to indicate that we would like to send to the current
-     * user, but if this is calling from a user process then we will send it
-     * to the caller's user instead of failing with a security exception
-     */
-    public static final BUserHandle CURRENT_OR_SELF = new BUserHandle(USER_CURRENT_OR_SELF);
 
     /**
      * @hide An undefined user id
@@ -97,11 +82,6 @@ public final class BUserHandle implements Parcelable {
     public static final int USER_SYSTEM = 0;
 
     /**
-     * @hide A user serial constant to indicate the "system" user of the device
-     */
-    public static final int USER_SERIAL_SYSTEM = 0;
-
-    /**
      * @hide A user handle to indicate the "system" user of the device
      */
     public static final BUserHandle SYSTEM = new BUserHandle(USER_SYSTEM);
@@ -115,67 +95,9 @@ public final class BUserHandle implements Parcelable {
     /**
      * @hide
      */
-    public static final int ERR_GID = -1;
-    /**
-     * @hide
-     */
-    public static final int AID_ROOT = 0;
-    /**
-     * @hide
-     */
     public static final int AID_APP_START = android.os.Process.FIRST_APPLICATION_UID;
-    /**
-     * @hide
-     */
-    public static final int AID_APP_END = android.os.Process.LAST_APPLICATION_UID;
-    /**
-     * @hide
-     */
-    public static final int AID_SHARED_GID_START = 50000;
-    /**
-     * @hide
-     */
-    public static final int AID_CACHE_GID_START = 20000;
 
     final int mHandle;
-
-    /**
-     * Checks to see if the user id is the same for the two uids, i.e., they belong to the same
-     * user.
-     *
-     * @hide
-     */
-    public static boolean isSameUser(int uid1, int uid2) {
-        return getUserId(uid1) == getUserId(uid2);
-    }
-
-    /**
-     * Checks to see if both uids are referring to the same app id, ignoring the user id part of the
-     * uids.
-     *
-     * @param uid1 uid to compare
-     * @param uid2 other uid to compare
-     * @return whether the appId is the same for both uids
-     * @hide
-     */
-    public static boolean isSameApp(int uid1, int uid2) {
-        return getAppId(uid1) == getAppId(uid2);
-    }
-
-    /**
-     * Whether a UID belongs to a regular app. *Note* "Not a regular app" does not mean
-     * "it's system", because of isolated UIDs. Use {@link #isCore} for that.
-     *
-     * @hide
-     */
-    public static boolean isApp(int uid) {
-        if (uid > 0) {
-            final int appId = getAppId(uid);
-            return appId >= Process.FIRST_APPLICATION_UID && appId <= Process.LAST_APPLICATION_UID;
-        } else {
-            return false;
-        }
-    }
 
     /**
      * Whether a UID belongs to a system core component or not.
@@ -192,16 +114,6 @@ public final class BUserHandle implements Parcelable {
     }
 
     /**
-     * Returns the user for a given uid.
-     *
-     * @param uid A uid for an application running in a particular user.
-     * @return A {@link BUserHandle} for that user.
-     */
-    public static BUserHandle getUserHandleForUid(int uid) {
-        return of(getUserId(uid));
-    }
-
-    /**
      * Returns the user id for a given uid.
      *
      * @hide
@@ -212,20 +124,6 @@ public final class BUserHandle implements Parcelable {
         } else {
             return BUserHandle.USER_SYSTEM;
         }
-    }
-
-    /**
-     * @hide
-     */
-    public static int getCallingUserId() {
-        return getUserId(Binder.getCallingUid());
-    }
-
-    /**
-     * @hide
-     */
-    public static int getCallingAppId() {
-        return getAppId(Binder.getCallingUid());
     }
 
     /**
@@ -258,95 +156,6 @@ public final class BUserHandle implements Parcelable {
     }
 
     /**
-     * Returns the gid shared between all apps with this userId.
-     *
-     * @hide
-     */
-    public static int getUserGid(int userId) {
-        return getUid(userId, 9997 /*Process.SHARED_USER_GID*/);
-    }
-
-    /**
-     * @hide
-     */
-    public static int getSharedAppGid(int uid) {
-        return getSharedAppGid(getUserId(uid), getAppId(uid));
-    }
-
-    /**
-     * @hide
-     */
-    public static int getSharedAppGid(int userId, int appId) {
-        if (appId >= AID_APP_START && appId <= AID_APP_END) {
-            return (appId - AID_APP_START) + AID_SHARED_GID_START;
-        } else if (appId >= AID_ROOT && appId <= AID_APP_START) {
-            return appId;
-        } else {
-            return -1;
-        }
-    }
-
-    /**
-     * Returns the app id for a given shared app gid. Returns -1 if the ID is invalid.
-     * @hide
-     */
-    /*public static int getAppIdFromSharedAppGid(int gid) {
-        final int appId = getAppId(gid) + Process.FIRST_APPLICATION_UID
-                - Process.FIRST_SHARED_APPLICATION_GID;
-        if (appId < 0 || appId >= Process.FIRST_SHARED_APPLICATION_GID) {
-            return -1;
-        }
-        return appId;
-    }*/
-
-    /**
-     * @hide
-     */
-    public static int getCacheAppGid(int uid) {
-        return getCacheAppGid(getUserId(uid), getAppId(uid));
-    }
-
-    /**
-     * @hide
-     */
-    public static int getCacheAppGid(int userId, int appId) {
-        if (appId >= AID_APP_START && appId <= AID_APP_END) {
-            return getUid(userId, (appId - AID_APP_START) + AID_CACHE_GID_START);
-        } else {
-            return -1;
-        }
-    }
-
-    /**
-     * @hide
-     */
-    public static int parseUserArg(String arg) {
-        int userId;
-        if ("all".equals(arg)) {
-            userId = BUserHandle.USER_ALL;
-        } else if ("current".equals(arg) || "cur".equals(arg)) {
-            userId = BUserHandle.USER_CURRENT;
-        } else {
-            try {
-                userId = Integer.parseInt(arg);
-            } catch (NumberFormatException e) {
-                throw new IllegalArgumentException("Bad user number: " + arg);
-            }
-        }
-        return userId;
-    }
-
-    /**
-     * Returns the user id of the current process
-     *
-     * @return user id of the current process
-     * @hide
-     */
-    public static int myUserId() {
-        return getUserId(Process.myUid());
-    }
-
-    /**
      * Returns true if this UserHandle refers to the owner user; false otherwise.
      *
      * @return true if this UserHandle refers to the owner user; false otherwise.
@@ -373,15 +182,6 @@ public final class BUserHandle implements Parcelable {
         mHandle = h;
     }
 
-    /**
-     * Returns the userId stored in this UserHandle.
-     *
-     * @hide
-     */
-    public int getIdentifier() {
-        return mHandle;
-    }
-
     @NonNull
     @Override
     public String toString() {
@@ -395,8 +195,7 @@ public final class BUserHandle implements Parcelable {
                 BUserHandle other = (BUserHandle) obj;
                 return mHandle == other.mHandle;
             }
-        } catch (ClassCastException ignored) {
-        }
+        } catch (ClassCastException ignored) { }
         return false;
     }
 
@@ -429,23 +228,7 @@ public final class BUserHandle implements Parcelable {
         }
     }
 
-    /**
-     * Read a UserHandle from a Parcel that was previously written
-     * with {@link #writeToParcel(BUserHandle, Parcel)}, returning either
-     * a null or new object as appropriate.
-     *
-     * @param in The Parcel from which to read the UserHandle
-     * @return Returns a new UserHandle matching the previously written
-     * object, or null if a null had been written.
-     * @see #writeToParcel(BUserHandle, Parcel)
-     */
-    public static BUserHandle readFromParcel(Parcel in) {
-        int h = in.readInt();
-        return h != USER_NULL ? new BUserHandle(h) : null;
-    }
-
-    public static final Parcelable.Creator<BUserHandle> CREATOR
-            = new Creator<BUserHandle>() {
+    public static final Parcelable.Creator<BUserHandle> CREATOR = new Creator<BUserHandle>() {
         public BUserHandle createFromParcel(Parcel in) {
             return new BUserHandle(in);
         }

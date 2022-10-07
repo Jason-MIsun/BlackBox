@@ -3,34 +3,25 @@ package top.niunaijun.bcore.utils.compat;
 import android.content.Context;
 import android.content.ContextWrapper;
 
-import black.android.app.BRContextImpl;
-import black.android.app.BRContextImplKitkat;
-import black.android.content.AttributionSourceStateContext;
-import black.android.content.BRAttributionSource;
-import black.android.content.BRAttributionSourceState;
-import black.android.content.BRContentResolver;
+import black.android.app.ContextImpl;
+import black.android.app.ContextImplKitkat;
+import black.android.content.AttributionSource;
+import black.android.content.AttributionSourceState;
+import black.android.content.ContentResolver;
 import top.niunaijun.bcore.BlackBoxCore;
 import top.niunaijun.bcore.app.BActivityThread;
 
-/**
- * Created by Milk on 3/31/21.
- * * ∧＿∧
- * (`･ω･∥
- * 丶　つ０
- * しーＪ
- * 此处无Bug
- */
 public class ContextCompat {
     public static final String TAG = "ContextCompat";
+
     public static void fixAttributionSourceState(Object obj, int uid) {
         Object mAttributionSourceState;
-        if (obj != null && BRAttributionSource.get(obj)._check_mAttributionSourceState() != null) {
-            mAttributionSourceState = BRAttributionSource.get(obj).mAttributionSourceState();
+        if (obj != null && AttributionSource.mAttributionSourceState != null) {
+            mAttributionSourceState = AttributionSource.mAttributionSourceState.get(obj);
 
-            AttributionSourceStateContext attributionSourceStateContext = BRAttributionSourceState.get(mAttributionSourceState);
-            attributionSourceStateContext._set_packageName(BlackBoxCore.getHostPkg());
-            attributionSourceStateContext._set_uid(uid);
-            fixAttributionSourceState(BRAttributionSource.get(obj).getNext(), uid);
+            AttributionSourceState.packageName.set(mAttributionSourceState, BlackBoxCore.getHostPkg());
+            AttributionSourceState.uid.set(mAttributionSourceState, uid);
+            fixAttributionSourceState(AttributionSource.getNext.call(obj), uid);
         }
     }
 
@@ -44,19 +35,20 @@ public class ContextCompat {
                     return;
                 }
             }
-            BRContextImpl.get(context)._set_mPackageManager(null);
+
+            ContextImpl.mPackageManager.set(context, null);
             try {
                 context.getPackageManager();
             } catch (Throwable e) {
                 e.printStackTrace();
             }
 
-            BRContextImpl.get(context)._set_mBasePackageName(BlackBoxCore.getHostPkg());
-            BRContextImplKitkat.get(context)._set_mOpPackageName(BlackBoxCore.getHostPkg());
-            BRContentResolver.get(context.getContentResolver())._set_mPackageName(BlackBoxCore.getHostPkg());
+            ContextImpl.mBasePackageName.set(context, BlackBoxCore.getHostPkg());
+            ContextImplKitkat.mOpPackageName.set(context, BlackBoxCore.getHostPkg());
+            ContentResolver.mPackageName.set(context.getContentResolver(), BlackBoxCore.getHostPkg());
 
             if (BuildCompat.isS()) {
-                fixAttributionSourceState(BRContextImpl.get(context).getAttributionSource(), BActivityThread.getBUid());
+                fixAttributionSourceState(ContextImpl.getAttributionSource.call(context), BActivityThread.getBUid());
             }
         } catch (Exception e) {
             e.printStackTrace();

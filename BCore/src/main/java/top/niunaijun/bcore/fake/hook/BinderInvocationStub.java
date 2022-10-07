@@ -11,16 +11,8 @@ import androidx.annotation.Nullable;
 import java.io.FileDescriptor;
 import java.util.Map;
 
-import black.android.os.BRServiceManager;
+import black.android.os.ServiceManager;
 
-/**
- * Created by Milk on 3/30/21.
- * * ∧＿∧
- * (`･ω･∥
- * 丶　つ０
- * しーＪ
- * 此处无Bug
- */
 public abstract class BinderInvocationStub extends ClassInvocationStub implements IBinder {
     private final IBinder mBaseBinder;
 
@@ -29,8 +21,7 @@ public abstract class BinderInvocationStub extends ClassInvocationStub implement
     }
 
     @Override
-    protected void onBindMethod() {
-    }
+    protected void onBindMethod() { }
 
     @Nullable
     @Override
@@ -79,9 +70,8 @@ public abstract class BinderInvocationStub extends ClassInvocationStub implement
         return mBaseBinder.unlinkToDeath(recipient, flags);
     }
 
-
     protected void replaceSystemService(String name) {
-        Map<String, IBinder> services = BRServiceManager.get().sCache();
+        Map<String, IBinder> services = ServiceManager.sCache.get();
         services.put(name, this);
     }
 }

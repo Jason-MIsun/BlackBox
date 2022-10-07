@@ -9,8 +9,6 @@ import top.niunaijun.bcore.BlackBoxCore;
 import top.niunaijun.bcore.entity.pm.InstallResult;
 
 public class GmsCore {
-    private static final String TAG = "GmsCore";
-
     private static final HashSet<String> GOOGLE_APP = new HashSet<>();
     private static final HashSet<String> GOOGLE_SERVICE = new HashSet<>();
     public static final String GMS_PKG = "com.google.android.gms";
@@ -38,10 +36,6 @@ public class GmsCore {
         GOOGLE_SERVICE.add("com.google.android.syncadapters.calendar");
     }
 
-    public static boolean isGoogleService(String packageName) {
-        return GOOGLE_SERVICE.contains(packageName);
-    }
-
     public static boolean isGoogleAppOrService(String str) {
         return GOOGLE_APP.contains(str) || GOOGLE_SERVICE.contains(str);
     }
@@ -52,12 +46,14 @@ public class GmsCore {
             if (blackBoxCore.isInstalled(packageName, userId)) {
                 continue;
             }
+
             try {
                 BlackBoxCore.getContext().getPackageManager().getApplicationInfo(packageName, 0);
             } catch (PackageManager.NameNotFoundException e) {
                 // Ignore
                 continue;
             }
+
             InstallResult installResult = blackBoxCore.installPackageAsUser(packageName, userId);
             if (!installResult.success) {
                 return installResult;
@@ -101,8 +97,7 @@ public class GmsCore {
         try {
             BlackBoxCore.getPackageManager().getPackageInfo(GMS_PKG, 0);
             return true;
-        } catch (PackageManager.NameNotFoundException ignored) {
-        }
+        } catch (PackageManager.NameNotFoundException ignored) { }
         return false;
     }
 
