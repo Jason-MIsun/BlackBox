@@ -131,8 +131,6 @@
 
 ## 感谢
 - [VirtualApp](https://github.com/asLody/VirtualApp)
-- [VirtualAPK](https://github.com/didi/VirtualAPK)
-- [BlackReflection](https://github.com/CodingGay/BlackReflection)
 - [AndroidHiddenApiBypass](https://github.com/LSPosed/AndroidHiddenApiBypass)
 - [Pine](https://github.com/canyie/pine)
 

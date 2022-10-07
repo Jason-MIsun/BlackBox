@@ -30,4 +30,5 @@ android {
 
 dependencies {
     implementation project(':BCore:black-fake')
+    implementation "org.lsposed.hiddenapibypass:hiddenapibypass:$rootProject.ext.hiddenApiBypass"
 }

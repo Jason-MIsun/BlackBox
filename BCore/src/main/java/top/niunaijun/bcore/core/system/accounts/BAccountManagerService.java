@@ -1360,7 +1360,7 @@ public class BAccountManagerService extends IBAccountManagerService.Stub impleme
     }
 
     private static AuthenticatorDescription parseAuthenticatorDescription(Resources resources, String packageName, AttributeSet attributeSet) {
-        TypedArray array = resources.obtainAttributes(attributeSet, Arrays.stream(black.com.android.internal.R.styleable.AccountAuthenticator.get()).mapToInt(Integer::intValue).toArray());
+        TypedArray array = resources.obtainAttributes(attributeSet, ArrayUtils.toInt(black.com.android.internal.R.styleable.AccountAuthenticator.get()));
         try {
             String accountType = array.getString(black.com.android.internal.R.styleable.AccountAuthenticator_accountType.get());
             int label = array.getResourceId(black.com.android.internal.R.styleable.AccountAuthenticator_label.get(), 0);

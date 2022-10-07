@@ -8,6 +8,7 @@ import androidx.core.util.ObjectsCompat;
 import java.lang.reflect.Method;
 import java.util.Objects;
 
+import black.Reflector;
 import black.libcore.io.Libcore;
 import top.niunaijun.bcore.BlackBoxCore;
 import top.niunaijun.bcore.app.BActivityThread;
@@ -15,7 +16,6 @@ import top.niunaijun.bcore.core.IOCore;
 import top.niunaijun.bcore.fake.hook.ClassInvocationStub;
 import top.niunaijun.bcore.fake.hook.MethodHook;
 import top.niunaijun.bcore.fake.hook.ProxyMethod;
-import top.niunaijun.bcore.utils.Reflector;
 
 public class OsProxy extends ClassInvocationStub {
     public static final String TAG = "OsProxy";
@@ -82,7 +82,9 @@ public class OsProxy extends ClassInvocationStub {
             } catch (Throwable e) {
                 throw Objects.requireNonNull(e.getCause());
             }
-            Reflector.with(Objects.requireNonNull(invoke)).field("st_uid").set(getFakeUid(-1));
+
+            Reflector.on("android.system.StructStat")
+                            .field("st_uid").set(invoke, getFakeUid(-1));
             return invoke;
         }
     }

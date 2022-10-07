@@ -3,6 +3,7 @@ package top.niunaijun.bcore.fake.service;
 import android.content.pm.PackageManager;
 
 import black.android.app.ActivityThread;
+import black.android.app.ApplicationPackageManager;
 import black.android.app.ContextImpl;
 import black.android.os.ServiceManager;
 import black.android.permission.IPermissionManager;
@@ -10,7 +11,6 @@ import top.niunaijun.bcore.BlackBoxCore;
 import top.niunaijun.bcore.fake.hook.BinderInvocationStub;
 import top.niunaijun.bcore.fake.service.base.PkgMethodProxy;
 import top.niunaijun.bcore.fake.service.base.ValueMethodProxy;
-import top.niunaijun.bcore.utils.Reflector;
 import top.niunaijun.bcore.utils.compat.BuildCompat;
 
 public class IPermissionManagerProxy extends BinderInvocationStub {
@@ -34,9 +34,7 @@ public class IPermissionManagerProxy extends BinderInvocationStub {
         PackageManager packageManager = ContextImpl.mPackageManager.get(systemContext);
         if (packageManager != null) {
             try {
-                Reflector.on("android.app.ApplicationPackageManager")
-                        .field("mPermissionManager")
-                        .set(packageManager, proxyInvocation);
+                ApplicationPackageManager.mPermissionManager.set(packageManager, proxyInvocation);
             } catch (Exception e) {
                 e.printStackTrace();
             }

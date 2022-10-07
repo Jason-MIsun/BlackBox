@@ -138,13 +138,10 @@ public class HookManager {
                 addInjector(new IDeviceIdentifiersPolicyProxy());
                 addInjector(new IStorageStatsManagerProxy());
             }
-            // 7.1
-            if (BuildCompat.isN_MR1()) {
-                addInjector(new IShortcutManagerProxy());
-            }
             // 7.0
             if (BuildCompat.isN()) {
                 addInjector(new INetworkManagementServiceProxy());
+                addInjector(new IShortcutManagerProxy());
             }
             // 6.0
             if (BuildCompat.isM()) {

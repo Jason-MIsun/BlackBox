@@ -23,6 +23,7 @@ ext {
     versionName = '1.7.0'
     versionCode = 8
     useASAN = false
+    blackReflection = '1.1.4'
     hiddenApiBypass = '4.3'
     xCrash = '3.1.0'
 }

@@ -64,7 +64,6 @@ import top.niunaijun.bcore.fake.delegate.ContentProviderDelegate;
 import top.niunaijun.bcore.fake.frameworks.BXposedManager;
 import top.niunaijun.bcore.fake.hook.HookManager;
 import top.niunaijun.bcore.fake.service.HCallbackProxy;
-import top.niunaijun.bcore.utils.Reflector;
 import top.niunaijun.bcore.utils.Slog;
 import top.niunaijun.bcore.utils.compat.ActivityManagerCompat;
 import top.niunaijun.bcore.utils.compat.BuildCompat;
@@ -325,9 +324,7 @@ public class BActivityThread extends IBActivityThread.Stub {
         Application application;
         try {
             onBeforeCreateApplication(packageName, processName, packageContext);
-            application = Reflector.with(loadedApk)
-                    .method("makeApplication", boolean.class, Instrumentation.class)
-                    .call(false, null);
+            application = LoadedApk.makeApplication.call(loadedApk, false, null);
 
             mInitialApplication = application;
             ActivityThread.mInitialApplication.set(BlackBoxCore.mainThread(), mInitialApplication);
@@ -377,7 +374,7 @@ public class BActivityThread extends IBActivityThread.Stub {
     }
 
     public static void installProvider(Object mainThread, Context context, ProviderInfo providerInfo, Object holder) {
-        Reflector.invoke(mainThread.getClass(), mainThread, "installProvider", context, holder, providerInfo, false, true, true);
+        ActivityThread.installProvider.call(mainThread, context, holder, providerInfo, false, true, true);
     }
 
     public void loadXposed(Context context) {

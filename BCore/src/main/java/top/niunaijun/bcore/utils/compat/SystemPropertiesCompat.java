@@ -2,14 +2,12 @@ package top.niunaijun.bcore.utils.compat;
 
 import android.text.TextUtils;
 
-import top.niunaijun.bcore.utils.Reflector;
+import black.android.os.SystemProperties;
 
 public class SystemPropertiesCompat {
     public static String get(String key, String def) {
         try {
-            return Reflector.on("android.os.SystemProperties")
-                    .method("get", String.class, String.class)
-                    .call(key, def);
+            return SystemProperties.get0.call(key, def);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -18,9 +16,7 @@ public class SystemPropertiesCompat {
 
     public static String get(String key) {
         try {
-            return Reflector.on("android.os.SystemProperties")
-                    .method("get", String.class)
-                    .call(key);
+            return SystemProperties.get1.call(key);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -29,9 +25,7 @@ public class SystemPropertiesCompat {
 
     public static int getInt(String key, int def) {
         try {
-            return Reflector.on("android.os.SystemProperties")
-                    .method("getInt", String.class, int.class)
-                    .call(key, def);
+            return SystemProperties.getInt.call(key, def);
         } catch (Exception e) {
             e.printStackTrace();
         }

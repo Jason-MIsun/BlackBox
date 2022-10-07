@@ -21,7 +21,6 @@ import top.niunaijun.bcore.utils.ComponentUtils;
 import top.niunaijun.bcore.utils.MethodParameterUtils;
 import top.niunaijun.bcore.utils.Slog;
 import top.niunaijun.bcore.utils.compat.BuildCompat;
-import top.niunaijun.bcore.utils.compat.StartActivityCompat;
 
 public class ActivityManagerCommonProxy {
     public static final String TAG = "ActivityManagerCommonProxy";
@@ -55,7 +54,7 @@ public class ActivityManagerCommonProxy {
                 intent.setData(Uri.parse("package:" + BlackBoxCore.getHostPkg()));
             }
 
-            ResolveInfo resolveInfo = BlackBoxCore.getBPackageManager().resolveActivity(intent, GET_META_DATA, StartActivityCompat.getResolvedType(args),
+            ResolveInfo resolveInfo = BlackBoxCore.getBPackageManager().resolveActivity(intent, GET_META_DATA, getResolvedType(args),
                     BActivityThread.getUserId());
             if (resolveInfo == null) {
                 String origPackage = intent.getPackage();
@@ -65,7 +64,7 @@ public class ActivityManagerCommonProxy {
                     origPackage = intent.getPackage();
                 }
 
-                resolveInfo = BlackBoxCore.getBPackageManager().resolveActivity(intent, GET_META_DATA, StartActivityCompat.getResolvedType(args),
+                resolveInfo = BlackBoxCore.getBPackageManager().resolveActivity(intent, GET_META_DATA, getResolvedType(args),
                         BActivityThread.getUserId());
                 if (resolveInfo == null) {
                     intent.setPackage(origPackage);
@@ -75,9 +74,9 @@ public class ActivityManagerCommonProxy {
 
             intent.setExtrasClassLoader(who.getClass().getClassLoader());
             intent.setComponent(new ComponentName(resolveInfo.activityInfo.packageName, resolveInfo.activityInfo.name));
-            BlackBoxCore.getBActivityManager().startActivityAms(BActivityThread.getUserId(), StartActivityCompat.getIntent(args),
-                    StartActivityCompat.getResolvedType(args), StartActivityCompat.getResultTo(args), StartActivityCompat.getResultWho(args),
-                    StartActivityCompat.getRequestCode(args), StartActivityCompat.getFlags(args), StartActivityCompat.getOptions(args));
+            BlackBoxCore.getBActivityManager().startActivityAms(BActivityThread.getUserId(), getIntent(args),
+                    getResolvedType(args), getResultTo(args), getResultWho(args),
+                    getRequestCode(args), getFlags(args), getOptions(args));
             return 0;
         }
 
@@ -96,6 +95,126 @@ public class ActivityManagerCommonProxy {
             for (Object arg : args) {
                 if (arg instanceof Intent) {
                     return (Intent) arg;
+                }
+            }
+            return null;
+        }
+
+        private String getResolvedType(Object[] args) {
+            int index;
+            if (BuildCompat.isR()) {
+                index = 4;
+            } else {
+                index = 3;
+            }
+
+            if (args[index] instanceof String) {
+                return (String) args[index];
+            }
+
+            for (Object arg : args) {
+                if (arg instanceof String) {
+                    return (String) arg;
+                }
+            }
+            return null;
+        }
+
+        private IBinder getResultTo(Object[] args) {
+            int index;
+            if (BuildCompat.isR()) {
+                index = 5;
+            } else {
+                index = 4;
+            }
+
+            if (args[index] instanceof IBinder) {
+                return (IBinder) args[index];
+            }
+
+            for (Object arg : args) {
+                if (arg instanceof IBinder) {
+                    return (IBinder) arg;
+                }
+            }
+            return null;
+        }
+
+        private String getResultWho(Object[] args) {
+            int index;
+            if (BuildCompat.isR()) {
+                index = 6;
+            } else {
+                index = 5;
+            }
+
+            if (args[index] instanceof String) {
+                return (String) args[index];
+            }
+
+            for (Object arg : args) {
+                if (arg instanceof String) {
+                    return (String) arg;
+                }
+            }
+            return null;
+        }
+
+        private int getRequestCode(Object[] args) {
+            int index;
+            if (BuildCompat.isR()) {
+                index = 7;
+            } else {
+                index = 6;
+            }
+
+            if (args[index] instanceof Integer) {
+                return (Integer) args[index];
+            }
+
+            for (Object arg : args) {
+                if (arg instanceof Integer) {
+                    return (Integer) arg;
+                }
+            }
+            return 0;
+        }
+
+        private int getFlags(Object[] args) {
+            int index;
+            if (BuildCompat.isR()) {
+                index = 8;
+            } else {
+                index = 7;
+            }
+
+            if (args[index] instanceof Integer) {
+                return (Integer) args[index];
+            }
+
+            for (Object arg : args) {
+                if (arg instanceof Integer) {
+                    return (Integer) arg;
+                }
+            }
+            return 0;
+        }
+
+        private Bundle getOptions(Object[] args) {
+            int index;
+            if (BuildCompat.isR()) {
+                index = 9;
+            } else {
+                index = 8;
+            }
+
+            if (args[index] instanceof Bundle) {
+                return (Bundle) args[index];
+            }
+
+            for (Object arg : args) {
+                if (arg instanceof Bundle) {
+                    return (Bundle) arg;
                 }
             }
             return null;

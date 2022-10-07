@@ -24,7 +24,6 @@ import top.niunaijun.bcore.fake.hook.MethodHook;
 import top.niunaijun.bcore.fake.hook.ProxyMethod;
 import top.niunaijun.bcore.fake.service.context.LocationListenerProxy;
 import top.niunaijun.bcore.utils.MethodParameterUtils;
-import top.niunaijun.bcore.utils.Reflector;
 import top.niunaijun.bcore.utils.compat.BuildCompat;
 
 public class ILocationManagerProxy extends BinderInvocationStub {
@@ -61,11 +60,10 @@ public class ILocationManagerProxy extends BinderInvocationStub {
         @Override
         protected Object hook(Object who, Method method, Object[] args) throws Throwable {
             if (BLocationManager.isFakeLocationEnable()) {
-                Reflector gnssStatusListenerTransportClass = Reflector.on("android.location.LocationManager$GnssStatusListenerTransport");
-                Object transport = MethodParameterUtils.getFirstParam(args, gnssStatusListenerTransportClass.get());
+                Object transport = MethodParameterUtils.getFirstParam(args, black.android.location.LocationManager.GnssStatusListenerTransport.REF.getClazz());
 
                 if (transport != null) {
-                    gnssStatusListenerTransportClass.method("onGnssStarted").call(transport);
+                    black.android.location.LocationManager.GnssStatusListenerTransport.onGnssStarted.call(transport);
                     BLocation location = BLocationManager.get().getLocation(BActivityThread.getUserId(), BActivityThread.getAppPackageName());
 
                     if (location != null) {
@@ -78,15 +76,13 @@ public class ILocationManagerProxy extends BinderInvocationStub {
                             String $GPGGA = BLocation.checkSum(String.format("$GPGGA,%s,%s,%s,%s,%s,1,%s,692,.00,M,.00,M,,,", date, latitude, latitudeNorthWest, longitude, longitudeSouthEast, location.convert2SystemLocation().getExtras().getInt("satellites")));
                             String $GPRMC = BLocation.checkSum(String.format("$GPRMC,%s,A,%s,%s,%s,%s,0,0,260717,,,A,", date, latitude, latitudeNorthWest, longitude, longitudeSouthEast));
 
-                            gnssStatusListenerTransportClass.method("onNmeaReceived", long.class, String.class).call(transport, System.currentTimeMillis(), "$GPGSV,1,1,04,12,05,159,36,15,41,087,15,19,38,262,30,31,56,146,19,*73");
+                            black.android.location.LocationManager.GnssStatusListenerTransport.onNmeaReceived.call(transport, System.currentTimeMillis(), "$GPGSV,1,1,04,12,05,159,36,15,41,087,15,19,38,262,30,31,56,146,19,*73");
                             if (BuildCompat.isN()) {
-                                Reflector gpsStatusListenerTransportClass = Reflector.on("android.location.LocationManager$GpsStatusListenerTransport");
-
-                                gpsStatusListenerTransportClass.method("onNmeaReceived", long.class, String.class).call(transport, System.currentTimeMillis(), "$GPGSV,1,1,04,12,05,159,36,15,41,087,15,19,38,262,30,31,56,146,19,*73");
-                                gpsStatusListenerTransportClass.method("onNmeaReceived", long.class, String.class).call(transport, System.currentTimeMillis(), $GPGGA);
-                                gpsStatusListenerTransportClass.method("onNmeaReceived", long.class, String.class).call(transport, System.currentTimeMillis(), "$GPVTG,0,T,0,M,0,N,0,K,A,*25");
-                                gpsStatusListenerTransportClass.method("onNmeaReceived", long.class, String.class).call(transport, System.currentTimeMillis(), $GPRMC);
-                                gpsStatusListenerTransportClass.method("onNmeaReceived", long.class, String.class).call(transport, System.currentTimeMillis(), "$GPGSA,A,2,12,15,19,31,,,,,,,,,604,712,986,*27");
+                                black.android.location.LocationManager.GpsStatusListenerTransport.onNmeaReceived.call(transport, System.currentTimeMillis(), "$GPGSV,1,1,04,12,05,159,36,15,41,087,15,19,38,262,30,31,56,146,19,*73");
+                                black.android.location.LocationManager.GpsStatusListenerTransport.onNmeaReceived.call(transport, System.currentTimeMillis(), $GPGGA);
+                                black.android.location.LocationManager.GpsStatusListenerTransport.onNmeaReceived.call(transport, System.currentTimeMillis(), "$GPVTG,0,T,0,M,0,N,0,K,A,*25");
+                                black.android.location.LocationManager.GpsStatusListenerTransport.onNmeaReceived.call(transport, System.currentTimeMillis(), $GPRMC);
+                                black.android.location.LocationManager.GpsStatusListenerTransport.onNmeaReceived.call(transport, System.currentTimeMillis(), "$GPGSA,A,2,12,15,19,31,,,,,,,,,604,712,986,*27");
                             }
                         } catch (Exception e) {
                             e.printStackTrace();
@@ -108,8 +104,8 @@ public class ILocationManagerProxy extends BinderInvocationStub {
                 Object listener = MethodParameterUtils.getFirstParamByInstance(args, ILocationListener.Stub.class);
                 if (listener != null) {
                     try {
-                        Reflector handler = Reflector.with(listener).field("mListener");
-                        handler.set(new LocationListenerProxy().wrapper(handler.get()));
+                        black.android.location.LocationManager.LocationListenerTransport.mListener.set(listener,
+                                new LocationListenerProxy().wrapper(black.android.location.LocationManager.LocationListenerTransport.mListener.get()));
                     } catch (Exception e) {
                         e.printStackTrace();
                     }

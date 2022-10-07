@@ -41,8 +41,6 @@ class ActivityRecord : Binder() {
             record.resultTo = resultTo
             record.userId = userId
             record.mBToken = UUID.randomUUID().toString()
-
-            Log.d("ActivityRecord", record.toString())
             return record
         }
     }

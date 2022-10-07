@@ -161,7 +161,12 @@ public class HCallbackProxy implements IInjectHook, Handler.Callback {
             BlackBoxCore.getBActivityManager().onActivityCreated(taskId, token, stubRecord.mActivityToken);
 
             if (BuildCompat.isS()) {
-                Object record = ActivityThread.getLaunchingActivity.call(BlackBoxCore.mainThread(), token);
+                Object record;
+                if (BuildCompat.isT()) {
+                    record = ActivityThread.getActivityClient.call(BlackBoxCore.mainThread(), token);
+                } else {
+                    record = ActivityThread.getLaunchingActivity.call(BlackBoxCore.mainThread(), token);
+                }
 
                 ActivityThread.ActivityClientRecord.intent.set(record, stubRecord.mTarget);
                 ActivityThread.ActivityClientRecord.activityInfo.set(record, activityInfo);

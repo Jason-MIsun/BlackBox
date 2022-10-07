@@ -19,10 +19,10 @@ import android.util.Log;
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.Objects;
 
 import black.android.app.ActivityManagerNative;
 import black.android.app.ActivityManagerOreo;
+import black.android.app.IActivityManager;
 import black.android.app.LoadedApk;
 import black.android.content.ContentProviderNative;
 import black.android.content.pm.UserInfo;
@@ -48,7 +48,6 @@ import top.niunaijun.bcore.proxy.ProxyManifest;
 import top.niunaijun.bcore.proxy.record.ProxyBroadcastRecord;
 import top.niunaijun.bcore.proxy.record.ProxyPendingRecord;
 import top.niunaijun.bcore.utils.MethodParameterUtils;
-import top.niunaijun.bcore.utils.Reflector;
 import top.niunaijun.bcore.utils.compat.ActivityManagerCompat;
 import top.niunaijun.bcore.utils.compat.BuildCompat;
 import top.niunaijun.bcore.utils.compat.ParceledListSliceCompat;
@@ -138,12 +137,8 @@ public class IActivityManagerProxy extends ClassInvocationStub {
                     }
 
                     content = method.invoke(who, args);
-                    Reflector.with(Objects.requireNonNull(content))
-                            .field("info")
-                            .set(providerInfo);
-                    Reflector.with(content)
-                            .field("provider")
-                            .set(new ContentProviderStub().wrapper(ContentProviderNative.asInterface.call(providerBinder), BActivityThread.getAppPackageName()));
+                    IActivityManager.ContentProviderHolder.info.set(content, providerInfo);
+                    IActivityManager.ContentProviderHolder.provider.set(content, new ContentProviderStub().wrapper(ContentProviderNative.asInterface.call(providerBinder), BActivityThread.getAppPackageName()));
                 }
                 return content;
             }

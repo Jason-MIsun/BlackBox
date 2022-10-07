@@ -2,8 +2,10 @@ package black.android.app;
 
 import android.app.Activity;
 import android.app.Application;
+import android.app.ContentProviderHolder;
 import android.app.Instrumentation;
 import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.ApplicationInfo;
@@ -36,8 +38,10 @@ public class ActivityThread {
     public static Reflector.MethodWrapper<String> getProcessName = REF.method("getProcessName");
     public static Reflector.MethodWrapper<Object> getSystemContext = REF.method("getSystemContext");
     public static Reflector.MethodWrapper<Object> getLaunchingActivity = REF.method("getLaunchingActivity", IBinder.class);
+    public static Reflector.MethodWrapper<Object> getActivityClient = REF.method("getActivityClient", IBinder.class);
     public static Reflector.MethodWrapper<Object> getPackageInfo = REF.method("getPackageInfo", ApplicationInfo.class, Reflector.findClass("android.content.res.CompatibilityInfo"), int.class);
     public static Reflector.MethodWrapper<Void> performNewIntents = REF.method("performNewIntents", IBinder.class, List.class);
+    public static Reflector.MethodWrapper<Void> installProvider = REF.method("installProvider", Context.class, ContentProviderHolder.class, ProviderInfo.class, boolean.class, boolean.class, boolean.class);
 
     public static class CreateServiceData {
         public static final Reflector REF = Reflector.on("android.app.ActivityThread$CreateServiceData");
