@@ -17,7 +17,7 @@ import top.niunaijun.blackbox.app.App
 import top.niunaijun.blackbox.app.AppManager
 import top.niunaijun.blackbox.databinding.ActivityMainBinding
 import top.niunaijun.blackbox.util.Resolution
-import top.niunaijun.blackbox.util.inflate
+import top.niunaijun.blackbox.util.ViewBindingEx.inflate
 import top.niunaijun.blackbox.view.apps.AppsFragment
 import top.niunaijun.blackbox.view.base.LoadingActivity
 import top.niunaijun.blackbox.view.fake.FakeManagerActivity
@@ -33,6 +33,7 @@ class MainActivity : LoadingActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(viewBinding.root)
+
         initToolbar(viewBinding.toolbarLayout.toolbar, R.string.app_name)
         initViewPager()
         initFab()
@@ -41,7 +42,7 @@ class MainActivity : LoadingActivity() {
 
     private fun initToolbarSubTitle() {
         updateUserRemark(0)
-        // hack code
+
         viewBinding.toolbarLayout.toolbar.getChildAt(1).setOnClickListener {
             MaterialDialog(this).show {
                 title(res = R.string.userRemark)
@@ -72,12 +73,13 @@ class MainActivity : LoadingActivity() {
         mViewPagerAdapter = ViewPagerAdapter(this)
         mViewPagerAdapter.replaceData(fragmentList)
         viewBinding.viewPager.adapter = mViewPagerAdapter
+
         viewBinding.dotsIndicator.attachTo(viewBinding.viewPager)
-        viewBinding.viewPager.registerOnPageChangeCallback(object :
-            ViewPager2.OnPageChangeCallback() {
+        viewBinding.viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
             override fun onPageSelected(position: Int) {
                 super.onPageSelected(position)
                 currentUser = fragmentList[position].userID
+
                 updateUserRemark(currentUser)
                 showFloatButton(true)
             }
@@ -88,6 +90,7 @@ class MainActivity : LoadingActivity() {
         viewBinding.fab.setOnClickListener {
             val userId = viewBinding.viewPager.currentItem
             val intent = Intent(this, ListActivity::class.java)
+
             intent.putExtra("userID", userId)
             apkPathResult.launch(intent)
         }
@@ -96,6 +99,7 @@ class MainActivity : LoadingActivity() {
     fun showFloatButton(show: Boolean) {
         val tranY: Float = Resolution.convertDpToPixel(120F, App.getContext())
         val time = 200L
+
         if (show) {
             viewBinding.fab.animate().translationY(0f).alpha(1f).setDuration(time)
                 .start()
@@ -113,7 +117,6 @@ class MainActivity : LoadingActivity() {
         } else if (fragmentList.size > userList.size + 1) {
             fragmentList.removeLast()
         }
-
         mViewPagerAdapter.notifyDataSetChanged()
     }
 
@@ -122,7 +125,6 @@ class MainActivity : LoadingActivity() {
         if (remark.isNullOrEmpty()) {
             remark = "User $userId"
         }
-
         viewBinding.toolbarLayout.toolbar.subtitle = remark
     }
 
@@ -132,6 +134,7 @@ class MainActivity : LoadingActivity() {
                 it.data?.let { data ->
                     val userId = data.getIntExtra("userID", 0)
                     val source = data.getStringExtra("source")
+
                     if (source != null) {
                         fragmentList[userId].installApk(source)
                     }
@@ -147,8 +150,7 @@ class MainActivity : LoadingActivity() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.main_git -> {
-                val intent =
-                    Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/BlackBoxing/BlackBox"))
+                val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/BlackBoxing/BlackBox"))
                 startActivity(intent)
             }
 
@@ -157,13 +159,11 @@ class MainActivity : LoadingActivity() {
             }
 
             R.id.main_tg -> {
-                val intent =
-                    Intent(Intent.ACTION_VIEW, Uri.parse("https://t.me/blackboxing"))
+                val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://t.me/blackboxing"))
                 startActivity(intent)
             }
 
             R.id.fake_location -> {
-                // toast("Still Developing")
                 val intent = Intent(this, FakeManagerActivity::class.java)
                 intent.putExtra("userID", currentUser)
                 startActivity(intent)

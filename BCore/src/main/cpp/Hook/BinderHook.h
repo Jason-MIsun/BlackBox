@@ -1,7 +1,3 @@
-//
-// Created by Milk on 4/25/21.
-//
-
 #ifndef BLACKBOX_BINDERHOOK_H
 #define BLACKBOX_BINDERHOOK_H
 

@@ -13,14 +13,9 @@ import top.niunaijun.blackbox.app.App
 import top.niunaijun.blackbox.app.AppManager
 import top.niunaijun.blackbox.bean.AppInfo
 import top.niunaijun.blackbox.util.ContextUtil.openAppSystemSettings
+import top.niunaijun.blackbox.util.ToastEx.toast
 import top.niunaijun.blackbox.view.main.ShortcutActivity
 
-/**
- *
- * @Description: 桌面快捷方式 工具类
- * @Author: BlackBox
- * @CreateDate: 2022/2/27 22:56
- */
 object ShortcutUtil {
     /**
      * 创建桌面快捷方式
@@ -34,6 +29,7 @@ object ShortcutUtil {
                 .setAction(Intent.ACTION_MAIN)
                 .putExtra("pkg", info.packageName)
                 .putExtra("userId", userID)
+
             MaterialDialog(context).show {
                 title(res = R.string.app_shortcut)
                 input(
@@ -70,10 +66,6 @@ object ShortcutUtil {
             positiveButton(R.string.done)
             negativeButton(R.string.permission_setting) {
                 App.getContext().openAppSystemSettings()
-            }
-
-            neutralButton(R.string.no_reminders) {
-                AppManager.mBlackBoxLoader.invalidShortcutPermissionDialog(false)
             }
         }
     }

@@ -5,12 +5,6 @@ import top.niunaijun.blackbox.bean.XpModuleInfo
 import top.niunaijun.blackbox.data.XpRepository
 import top.niunaijun.blackbox.view.base.BaseViewModel
 
-/**
- *
- * @Description:
- * @Author: wukaicheng
- * @CreateDate: 2021/5/2 20:55
- */
 class XpViewModel(private val repo: XpRepository) : BaseViewModel() {
     val appsLiveData = MutableLiveData<List<XpModuleInfo>>()
     val resultLiveData = MutableLiveData<String>()

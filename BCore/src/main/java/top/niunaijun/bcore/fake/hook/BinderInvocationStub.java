@@ -17,7 +17,7 @@ public abstract class BinderInvocationStub extends ClassInvocationStub implement
     private final IBinder mBaseBinder;
 
     public BinderInvocationStub(IBinder baseBinder) {
-        mBaseBinder = baseBinder;
+        this.mBaseBinder = baseBinder;
     }
 
     @Override

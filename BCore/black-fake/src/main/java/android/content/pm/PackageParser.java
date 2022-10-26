@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.Set;
 
 public class PackageParser {
-    public final static int PARSE_IS_SYSTEM = 1 << 0;
+    public final static int PARSE_IS_SYSTEM = 1;
     public final static int PARSE_CHATTY = 1 << 1;
     public final static int PARSE_MUST_BE_APK = 1 << 2;
     public final static int PARSE_IGNORE_PROCESSES = 1 << 3;
@@ -90,7 +90,7 @@ public class PackageParser {
         public final int installLocation;
         public final VerifierInfo[] verifiers;
 
-        /** Names of any split APKs, ordered by parsed splitName */
+        // Names of any split APKs, ordered by parsed splitName.
         public final String[] splitNames;
 
         /**
@@ -100,14 +100,14 @@ public class PackageParser {
          */
         public final String codePath;
 
-        /** Path of base APK */
+        // Path of base APK.
         public final String baseCodePath;
-        /** Paths of any split APKs, ordered by parsed splitName */
+        // Paths of any split APKs, ordered by parsed splitName.
         public final String[] splitCodePaths;
 
-        /** Revision code of base APK */
+        // Revision code of base APK.
         public final int baseRevisionCode;
-        /** Revision codes of any split APKs, ordered by parsed splitName */
+        // Revision codes of any split APKs, ordered by parsed splitName.
         public final int[] splitRevisionCodes;
 
         public final boolean coreApp;
@@ -241,7 +241,6 @@ public class PackageParser {
     }
 
     /**
-     *
      * @param sourceFile
      * @param destCodePath
      * @param metrics
@@ -280,11 +279,10 @@ public class PackageParser {
     public final static class Package {
         public String packageName;
 
-        /** Names of any split APKs, ordered by parsed splitName */
+        // Names of any split APKs, ordered by parsed splitName.
         public String[] splitNames;
 
-        // TODO: work towards making these paths invariant
-
+        // TODO: Work towards making these paths invariant.
         public String volumeUuid;
 
         /**
@@ -294,17 +292,17 @@ public class PackageParser {
          */
         public String codePath;
 
-        /** Path of base APK */
+        // Path of base APK.
         public String baseCodePath;
-        /** Paths of any split APKs, ordered by parsed splitName */
+        // Paths of any split APKs, ordered by parsed splitName.
         public String[] splitCodePaths;
 
-        /** Revision code of base APK */
+        // Revision code of base APK.
         public int baseRevisionCode;
-        /** Revision codes of any split APKs, ordered by parsed splitName */
+        // Revision codes of any split APKs, ordered by parsed splitName.
         public int[] splitRevisionCodes;
 
-        /** Flags of any split APKs; ordered by parsed splitName */
+        // Flags of any split APKs; ordered by parsed splitName.
         public int[] splitFlags;
 
         /**
@@ -319,15 +317,15 @@ public class PackageParser {
         // For now we only support one application per package.
         public ApplicationInfo applicationInfo = new ApplicationInfo();
 
-        public final ArrayList<Permission> permissions = new ArrayList<Permission>(0);
-        public final ArrayList<PermissionGroup> permissionGroups = new ArrayList<PermissionGroup>(0);
-        public final ArrayList<Activity> activities = new ArrayList<Activity>(0);
-        public final ArrayList<Activity> receivers = new ArrayList<Activity>(0);
-        public final ArrayList<Provider> providers = new ArrayList<Provider>(0);
-        public final ArrayList<Service> services = new ArrayList<Service>(0);
-        public final ArrayList<Instrumentation> instrumentation = new ArrayList<Instrumentation>(0);
+        public final ArrayList<Permission> permissions = new ArrayList<>(0);
+        public final ArrayList<PermissionGroup> permissionGroups = new ArrayList<>(0);
+        public final ArrayList<Activity> activities = new ArrayList<>(0);
+        public final ArrayList<Activity> receivers = new ArrayList<>(0);
+        public final ArrayList<Provider> providers = new ArrayList<>(0);
+        public final ArrayList<Service> services = new ArrayList<>(0);
+        public final ArrayList<Instrumentation> instrumentation = new ArrayList<>(0);
 
-        public final ArrayList<String> requestedPermissions = new ArrayList<String>();
+        public final ArrayList<String> requestedPermissions = new ArrayList<>();
 
         public ArrayList<String> protectedBroadcasts;
 
@@ -367,15 +365,15 @@ public class PackageParser {
         public int mPreferredOrder = 0;
 
         // For use by package manager to keep track of where it needs to do dexopt.
-//        public final ArraySet<String> mDexOptPerformed = new ArraySet<>(4);
+		// public final ArraySet<String> mDexOptPerformed = new ArraySet<>(4);
 
         // For use by package manager to keep track of when a package was last used.
         public long mLastPackageUsageTimeInMills;
 
-        // // User set enabled state.
+        // User set enabled state.
         // public int mSetEnabled = PackageManager.COMPONENT_ENABLED_STATE_DEFAULT;
-        //
-        // // Whether the package has been stopped.
+		
+        // Whether the package has been stopped.
         // public boolean mSetStopped = false;
 
         // Additional data supplied by callers.
@@ -394,13 +392,13 @@ public class PackageParser {
 
         public boolean coreApp;
 
-        /* An app that's required for all users and cannot be uninstalled for a user */
+        // An app that's required for all users and cannot be uninstalled for a user.
         public boolean mRequiredForAllUsers;
 
-        /* The restricted account authenticator type that is used by this application */
+        // The restricted account authenticator type that is used by this application.
         public String mRestrictedAccountType;
 
-        /* The required account type without which this application will not function */
+        // The required account type without which this application will not function.
         public String mRequiredAccountType;
 
         /**

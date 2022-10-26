@@ -11,4 +11,6 @@ public class TelephonyManager {
 
     public static Reflector.FieldWrapper<Boolean> sServiceHandleCacheEnabled = REF.field("sServiceHandleCacheEnabled");
     public static Reflector.FieldWrapper<IInterface> sIPhoneSubInfo = REF.field("sIPhoneSubInfo");
+
+    public static Reflector.MethodWrapper<IInterface> getSubscriberInfo = REF.method("getSubscriberInfo");
 }

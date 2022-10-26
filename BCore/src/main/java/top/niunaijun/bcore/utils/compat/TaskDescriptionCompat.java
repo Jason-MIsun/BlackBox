@@ -43,7 +43,7 @@ public class TaskDescriptionCompat {
         try {
             PackageManager pm = BlackBoxCore.getPackageManager();
             return pm.getApplicationLabel(pm.getApplicationInfo(BActivityThread.getAppPackageName(), 0));
-        } catch (PackageManager.NameNotFoundException e) {
+        } catch (PackageManager.NameNotFoundException ignore) {
             return null;
         }
     }

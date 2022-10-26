@@ -12,9 +12,6 @@ import top.niunaijun.bcore.BlackBoxCore;
 import top.niunaijun.bcore.R;
 import top.niunaijun.bcore.utils.Slog;
 
-/**
- * Created by BlackBox on 2022/2/24.
- */
 public class LauncherActivity extends Activity {
     public static final String TAG = "SplashScreen";
 
@@ -42,6 +39,7 @@ public class LauncherActivity extends Activity {
             finish();
             return;
         }
+
         Intent launchIntent = intent.getParcelableExtra(KEY_INTENT);
         String packageName = intent.getStringExtra(KEY_PKG);
         int userId = intent.getIntExtra(KEY_USER_ID, 0);
@@ -52,9 +50,12 @@ public class LauncherActivity extends Activity {
             finish();
             return;
         }
+
         Drawable drawable = packageInfo.applicationInfo.loadIcon(BlackBoxCore.getPackageManager());
         setContentView(R.layout.activity_launcher);
-        findViewById(R.id.iv_icon).setBackgroundDrawable(drawable);
+
+        findViewById(R.id.iv_icon)
+                .setBackground(drawable);
         new Thread(() -> BlackBoxCore.getBActivityManager().startActivity(launchIntent, userId)).start();
     }
 

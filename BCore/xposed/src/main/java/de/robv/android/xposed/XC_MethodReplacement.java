@@ -25,7 +25,7 @@ public abstract class XC_MethodReplacement extends XC_MethodHook {
 
 	/** @hide */
 	@Override
-	protected final void beforeHookedMethod(MethodHookParam param) throws Throwable {
+	protected final void beforeHookedMethod(MethodHookParam param) {
 		try {
 			Object result = replaceHookedMethod(param);
 			param.setResult(result);
@@ -37,7 +37,7 @@ public abstract class XC_MethodReplacement extends XC_MethodHook {
 	/** @hide */
 	@Override
 	@SuppressWarnings("EmptyMethod")
-	protected final void afterHookedMethod(MethodHookParam param) throws Throwable { }
+	protected final void afterHookedMethod(MethodHookParam param) { }
 
 	/**
 	 * Shortcut for replacing a method completely. Whatever is returned/thrown here is taken
@@ -56,7 +56,7 @@ public abstract class XC_MethodReplacement extends XC_MethodHook {
 	 */
 	public static final XC_MethodReplacement DO_NOTHING = new XC_MethodReplacement(PRIORITY_HIGHEST*2) {
 		@Override
-		protected Object replaceHookedMethod(MethodHookParam param) throws Throwable {
+		protected Object replaceHookedMethod(MethodHookParam param) {
 			return null;
 		}
 	};
@@ -79,7 +79,7 @@ public abstract class XC_MethodReplacement extends XC_MethodHook {
 	public static XC_MethodReplacement returnConstant(int priority, final Object result) {
 		return new XC_MethodReplacement(priority) {
 			@Override
-			protected Object replaceHookedMethod(MethodHookParam param) throws Throwable {
+			protected Object replaceHookedMethod(MethodHookParam param) {
 				return result;
 			}
 		};

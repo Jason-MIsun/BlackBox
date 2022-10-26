@@ -5,7 +5,6 @@ import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.os.Binder
 import android.os.IBinder
-import android.util.Log
 import top.niunaijun.bcore.core.system.ProcessRecord
 import java.util.*
 

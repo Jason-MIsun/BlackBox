@@ -1,6 +1,3 @@
-//
-// Created by Milk on 3/7/21.
-//
 #include <stdio.h>
 
 #ifndef ARTHOOK_ART_METHOD_H

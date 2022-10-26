@@ -3,10 +3,10 @@ package top.niunaijun.bcore.utils.compat;
 import black.android.os.StrictMode;
 
 public class StrictModeCompat {
-    public static int DETECT_VM_FILE_URI_EXPOSURE = StrictMode.DETECT_VM_FILE_URI_EXPOSURE.get() == null ?
+    public static final int DETECT_VM_FILE_URI_EXPOSURE = StrictMode.DETECT_VM_FILE_URI_EXPOSURE.get() == null ?
             (0x20 << 8) : StrictMode.DETECT_VM_FILE_URI_EXPOSURE.get();
 
-    public static int PENALTY_DEATH_ON_FILE_URI_EXPOSURE = StrictMode.PENALTY_DEATH_ON_FILE_URI_EXPOSURE.get() == null ?
+    public static final int PENALTY_DEATH_ON_FILE_URI_EXPOSURE = StrictMode.PENALTY_DEATH_ON_FILE_URI_EXPOSURE.get() == null ?
             (0x04 << 24) : StrictMode.PENALTY_DEATH_ON_FILE_URI_EXPOSURE.get();
 
     public static void disableDeathOnFileUriExposure() {

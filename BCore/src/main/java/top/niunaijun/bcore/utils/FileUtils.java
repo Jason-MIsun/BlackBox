@@ -128,7 +128,7 @@ public class FileUtils {
             }
             outputStream.flush();
         } catch (Throwable e) {
-            //ignore
+            // Ignore
         } finally {
             closeQuietly(inputStream);
             closeQuietly(outputStream);
@@ -148,8 +148,10 @@ public class FileUtils {
             while (true) {
                 buffer.clear();
                 int r = iChannel.read(buffer);
-                if (r == -1)
+                if (r == -1) {
                     break;
+                }
+
                 buffer.limit(buffer.position());
                 buffer.position(0);
                 oChannel.write(buffer);

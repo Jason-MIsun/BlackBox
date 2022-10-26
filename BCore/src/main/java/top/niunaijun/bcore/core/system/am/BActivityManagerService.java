@@ -42,7 +42,7 @@ public class BActivityManagerService extends IBActivityManagerService.Stub imple
 
     public BActivityManagerService() {
         BPackageManagerService mPms = BPackageManagerService.get();
-        mBroadcastManager = BroadcastManager.startSystem(mPms);
+        this.mBroadcastManager = BroadcastManager.startSystem(mPms);
     }
 
     @Override
@@ -72,7 +72,7 @@ public class BActivityManagerService extends IBActivityManagerService.Stub imple
     }
 
     @Override
-    public Intent sendBroadcast(Intent intent, String resolvedType, int userId) throws RemoteException {
+    public Intent sendBroadcast(Intent intent, String resolvedType, int userId) {
         List<ResolveInfo> resolves = BPackageManagerService.get().queryBroadcastReceivers(intent, GET_META_DATA, resolvedType, userId);
         for (ResolveInfo resolve : resolves) {
             ProcessRecord processRecord = BProcessManagerService.get().findProcessRecord(resolve.activityInfo.packageName, resolve.activityInfo.processName, userId);
@@ -110,7 +110,7 @@ public class BActivityManagerService extends IBActivityManagerService.Stub imple
             return;
         }
 
-        // crash by BinderProxy cast
+        // Crash by BinderProxy cast
         // ActivityRecord record = (ActivityRecord) activityRecord;
         UserSpace userSpace = getOrCreateSpaceLocked(process.userId);
         synchronized (userSpace.mStack) {

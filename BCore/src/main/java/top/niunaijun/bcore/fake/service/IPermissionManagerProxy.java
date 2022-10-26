@@ -1,6 +1,9 @@
 package top.niunaijun.bcore.fake.service;
 
 import android.content.pm.PackageManager;
+import android.os.Build;
+
+import java.lang.reflect.Method;
 
 import black.android.app.ActivityThread;
 import black.android.app.ApplicationPackageManager;
@@ -9,8 +12,10 @@ import black.android.os.ServiceManager;
 import black.android.permission.IPermissionManager;
 import top.niunaijun.bcore.BlackBoxCore;
 import top.niunaijun.bcore.fake.hook.BinderInvocationStub;
+import top.niunaijun.bcore.fake.hook.MethodHook;
 import top.niunaijun.bcore.fake.service.base.PkgMethodProxy;
-import top.niunaijun.bcore.fake.service.base.ValueMethodProxy;
+import top.niunaijun.bcore.fake.service.base.UidMethodProxy;
+import top.niunaijun.bcore.utils.MethodParameterUtils;
 import top.niunaijun.bcore.utils.compat.BuildCompat;
 
 public class IPermissionManagerProxy extends BinderInvocationStub {
@@ -44,21 +49,40 @@ public class IPermissionManagerProxy extends BinderInvocationStub {
     @Override
     protected void onBindMethod() {
         super.onBindMethod();
-        addMethodHook(new ValueMethodProxy("addPermissionAsync", true));
-        addMethodHook(new ValueMethodProxy("addPermission", true));
-        addMethodHook(new ValueMethodProxy("performDexOpt", true));
-        addMethodHook(new ValueMethodProxy("performDexOptIfNeeded", false));
-        addMethodHook(new ValueMethodProxy("performDexOptSecondary", true));
-        addMethodHook(new ValueMethodProxy("addOnPermissionsChangeListener", 0));
-        addMethodHook(new ValueMethodProxy("removeOnPermissionsChangeListener", 0));
-        addMethodHook(new ValueMethodProxy("checkDeviceIdentifierAccess", false));
+        addMethodHook(new PkgMethodProxy("getPermissionInfo"));
+        addMethodHook(new PkgMethodProxy("getPermissionFlags"));
+        addMethodHook(new PkgMethodProxy("updatePermissionFlags"));
+        addMethodHook(new PkgMethodProxy("grantRuntimePermission"));
+        addMethodHook(new PkgMethodProxy("revokeRuntimePermission"));
         addMethodHook(new PkgMethodProxy("shouldShowRequestPermissionRationale"));
+        addMethodHook(new PkgMethodProxy("isPermissionRevokedByPolicy"));
+        addMethodHook(new PkgMethodProxy("startOneTimePermissionSession"));
+        addMethodHook(new PkgMethodProxy("stopOneTimePermissionSession"));
+        addMethodHook(new PkgMethodProxy("setAutoRevokeExempted"));
+        addMethodHook(new PkgMethodProxy("isAutoRevokeExempted"));
 
-        if (BuildCompat.isOreo()) {
-            addMethodHook(new ValueMethodProxy("notifyDexLoad", 0));
-            addMethodHook(new ValueMethodProxy("notifyPackageUse", 0));
-            addMethodHook(new ValueMethodProxy("setInstantAppCookie", false));
-            addMethodHook(new ValueMethodProxy("isInstantApp", false));
+        if (BuildCompat.isT()) {
+            addMethodHook(new PkgMethodProxy("getAllowlistedRestrictedPermissions"));
+            addMethodHook(new PkgMethodProxy("addAllowlistedRestrictedPermission"));
+            addMethodHook(new PkgMethodProxy("removeAllowlistedRestrictedPermission"));
+        } else if (Build.VERSION.SDK_INT == Build.VERSION_CODES.S) {
+            addMethodHook(new PkgMethodProxy("revokePostNotificationPermissionWithoutKillForTest"));
+        } else {
+            addMethodHook(new PkgMethodProxy("checkPermission"));
+            addMethodHook(new UidMethodProxy("checkUidPermission", 1));
+            addMethodHook(new PkgMethodProxy("getWhitelistedRestrictedPermissions"));
+            addMethodHook(new PkgMethodProxy("addWhitelistedRestrictedPermission"));
+            addMethodHook(new PkgMethodProxy("removeWhitelistedRestrictedPermission"));
+            addMethodHook(new PkgMethodProxy("setDefaultBrowser"));
+            addMethodHook(new PkgMethodProxy("grantDefaultPermissionsToActiveLuiApp"));
+            addMethodHook("checkDeviceIdentifierAccess", new MethodHook() {
+                @Override
+                protected Object hook(Object who, Method method, Object[] args) throws Throwable {
+                    MethodParameterUtils.replaceFirstAppPkg(args);
+                    MethodParameterUtils.replaceLastUid(args);
+                    return method.invoke(who, args);
+                }
+            });
         }
     }
 

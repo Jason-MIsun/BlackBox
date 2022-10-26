@@ -8,12 +8,6 @@ import top.niunaijun.blackbox.R
 import top.niunaijun.blackbox.bean.XpModuleInfo
 import top.niunaijun.blackbox.databinding.ItemXpBinding
 
-/**
- *
- * @Description:
- * @Author: wukaicheng
- * @CreateDate: 2021/5/2 21:32
- */
 class XpAdapter : RVHolderFactory() {
     override fun createViewHolder(parent: ViewGroup?, viewType: Int, item: Any): RVHolder<out Any> {
         return XpVH(inflate(R.layout.item_xp, parent))

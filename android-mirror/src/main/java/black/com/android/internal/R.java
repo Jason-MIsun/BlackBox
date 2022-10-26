@@ -18,18 +18,4 @@ public class R {
         public static Reflector.FieldWrapper<Integer> Window_windowIsTranslucent = REF.field("Window_windowIsTranslucent");
         public static Reflector.FieldWrapper<Integer> Window_windowShowWallpaper = REF.field("Window_windowShowWallpaper");
     }
-
-    public static class drawable {
-        public static final Reflector REF = Reflector.on("com.android.internal.R$drawable");
-    }
-
-    public static class layout {
-        public static final Reflector REF = Reflector.on("com.android.internal.R$layout");
-    }
-
-    public static class id {
-        public static final Reflector REF = Reflector.on("com.android.internal.R$id");
-
-        public static Reflector.FieldWrapper<Integer> message = REF.field("message");
-    }
 }

@@ -5,12 +5,6 @@ import top.niunaijun.blackbox.bean.AppInfo
 import top.niunaijun.blackbox.data.AppsRepository
 import top.niunaijun.blackbox.view.base.BaseViewModel
 
-/**
- *
- * @Description:
- * @Author: wukaicheng
- * @CreateDate: 2021/4/29 22:36
- */
 class AppsViewModel(private val repo: AppsRepository) : BaseViewModel() {
     val appsLiveData = MutableLiveData<List<AppInfo>>()
     val resultLiveData = MutableLiveData<String>()
@@ -48,9 +42,9 @@ class AppsViewModel(private val repo: AppsRepository) : BaseViewModel() {
         }
     }
 
-    fun updateApkOrder(userID: Int,dataList:List<AppInfo>) {
+    fun updateApkOrder(userID: Int, dataList:List<AppInfo>) {
         launchOnUI {
-            repo.updateApkOrder(userID,dataList)
+            repo.updateApkOrder(userID, dataList)
         }
     }
 }

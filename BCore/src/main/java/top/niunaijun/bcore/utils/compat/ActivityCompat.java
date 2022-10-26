@@ -10,7 +10,6 @@ import android.content.pm.PackageManager;
 import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
-import android.os.Build;
 import android.view.WindowManager;
 
 import top.niunaijun.bcore.app.BActivityThread;
@@ -23,8 +22,8 @@ public class ActivityCompat {
         try {
             TypedArray typedArray = activity.obtainStyledAttributes(ArrayUtils.toInt(black.com.android.internal.R.styleable.Window.get()));
             if (typedArray != null) {
-                boolean showWallpaper = typedArray.getBoolean(black.com.android.internal.R.styleable.Window_windowShowWallpaper.get(), false);
-                if (showWallpaper) {
+                boolean isShowWallpaper = typedArray.getBoolean(black.com.android.internal.R.styleable.Window_windowShowWallpaper.get(), false);
+                if (isShowWallpaper) {
                     activity.getWindow().setBackgroundDrawable(WallpaperManager.getInstance(activity).getDrawable());
                 }
 
@@ -38,24 +37,24 @@ public class ActivityCompat {
             e.printStackTrace();
         }
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+        if (BuildCompat.isL()) {
             Intent intent = activity.getIntent();
             ApplicationInfo applicationInfo = baseContext.getApplicationInfo();
-            PackageManager pm = activity.getPackageManager();
+            PackageManager packageManager = activity.getPackageManager();
 
             if (intent != null && activity.isTaskRoot()) {
                 try {
-                    String label = TaskDescriptionCompat.getTaskDescriptionLabel(BActivityThread.getUserId(), applicationInfo.loadLabel(pm));
+                    String taskDescriptionLabel = TaskDescriptionCompat.getTaskDescriptionLabel(BActivityThread.getUserId(), applicationInfo.loadLabel(packageManager));
 
                     Bitmap icon = null;
-                    Drawable drawable = getActivityIcon(activity);
-                    if (drawable != null) {
-                        ActivityManager am = (ActivityManager) baseContext.getSystemService(Context.ACTIVITY_SERVICE);
-                        int iconSize = am.getLauncherLargeIconSize();
-                        icon = DrawableUtils.drawableToBitmap(drawable, iconSize, iconSize);
-                    }
+                    Drawable activityIcon = getActivityIcon(activity);
+                    if (activityIcon != null) {
+                        ActivityManager activityManager = (ActivityManager) baseContext.getSystemService(Context.ACTIVITY_SERVICE);
 
-                    activity.setTaskDescription(new ActivityManager.TaskDescription(label, icon));
+                        int iconSize = activityManager.getLauncherLargeIconSize();
+                        icon = DrawableUtils.drawableToBitmap(activityIcon, iconSize, iconSize);
+                    }
+                    activity.setTaskDescription(new ActivityManager.TaskDescription(taskDescriptionLabel, icon));
                 } catch (Throwable e) {
                     e.printStackTrace();
                 }
@@ -64,14 +63,15 @@ public class ActivityCompat {
     }
 
     private static Drawable getActivityIcon(Activity activity) {
-        PackageManager pm = activity.getPackageManager();
+        PackageManager packageManager = activity.getPackageManager();
         try {
-            Drawable icon = pm.getActivityIcon(activity.getComponentName());
-            if (icon != null)
+            Drawable icon = packageManager.getActivityIcon(activity.getComponentName());
+            if (icon != null) {
                 return icon;
+            }
         } catch (PackageManager.NameNotFoundException ignore) { }
 
         ApplicationInfo applicationInfo = activity.getApplicationInfo();
-        return applicationInfo.loadIcon(pm);
+        return applicationInfo.loadIcon(packageManager);
     }
 }

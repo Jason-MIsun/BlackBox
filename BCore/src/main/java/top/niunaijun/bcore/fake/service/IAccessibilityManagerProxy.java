@@ -33,9 +33,9 @@ public class IAccessibilityManagerProxy extends BinderInvocationStub {
         return false;
     }
 
-    @ProxyMethods({"interrupt", "sendAccessibilityEvent", "addClient",
-            "getInstalledAccessibilityServiceList", "getEnabledAccessibilityServiceList",
-            "addAccessibilityInteractionConnection", "getWindowToken"})
+    @ProxyMethods({"interrupt", "sendAccessibilityEvent", "addClient", "removeClient", "getInstalledAccessibilityServiceList",
+            "getEnabledAccessibilityServiceList", "addAccessibilityInteractionConnection", "getWindowToken", "setSystemAudioCaptioningEnabled",
+            "isSystemAudioCaptioningUiEnabled", "setSystemAudioCaptioningUiEnabled"})
     public static class ReplaceUserId extends MethodHook {
 
         @Override
@@ -43,6 +43,7 @@ public class IAccessibilityManagerProxy extends BinderInvocationStub {
             if (args != null) {
                 int index = args.length - 1;
                 Object arg = args[index];
+
                 if (arg instanceof Integer) {
                     ApplicationInfo applicationInfo = BlackBoxCore.getContext().getApplicationInfo();
                     args[index] = BUserHandle.getUserId(applicationInfo.uid);

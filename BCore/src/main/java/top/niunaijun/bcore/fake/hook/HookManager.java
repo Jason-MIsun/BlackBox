@@ -109,7 +109,6 @@ public class HookManager {
             addInjector(new IPhoneSubInfoProxy());
             addInjector(new IMediaRouterServiceProxy());
             addInjector(new IPowerManagerProxy());
-            addInjector(new IContextHubServiceProxy());
             addInjector(new IVibratorServiceProxy());
             addInjector(new IPersistentDataBlockServiceProxy());
             addInjector(AppInstrumentation.get());
@@ -140,6 +139,7 @@ public class HookManager {
             }
             // 7.0
             if (BuildCompat.isN()) {
+                addInjector(new IContextHubServiceProxy());
                 addInjector(new INetworkManagementServiceProxy());
                 addInjector(new IShortcutManagerProxy());
             }

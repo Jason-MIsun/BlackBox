@@ -12,7 +12,6 @@ public class CreateUserExecutor implements Executor {
         String packageName = ps.pkg.packageName;
         FileUtils.deleteDir(BEnvironment.getDataLibDir(packageName, userId));
 
-        // create user dir
         FileUtils.mkdirs(BEnvironment.getDataDir(packageName, userId));
         FileUtils.mkdirs(BEnvironment.getDataCacheDir(packageName, userId));
         FileUtils.mkdirs(BEnvironment.getDataFilesDir(packageName, userId));

@@ -5,12 +5,6 @@ import android.content.Intent
 import android.net.Uri
 import android.provider.Settings
 
-/**
- *
- * @Description:
- * @Author: kotlinMiku
- * @CreateDate: 2022/4/17 16:32
- */
 object ContextUtil {
     fun Context.openAppSystemSettings() {
         startActivity(Intent().apply {

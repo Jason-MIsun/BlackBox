@@ -2,12 +2,6 @@ package top.niunaijun.blackbox.bean
 
 import android.graphics.drawable.Drawable
 
-/**
- *
- * @Description:
- * @Author: wukaicheng
- * @CreateDate: 2021/5/2 21:03
- */
 data class XpModuleInfo(
         val name: String,
         val desc: String,

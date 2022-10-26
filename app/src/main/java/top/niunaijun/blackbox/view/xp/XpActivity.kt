@@ -14,17 +14,11 @@ import top.niunaijun.blackbox.R
 import top.niunaijun.blackbox.bean.XpModuleInfo
 import top.niunaijun.blackbox.databinding.ActivityXpBinding
 import top.niunaijun.blackbox.util.InjectionUtil
-import top.niunaijun.blackbox.util.inflate
-import top.niunaijun.blackbox.util.toast
+import top.niunaijun.blackbox.util.ToastEx.toast
+import top.niunaijun.blackbox.util.ViewBindingEx.inflate
 import top.niunaijun.blackbox.view.base.LoadingActivity
 import top.niunaijun.blackbox.view.list.ListActivity
 
-/**
- *
- * @Description: xposed模块管理界面
- * @Author: wukaicheng
- * @CreateDate: 2021/5/2 20:25
- */
 class XpActivity : LoadingActivity() {
     private val viewBinding: ActivityXpBinding by inflate()
     private lateinit var viewModel: XpViewModel
@@ -35,8 +29,7 @@ class XpActivity : LoadingActivity() {
         setContentView(viewBinding.root)
         initToolbar(viewBinding.toolbarLayout.toolbar, R.string.xp_setting, true)
 
-        viewModel = ViewModelProvider(this, InjectionUtil.getXpFactory()).get(XpViewModel::class.java)
-
+        viewModel = ViewModelProvider(this, InjectionUtil.getXpFactory())[XpViewModel::class.java]
         initRecyclerView()
         initFab()
     }
@@ -63,13 +56,15 @@ class XpActivity : LoadingActivity() {
     }
 
     private fun initRecyclerView() {
-        mAdapter = RVAdapter<XpModuleInfo>(this, XpAdapter()).bind(viewBinding.recyclerView)
+        mAdapter = RVAdapter<XpModuleInfo>(this, XpAdapter())
+			.bind(viewBinding.recyclerView)
             .setItemClickListener { _, item, position ->
                 item.enable = !item.enable
                 BlackBoxCore.get().setModuleEnable(item.packageName, item.enable)
                 mAdapter.replaceAt(position, item)
                 toast(R.string.restart_module)
-            }.setItemLongClickListener { _, item, _ ->
+            }
+            .setItemLongClickListener { _, item, _ ->
                 unInstallModule(item.packageName)
             }
 

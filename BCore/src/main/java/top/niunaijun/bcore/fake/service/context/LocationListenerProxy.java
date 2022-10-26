@@ -29,9 +29,6 @@ public class LocationListenerProxy extends ClassInvocationStub {
     @Override
     protected void inject(Object baseInvocation, Object proxyInvocation) { }
 
-    @Override
-    protected void onBindMethod() { }
-
     @ProxyMethod("onLocationChanged")
     public static class OnLocationChanged extends MethodHook {
 

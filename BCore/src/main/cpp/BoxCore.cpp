@@ -1,7 +1,3 @@
-//
-// Created by Milk on 4/9/21.
-//
-
 #include "BoxCore.h"
 #include "Log.h"
 #include "IO.h"
@@ -68,34 +64,28 @@ void nativeHook(JNIEnv *env) {
 
     // SystemPropertiesHook会引起小米k40，安卓11上的抖音崩溃
     // SystemPropertiesHook::init(env);
-
     RuntimeHook::init(env);
     BinderHook::init(env);
 }
 
 void hideXposed(JNIEnv *env, jclass clazz) {
-    ALOGD("set hideXposed");
+    ALOGD("Hiding Xposed!");
     VMClassLoaderHook::hideXposed();
 }
 
 void init(JNIEnv *env, jobject clazz, jint api_level) {
     ALOGD("NativeCore init.");
     VMEnv.api_level = api_level;
-    VMEnv.NativeCoreClass = (jclass) env->NewGlobalRef(env->FindClass(VMCORE_CLASS));
+    VMEnv.NativeCoreClass = (jclass) env->NewGlobalRef(env->FindClass(NATIVECORE_CLASS));
     VMEnv.getCallingUidId = env->GetStaticMethodID(VMEnv.NativeCoreClass, "getCallingUid", "(I)I");
-    VMEnv.redirectPathString = env->GetStaticMethodID(VMEnv.NativeCoreClass, "redirectPath",
-                                                      "(Ljava/lang/String;)Ljava/lang/String;");
-    VMEnv.redirectPathFile = env->GetStaticMethodID(VMEnv.NativeCoreClass, "redirectPath",
-                                                    "(Ljava/io/File;)Ljava/io/File;");
-
+    VMEnv.redirectPathString = env->GetStaticMethodID(VMEnv.NativeCoreClass, "redirectPath", "(Ljava/lang/String;)Ljava/lang/String;");
+    VMEnv.redirectPathFile = env->GetStaticMethodID(VMEnv.NativeCoreClass, "redirectPath", "(Ljava/io/File;)Ljava/io/File;");
     JniHook::InitJniHook(env, api_level);
 }
 
 // IO类添加重定向规则
-void addIORule(JNIEnv *env, jclass clazz, jstring target_path,
-               jstring relocate_path) {
-    IO::addRule(env->GetStringUTFChars(target_path, JNI_FALSE),
-                env->GetStringUTFChars(relocate_path, JNI_FALSE));
+void addIORule(JNIEnv *env, jclass clazz, jstring target_path, jstring relocate_path) {
+    IO::addRule(env->GetStringUTFChars(target_path, JNI_FALSE),env->GetStringUTFChars(relocate_path, JNI_FALSE));
 }
 
 // IO类添加白名单规则
@@ -108,20 +98,20 @@ void enableIO(JNIEnv *env, jclass clazz) {
 }
 
 static JNINativeMethod gMethods[] = {
-        {"hideXposed",   "()V",                                     (void *) hideXposed},
-        {"addIORule",    "(Ljava/lang/String;Ljava/lang/String;)V", (void *) addIORule},
-        {"enableIO",     "()V",                                     (void *) enableIO},
-        {"init",         "(I)V",                                    (void *) init},
-        {"addWhiteList", "(Ljava/lang/String;)V",                   (void *) addWhiteList},
+        {"hideXposed", "()V", (void *) hideXposed},
+        {"addIORule", "(Ljava/lang/String;Ljava/lang/String;)V", (void *) addIORule},
+        {"enableIO", "()V", (void *) enableIO},
+        {"init", "(I)V", (void *) init},
+        {"addWhiteList", "(Ljava/lang/String;)V", (void *) addWhiteList},
 };
 
-int registerNativeMethods(JNIEnv *env, const char *className,
-                          JNINativeMethod *gMethods, int numMethods) {
+int registerNativeMethods(JNIEnv *env, const char *className,JNINativeMethod *gMethods, int numMethods) {
     jclass clazz;
     clazz = env->FindClass(className);
     if (clazz == nullptr) {
         return JNI_FALSE;
     }
+
     if (env->RegisterNatives(clazz, gMethods, numMethods) < 0) {
         return JNI_FALSE;
     }
@@ -129,9 +119,9 @@ int registerNativeMethods(JNIEnv *env, const char *className,
 }
 
 int registerNatives(JNIEnv *env) {
-    if (!registerNativeMethods(env, VMCORE_CLASS, gMethods,
-                               sizeof(gMethods) / sizeof(gMethods[0])))
+    if (!registerNativeMethods(env, NATIVECORE_CLASS, gMethods, sizeof(gMethods) / sizeof(gMethods[0]))) {
         return JNI_FALSE;
+    }
     return JNI_TRUE;
 }
 
@@ -148,4 +138,3 @@ JNIEXPORT jint JNI_OnLoad(JavaVM *vm, void *reserved) {
     registerMethod(env);
     return JNI_VERSION_1_6;
 }
-

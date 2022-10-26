@@ -4,12 +4,6 @@ import android.view.KeyEvent
 import com.roger.catloadinglibrary.CatLoadingView
 import top.niunaijun.blackbox.R
 
-/**
- *
- * @Description: loading activity
- * @Author: BlackBox
- * @CreateDate: 2022/3/2 21:49
- */
 abstract class LoadingActivity : BaseActivity() {
     private lateinit var loadingView: CatLoadingView
 
@@ -21,6 +15,7 @@ abstract class LoadingActivity : BaseActivity() {
         if (!loadingView.isAdded) {
             loadingView.setBackgroundColor(R.color.primary)
             loadingView.show(supportFragmentManager, "")
+
             supportFragmentManager.executePendingTransactions()
             loadingView.setClickCancelAble(false)
             loadingView.dialog?.setOnKeyListener { _, keyCode, _ ->

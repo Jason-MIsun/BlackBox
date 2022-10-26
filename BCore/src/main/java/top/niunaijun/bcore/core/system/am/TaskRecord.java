@@ -6,9 +6,9 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class TaskRecord {
-    public int id;
-    public int userId;
-    public String taskAffinity;
+    public final int id;
+    public final int userId;
+    public final String taskAffinity;
     public Intent rootIntent;
     public final List<ActivityRecord> activities = new LinkedList<>();
 

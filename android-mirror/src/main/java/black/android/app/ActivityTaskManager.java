@@ -6,6 +6,4 @@ public class ActivityTaskManager {
     public static final Reflector REF = Reflector.on("android.app.ActivityTaskManager");
 
     public static Reflector.FieldWrapper<Object> IActivityTaskManagerSingleton = REF.field("IActivityTaskManagerSingleton");
-
-    public static Reflector.StaticMethodWrapper<Object> getService = REF.staticMethod("getService");
 }

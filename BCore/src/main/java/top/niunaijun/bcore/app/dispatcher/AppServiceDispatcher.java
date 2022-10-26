@@ -17,7 +17,6 @@ import top.niunaijun.bcore.entity.UnbindRecord;
 import top.niunaijun.bcore.proxy.record.ProxyServiceRecord;
 
 public class AppServiceDispatcher {
-    public static final String TAG = "AppServiceDispatcher";
     private static final AppServiceDispatcher sServiceDispatcher = new AppServiceDispatcher();
     private final Map<Intent.FilterComparison, ServiceRecord> mService = new HashMap<>();
     private final Handler mHandler = BlackBoxCore.get().getHandler();
@@ -132,8 +131,8 @@ public class AppServiceDispatcher {
         if (stubRecord.mServiceIntent == null || stubRecord.mServiceInfo == null) {
             return;
         }
-        Intent intent = stubRecord.mServiceIntent;
 
+        Intent intent = stubRecord.mServiceIntent;
         try {
             UnbindRecord unbindRecord = BlackBoxCore.getBActivityManager().onServiceUnbind(proxyIntent, BActivityThread.getUserId());
             if (unbindRecord == null) {

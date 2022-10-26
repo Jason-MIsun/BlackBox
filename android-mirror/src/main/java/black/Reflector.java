@@ -29,14 +29,6 @@ public class Reflector {
         return new Reflector(findClass(name));
     }
 
-    public static Reflector on(String name, ClassLoader loader) {
-        return new Reflector(findClass(name, loader));
-    }
-
-    public static <T> Reflector on(Class<T> clazz) {
-        return new Reflector(clazz);
-    }
-
     public static <T> MethodWrapper<T> wrap(Method method) {
         return new MethodWrapper<>(method);
     }
@@ -49,10 +41,6 @@ public class Reflector {
         return method(mClazz, name, parameterTypes);
     }
 
-    public static <T> MethodWrapper<T> method(String className, String name, Class<?>... parameterTypes) {
-        return method(findClass(className), name, parameterTypes);
-    }
-
     public static <T> MethodWrapper<T> method(Class<?> clazz, String name, Class<?>... parameterTypes) {
         Method method = getMethod(clazz, name, parameterTypes);
         if ((parameterTypes == null || parameterTypes.length == 0) && method == null) {
@@ -63,10 +51,6 @@ public class Reflector {
 
     public <T> StaticMethodWrapper<T> staticMethod(String name, Class<?>... parameterTypes) {
         return staticMethod(mClazz, name, parameterTypes);
-    }
-
-    public static <T> StaticMethodWrapper<T> staticMethod(String className, String name, Class<?>... parameterTypes) {
-        return staticMethod(findClass(className), name, parameterTypes);
     }
 
     public static <T> StaticMethodWrapper<T> staticMethod(Class<?> clazz, String name, Class<?>... parameterTypes) {
@@ -85,10 +69,6 @@ public class Reflector {
         return field(mClazz, name);
     }
 
-    public static <T> FieldWrapper<T> field(String className, String name) {
-        return field(findClass(className), name);
-    }
-
     public static <T> FieldWrapper<T> field(Class<?> clazz, String name) {
         return wrap(getField(clazz, name));
     }
@@ -104,15 +84,6 @@ public class Reflector {
     public static Class<?> findClass(String name) {
         try {
             return Class.forName(name);
-        } catch (ClassNotFoundException e) {
-            Log.e(TAG, e.getMessage());
-        }
-        return null;
-    }
-
-    public static Class<?> findClass(String name, ClassLoader loader) {
-        try {
-            return Class.forName(name, true, loader);
         } catch (ClassNotFoundException e) {
             Log.e(TAG, e.getMessage());
         }
@@ -351,10 +322,6 @@ public class Reflector {
 
         public void set(Object value) {
             set(null, value);
-        }
-
-        public Class<?> getType() {
-            return member.getType();
         }
     }
 

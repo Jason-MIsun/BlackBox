@@ -23,7 +23,6 @@ import top.niunaijun.bcore.proxy.ProxyManifest;
 public class BJobManagerService extends IBJobManagerService.Stub implements ISystemService {
     private static final BJobManagerService sService = new BJobManagerService();
 
-    // process_jobId
     private final Map<String, JobRecord> mJobRecords = new HashMap<>();
 
     public static BJobManagerService get() {
@@ -63,7 +62,7 @@ public class BJobManagerService extends IBJobManagerService.Stub implements ISys
         jobRecord.mServiceInfo = serviceInfo;
 
         mJobRecords.put(formatKey(processRecord.processName, info.getId()), jobRecord);
-        black.android.app.job.JobInfo.service.set(info, new ComponentName(BlackBoxCore.getHostPkg(), ProxyManifest.getProxyJobService(processRecord.bpid)));
+        black.android.app.job.JobInfo.service.set(info, new ComponentName(BlackBoxCore.getHostPkg(), ProxyManifest.getProxyJobService(processRecord.bPID)));
         return info;
     }
 

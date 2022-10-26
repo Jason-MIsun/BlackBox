@@ -9,7 +9,6 @@ import android.os.Process;
 import android.text.TextUtils;
 
 import java.io.File;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;

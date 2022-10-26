@@ -18,12 +18,12 @@ public class ProcessRecord extends Binder {
     public IInterface appThread;
     public int uid;
     public int pid;
-    public int buid;
-    public int bpid;
+    public int bUID;
+    public int bPID;
     public int callingBUid;
     public int userId;
 
-    public ConditionVariable initLock = new ConditionVariable();
+    public final ConditionVariable initLock = new ConditionVariable();
 
     public ProcessRecord(ApplicationInfo info, String processName) {
         this.info = info;
@@ -32,19 +32,19 @@ public class ProcessRecord extends Binder {
 
     @Override
     public int hashCode() {
-        return Arrays.hashCode(new Object[]{processName, pid, buid, bpid, uid, pid, userId});
+        return Arrays.hashCode(new Object[]{processName, pid, bUID, bPID, uid, pid, userId});
     }
 
     public String getProviderAuthority() {
-        return ProxyManifest.getProxyAuthorities(bpid);
+        return ProxyManifest.getProxyAuthorities(bPID);
     }
 
     public AppConfig getClientConfig() {
         AppConfig config = new AppConfig();
         config.packageName = info.packageName;
         config.processName = processName;
-        config.bpid = bpid;
-        config.buid = buid;
+        config.bPID = bPID;
+        config.bUID = bUID;
         config.uid = uid;
         config.callingBUid = callingBUid;
         config.userId = userId;

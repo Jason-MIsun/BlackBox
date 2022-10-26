@@ -17,7 +17,7 @@ import top.niunaijun.blackbox.R
 import top.niunaijun.blackbox.bean.InstalledAppBean
 import top.niunaijun.blackbox.databinding.ActivityListBinding
 import top.niunaijun.blackbox.util.InjectionUtil
-import top.niunaijun.blackbox.util.inflate
+import top.niunaijun.blackbox.util.ViewBindingEx.inflate
 import top.niunaijun.blackbox.view.base.BaseActivity
 
 class ListActivity : BaseActivity() {
@@ -31,7 +31,6 @@ class ListActivity : BaseActivity() {
         setContentView(viewBinding.root)
 
         initToolbar(viewBinding.toolbarLayout.toolbar, R.string.installed_app, true)
-
         mAdapter = RVAdapter<InstalledAppBean>(this,ListAdapter()).bind(viewBinding.recyclerView).setItemClickListener { _, item, _ ->
             finishWithResult(item.packageName)
         }
@@ -62,9 +61,9 @@ class ListActivity : BaseActivity() {
     }
 
     private fun initViewModel() {
-        viewModel = ViewModelProvider(this, InjectionUtil.getListFactory()).get(ListViewModel::class.java)
+        viewModel = ViewModelProvider(this, InjectionUtil.getListFactory())[ListViewModel::class.java]
         val onlyShowXp = intent.getBooleanExtra("onlyShowXp", false)
-        val userID = intent.getIntExtra("userID",0)
+        val userID = intent.getIntExtra("userID", 0)
 
         if (onlyShowXp) {
             viewModel.getInstalledModules()
@@ -87,6 +86,7 @@ class ListActivity : BaseActivity() {
                 this.appList = it
                 viewBinding.searchView.setQuery("", false)
                 filterApp("")
+
                 if (it.isNotEmpty()) {
                     viewBinding.stateView.showContent()
                     viewModel.previewInstalledList()
@@ -123,6 +123,7 @@ class ListActivity : BaseActivity() {
     private fun finishWithResult(source: String) {
         intent.putExtra("source", source)
         setResult(Activity.RESULT_OK, intent)
+
         val imm: InputMethodManager = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
         window.peekDecorView()?.run {
             imm.hideSoftInputFromWindow(windowToken, 0)
@@ -139,9 +140,9 @@ class ListActivity : BaseActivity() {
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.menu_list, menu)
+
         val item = menu.findItem(R.id.list_search)
         viewBinding.searchView.setMenuItem(item)
-
         return true
     }
 

@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Objects;
 
 import top.niunaijun.bcore.utils.MethodParameterUtils;
+import top.niunaijun.bcore.utils.Slog;
 
 public abstract class ClassInvocationStub implements InvocationHandler, IInjectHook {
     public static final String TAG = ClassInvocationStub.class.getSimpleName();
@@ -58,7 +59,7 @@ public abstract class ClassInvocationStub implements InvocationHandler, IInjectH
     }
 
     protected void initAnnotation(Class<?> clazz) {
-        // get proxy method annotation
+        // Get proxy method annotation.
         ProxyMethod proxyMethod = clazz.getAnnotation(ProxyMethod.class);
         if (proxyMethod != null) {
             final String name = proxyMethod.value();
@@ -97,6 +98,7 @@ public abstract class ClassInvocationStub implements InvocationHandler, IInjectH
         MethodHook methodHook = mMethodHookMap.get(method.getName());
         if (methodHook == null || !methodHook.isEnable()) {
             try {
+                //Slog.e(TAG, mBase.getClass().getName() + ", " + method.getName());
                 return method.invoke(mBase, args);
             } catch (Throwable e) {
                 throw Objects.requireNonNull(e.getCause());

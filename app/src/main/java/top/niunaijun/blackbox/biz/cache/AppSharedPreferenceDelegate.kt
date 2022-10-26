@@ -6,13 +6,6 @@ import androidx.core.content.edit
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
 
-/**
- *
- * @desc:目前只支持 5种基本数据类型，如果要支持obj，请继承该类并重写他的相关方法 findData/putData
- *
- * @author: mini
- * @created by 2021/5/10
- */
 open class AppSharedPreferenceDelegate<Data>(context: Context, private val default: Data, spName: String? = null) : ReadWriteProperty<Any, Data?> {
     private val mSharedPreferences by lazy {
         val tmpCacheName = if (TextUtils.isEmpty(spName)) {

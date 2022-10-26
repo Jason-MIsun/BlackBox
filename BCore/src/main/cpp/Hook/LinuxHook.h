@@ -1,7 +1,3 @@
-//
-// Created by Aron on 2022. 09. 11..
-//
-
 #ifndef BLACKBOX_LINUXHOOK_H
 #define BLACKBOX_LINUXHOOK_H
 

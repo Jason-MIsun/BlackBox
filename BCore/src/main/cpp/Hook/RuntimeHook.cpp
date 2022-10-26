@@ -1,7 +1,3 @@
-//
-// Created by Milk on 5/5/21.
-//
-
 #include "RuntimeHook.h"
 #import "JniHook/JniHook.h"
 #include "BoxCore.h"
@@ -26,14 +22,10 @@ HOOK_JNI(jstring, nativeLoadNew, JNIEnv *env, jobject obj, jstring name, jobject
 void RuntimeHook::init(JNIEnv *env) {
     const char *className = "java/lang/Runtime";
     if (BoxCore::getApiLevel() >= __ANDROID_API_Q__) {
-        JniHook::HookJniFun(env, className, "nativeLoad",
-                            "(Ljava/lang/String;Ljava/lang/ClassLoader;Ljava/lang/Class;)Ljava/lang/String;",
-                            (void *) new_nativeLoadNew,
-                            (void **) (&orig_nativeLoadNew), true);
+        JniHook::HookJniFun(env, className, "nativeLoad","(Ljava/lang/String;Ljava/lang/ClassLoader;Ljava/lang/Class;)Ljava/lang/String;",
+                            (void *) new_nativeLoadNew, (void **) (&orig_nativeLoadNew), true);
     } else {
-        JniHook::HookJniFun(env, className, "nativeLoad",
-                            "(Ljava/lang/String;Ljava/lang/ClassLoader;)Ljava/lang/String;",
-                            (void *) new_nativeLoad,
-                            (void **) (&orig_nativeLoad), true);
+        JniHook::HookJniFun(env, className, "nativeLoad","(Ljava/lang/String;Ljava/lang/ClassLoader;)Ljava/lang/String;",
+                            (void *) new_nativeLoad, (void **) (&orig_nativeLoad), true);
     }
 }

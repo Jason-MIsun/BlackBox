@@ -1,7 +1,6 @@
 package top.niunaijun.blackbox.view.fake
 
 import android.app.Activity
-import android.os.Build
 import android.os.Bundle
 import android.view.inputmethod.InputMethodManager
 import androidx.activity.OnBackPressedCallback
@@ -15,17 +14,12 @@ import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.overlay.MapEventsOverlay
 import org.osmdroid.views.overlay.Marker
 import top.niunaijun.bcore.entity.location.BLocation
+import top.niunaijun.bcore.utils.compat.BuildCompat
 import top.niunaijun.blackbox.databinding.ActivityOsmdroidBinding
-import top.niunaijun.blackbox.util.inflate
-import top.niunaijun.blackbox.util.toast
+import top.niunaijun.blackbox.util.ToastEx.toast
+import top.niunaijun.blackbox.util.ViewBindingEx.inflate
 
-/**
- *
- * @Author: BlackBoxing
- * @CreateDate: 2022/3/14
- */
 class FollowMyLocationOverlay : AppCompatActivity() {
-    val TAG: String = "FollowMyLocationOverlay"
     private val REQUEST_PERMISSIONS_REQUEST_CODE = 1
     private val binding: ActivityOsmdroidBinding by inflate()
     lateinit var startPoint: GeoPoint
@@ -47,11 +41,12 @@ class FollowMyLocationOverlay : AppCompatActivity() {
         // inflate and create the map
         setContentView(binding.root)
 
-        val location: BLocation? = if (Build.VERSION.SDK_INT >= 33) {
+        val location: BLocation? = if (BuildCompat.isT()) {
             intent.getParcelableExtra("location", BLocation::class.java)
         } else {
             intent.getParcelableExtra("location")
         }
+
         startPoint = if (location == null) {
             GeoPoint(30.2736, 120.1563)
         } else {
@@ -69,6 +64,7 @@ class FollowMyLocationOverlay : AppCompatActivity() {
                 startMarker.position = p
                 startMarker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
                 binding.map.overlays.add(startMarker)
+
                 toast(p.latitude.toString() + " - " + p.longitude)
                 return false
             }
@@ -112,23 +108,16 @@ class FollowMyLocationOverlay : AppCompatActivity() {
         binding.map.onPause()  // needed for compass, my location overlays, v6.0.0 and up
     }
 
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
-    ) {
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         val permissionsToRequest = ArrayList<String>()
         var i = 0
         while (i < grantResults.size) {
             permissionsToRequest.add(permissions[i])
             i++
         }
+
         if (permissionsToRequest.size > 0) {
-            ActivityCompat.requestPermissions(
-                this,
-                permissionsToRequest.toTypedArray(),
-                REQUEST_PERMISSIONS_REQUEST_CODE
-            )
+            ActivityCompat.requestPermissions(this, permissionsToRequest.toTypedArray(), REQUEST_PERMISSIONS_REQUEST_CODE)
         }
     }
 
@@ -136,6 +125,7 @@ class FollowMyLocationOverlay : AppCompatActivity() {
         intent.putExtra("latitude", geoPoint.latitude)
         intent.putExtra("longitude", geoPoint.longitude)
         setResult(Activity.RESULT_OK, intent)
+
         val imm: InputMethodManager = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
         window.peekDecorView()?.run {
             imm.hideSoftInputFromWindow(windowToken, 0)

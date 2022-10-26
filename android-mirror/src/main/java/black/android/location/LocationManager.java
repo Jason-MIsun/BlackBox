@@ -19,6 +19,6 @@ public class LocationManager {
     public static class LocationListenerTransport {
         public static final Reflector REF = Reflector.on("android.location.LocationManager$LocationListenerTransport");
 
-        public static Reflector.FieldWrapper mListener = REF.field("mListener");
+        public static Reflector.FieldWrapper<Object> mListener = REF.field("mListener");
     }
 }

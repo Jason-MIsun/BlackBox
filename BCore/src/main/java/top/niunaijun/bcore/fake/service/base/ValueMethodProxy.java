@@ -5,12 +5,12 @@ import java.lang.reflect.Method;
 import top.niunaijun.bcore.fake.hook.MethodHook;
 
 public class ValueMethodProxy extends MethodHook {
-	Object mValue;
-	String mName;
+	final Object mValue;
+	final String mName;
 
 	public ValueMethodProxy(String name, Object value) {
-		mValue = value;
-		mName = name;
+		this.mValue = value;
+		this.mName = name;
 	}
 
 	@Override

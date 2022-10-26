@@ -10,11 +10,11 @@ enum logType {
     WARN  = 5
 };
 
-#define TAG "Xposed-C++"
+#define TAG "Xposed"
 
 #define LOGD(...) ((void) __android_log_print(DEBUG, TAG, __VA_ARGS__))
 #define LOGE(...) ((void) __android_log_print(ERROR, TAG, __VA_ARGS__))
 #define LOGI(...) ((void) __android_log_print(INFO,  TAG, __VA_ARGS__))
 #define LOGW(...) ((void) __android_log_print(WARN,  TAG, __VA_ARGS__))
 
-#endif //XPOSED_LOG_H
+#endif // XPOSED_LOG_H

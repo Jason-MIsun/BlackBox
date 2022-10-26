@@ -125,11 +125,11 @@ public class BActivityThread extends IBActivityThread.Stub {
     }
 
     public static int getAppPid() {
-        return getAppConfig() == null ? -1 : getAppConfig().bpid;
+        return getAppConfig() == null ? -1 : getAppConfig().bPID;
     }
 
     public static int getBUid() {
-        return getAppConfig() == null ? BUserHandle.AID_APP_START : getAppConfig().buid;
+        return getAppConfig() == null ? BUserHandle.AID_APP_START : getAppConfig().bUID;
     }
 
     public static int getBAppId() {
@@ -154,6 +154,7 @@ public class BActivityThread extends IBActivityThread.Stub {
                 // 该进程已被attach
                 throw new RuntimeException("Reject init process: " + appConfig.processName + ", this process is: " + this.mAppConfig.processName);
             }
+
             this.mAppConfig = appConfig;
             IBinder iBinder = asBinder();
             try {
@@ -284,13 +285,13 @@ public class BActivityThread extends IBActivityThread.Stub {
             StrictMode.setThreadPolicy(newPolicy);
         }
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+        if (BuildCompat.isN()) {
             if (targetSdkVersion < Build.VERSION_CODES.N) {
                 StrictModeCompat.disableDeathOnFileUriExposure();
             }
         }
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+        if (BuildCompat.isPie()) {
             WebView.setDataDirectorySuffix(getUserId() + ":" + packageName + ":" + processName);
         }
 
@@ -317,7 +318,7 @@ public class BActivityThread extends IBActivityThread.Stub {
         ActivityThread.AppBindData.providers.set(boundApplication, bindData.providers);
         mBoundApplication = bindData;
 
-        // ssl适配
+        // SSL适配
         Security.removeProvider("AndroidNSSP");
         NetworkSecurityConfigProvider.install.call(packageContext);
 

@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class RunningAppProcessInfo implements Parcelable {
-    public List<ActivityManager.RunningAppProcessInfo> mAppProcessInfoList;
+    public final List<ActivityManager.RunningAppProcessInfo> mAppProcessInfoList;
 
     @Override
     public int describeContents() {
@@ -21,7 +21,7 @@ public class RunningAppProcessInfo implements Parcelable {
     }
 
     public RunningAppProcessInfo() {
-        mAppProcessInfoList = new ArrayList<>();
+        this.mAppProcessInfoList = new ArrayList<>();
     }
 
     protected RunningAppProcessInfo(Parcel in) {

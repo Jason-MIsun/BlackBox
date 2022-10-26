@@ -6,7 +6,7 @@ public class PackageUserState {
     public boolean stopped;
     public boolean notLaunched;
     public boolean installed;
-    public boolean hidden; // Is the app restricted by owner / admin
+    public boolean hidden; // Is the app restricted by owner/admin
     public int enabled;
     public boolean blockUninstall;
 

@@ -14,15 +14,24 @@ BlackBox is a virtual engine, it can clone and run virtual application on Androi
 [Telegram](https://t.me/blackboxing)
 
 ## Support
-Currently we don't consider supporting Android 4.x, it supports Android 5.0 ～ 12.0.
+Currently we don't consider supporting Android 4.x, it supports Android 5.0 ～ 13.0.
 
 If conditions permit, downgrade targetSdkVersion to 28 or below for better compatibility.
 
 ***Stability has not been tested extensively and is for learning and communication purposes only. Please do not use for other purposes***
 
-## Special Instruction
-
-~~This project distinguishes between 32-bit and 64-bit, it was compiled to 2 different demos. If you can not find your target in application list, please use another architecture.~~
+## API
+- [BlackBoxCore](BlackBoxCore)
+- [BAccountManager](BAccountManager)
+- [BActivityManager](BActivityManager)
+- [BJobManager](BJobManager)
+- [BlackManager](BlackManager)
+- [BLocationManager](BLocationManager)
+- [BNotificationManager](BNotificationManager)
+- [BPackageManager](BPackageManager)
+- [BStorageManager](BStorageManager)
+- [BUserManager](BUserManager)
+- [BXposedManager](BXposedManager)
 
 ## Usage
 ### Step 1.Add initialized code in the Application

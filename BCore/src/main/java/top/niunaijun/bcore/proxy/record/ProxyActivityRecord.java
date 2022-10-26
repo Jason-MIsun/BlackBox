@@ -4,16 +4,16 @@ import android.content.Intent;
 import android.content.pm.ActivityInfo;
 
 public class ProxyActivityRecord {
-    public int mUserId;
-    public ActivityInfo mActivityInfo;
-    public Intent mTarget;
-    public String mActivityToken;
+    public final int mUserId;
+    public final ActivityInfo mActivityInfo;
+    public final Intent mTarget;
+    public final String mActivityToken;
 
     public ProxyActivityRecord(int userId, ActivityInfo activityInfo, Intent target, String activityToken) {
-        mUserId = userId;
-        mActivityInfo = activityInfo;
-        mTarget = target;
-        mActivityToken = activityToken;
+        this.mUserId = userId;
+        this.mActivityInfo = activityInfo;
+        this.mTarget = target;
+        this.mActivityToken = activityToken;
     }
 
     public static void saveStub(Intent shadow, Intent target, ActivityInfo activityInfo, String activityToken, int userId) {

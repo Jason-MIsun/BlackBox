@@ -1,14 +1,12 @@
 package top.niunaijun.blackbox.widget;
 
 import android.content.Context;
-import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.PixelFormat;
 import android.graphics.Point;
 import android.graphics.PorterDuff;
-import android.graphics.Rect;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
@@ -19,20 +17,9 @@ import androidx.annotation.NonNull;
 
 import top.niunaijun.blackbox.util.MathUtil;
 
-/**
- * A custom view for game or others.
- * <p/>
- * Author: GcsSloop
- * Created Date: 16/5/24
- * Copyright (C) 2016 GcsSloop.
- * GitHub: https://github.com/GcsSloop
- */
 public class RockerView extends SurfaceView implements Runnable, SurfaceHolder.Callback {
     private static final int DEFAULT_AREA_RADIUS = 100;
     private static final int DEFAULT_ROCKER_RADIUS = 35;
-
-    private static final int DEFAULT_AREA_COLOR = Color.argb(128,0,0,0);
-    private static final int DEFAULT_ROCKER_COLOR = Color.argb(128,0,0,0);
 
     private static final int DEFAULT_REFRESH_CYCLE = 30;
     private static final int DEFAULT_CALLBACK_CYCLE = 300;
@@ -40,8 +27,6 @@ public class RockerView extends SurfaceView implements Runnable, SurfaceHolder.C
     private SurfaceHolder mHolder;
     private static boolean mDrawOk = true;
     private static boolean mCallbackOk = true;
-
-    private Paint mPaint;
 
     /**
      * The rocker active area center position.
@@ -61,21 +46,10 @@ public class RockerView extends SurfaceView implements Runnable, SurfaceHolder.C
     private int mAreaRadius = -1;
     private int mRockerRadius = -1;
 
-    private int mAreaColor;
-    private int mRockerColor;
-    private Bitmap mAreaBitmap;
-    private Bitmap mRockerBitmap;
-
     private boolean canMove = true;
 
-    private RockerListener mListener;
-    public static final int EVENT_ACTION = 1;
-    public static final int EVENT_CLOCK = 2;
+    private final int mCallbackCycle = DEFAULT_CALLBACK_CYCLE;
 
-    private int mRefreshCycle = DEFAULT_REFRESH_CYCLE;
-    private int mCallbackCycle = DEFAULT_CALLBACK_CYCLE;
-
-    /*Life Cycle***********************************************************************************/
     public RockerView(Context context) {
         this(context, null);
     }
@@ -88,7 +62,6 @@ public class RockerView extends SurfaceView implements Runnable, SurfaceHolder.C
         super(context, attrs, defStyleAttr);
         // init attrs
         initAttrs();
-
         // set paint
         setPaint();
 
@@ -98,20 +71,17 @@ public class RockerView extends SurfaceView implements Runnable, SurfaceHolder.C
 
         // config surfaceView
         configSurfaceView();
-
         // config surfaceHolder
         configSurfaceHolder();
     }
 
     private void initAttrs() {
-        mAreaColor = DEFAULT_AREA_COLOR;
-        mRockerColor = DEFAULT_ROCKER_COLOR;
         mAreaRadius = DEFAULT_AREA_RADIUS;
         mRockerRadius = DEFAULT_ROCKER_RADIUS;
     }
 
     private void setPaint() {
-        mPaint = new Paint();
+        Paint mPaint = new Paint();
         mPaint.setAntiAlias(true);
     }
 
@@ -132,41 +102,44 @@ public class RockerView extends SurfaceView implements Runnable, SurfaceHolder.C
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         int measureWidth, measureHeight;
         int defaultWidth = (mAreaRadius + mRockerRadius) * 2;
+        int defaultHeight = (mAreaRadius + mRockerRadius) / 2;
 
-        int widthsize = MeasureSpec.getSize(widthMeasureSpec);      // 取出宽度的确切数值
-        int widthmode = MeasureSpec.getMode(widthMeasureSpec);      // 取出宽度的测量模式
+        int widthSize = MeasureSpec.getSize(widthMeasureSpec);      // 取出宽度的确切数值
+        int widthMode = MeasureSpec.getMode(widthMeasureSpec);      // 取出宽度的测量模式
 
-        int heightsize = MeasureSpec.getSize(heightMeasureSpec);    // 取出高度的确切数值
-        int heightmode = MeasureSpec.getMode(heightMeasureSpec);    // 取出高度的测量模式
+        int heightSize = MeasureSpec.getSize(heightMeasureSpec);    // 取出高度的确切数值
+        int heightMode = MeasureSpec.getMode(heightMeasureSpec);    // 取出高度的测量模式
 
-        if (widthmode == MeasureSpec.AT_MOST || widthmode == MeasureSpec.UNSPECIFIED || widthsize < 0) {
+        if (widthMode == MeasureSpec.AT_MOST || widthMode == MeasureSpec.UNSPECIFIED || widthSize < 0) {
             measureWidth = defaultWidth;
         } else {
-            measureWidth = widthsize;
+            measureWidth = widthSize;
         }
 
-        if (heightmode == MeasureSpec.AT_MOST || heightmode == MeasureSpec.UNSPECIFIED || heightsize < 0) {
-            measureHeight = defaultWidth;
+        if (heightMode == MeasureSpec.AT_MOST || heightMode == MeasureSpec.UNSPECIFIED || heightSize < 0) {
+            measureHeight = defaultHeight;
         } else {
-            measureHeight = heightsize;
+            measureHeight = heightSize;
         }
-
         setMeasuredDimension(measureWidth, measureHeight);
     }
 
     @Override
-    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
-        super.onSizeChanged(w, h, oldw, oldh);
+    protected void onSizeChanged(int w, int h, int oldWidth, int oldHeight) {
+        super.onSizeChanged(w, h, oldWidth, oldHeight);
         mAreaPosition = new Point(w / 2, h / 2);
         mRockerPosition = new Point(mAreaPosition);
 
         // this need subtract the view padding
         int tempRadius = Math.min(w - getPaddingLeft() - getPaddingRight(), h - getPaddingTop() - getPaddingBottom());
         tempRadius /= 2;
-        if (mAreaRadius == -1)
+        if (mAreaRadius == -1) {
             mAreaRadius = (int) (tempRadius * 0.75);
-        if (mRockerRadius == -1)
+        }
+
+        if (mRockerRadius == -1) {
             mRockerRadius = (int) (tempRadius * 0.25);
+        }
     }
 
     @Override
@@ -177,8 +150,6 @@ public class RockerView extends SurfaceView implements Runnable, SurfaceHolder.C
             // listener callback
             Thread mCallbackThread = new Thread(() -> {
                 while (mCallbackOk) {
-                    // listener callback
-                    listenerCallback();
                     try {
                         Thread.sleep(mCallbackCycle);
                     } catch (Exception e) {
@@ -215,9 +186,9 @@ public class RockerView extends SurfaceView implements Runnable, SurfaceHolder.C
 
     /*Event Response*******************************************************************************/
     @Override
-    public boolean onTouchEvent(MotionEvent event) {
+    public boolean onTouchEvent(@NonNull MotionEvent event) {
         try {
-            int len = MathUtil.getDistance(mAreaPosition.x, mAreaPosition.y, event.getX(), event.getY());
+            int len = MathUtil.Companion.getDistance(mAreaPosition.x, mAreaPosition.y, event.getX(), event.getY());
             if (event.getAction() == MotionEvent.ACTION_DOWN) {
                 // 如果屏幕接触点不在摇杆挥动范围内,则不处理
                 if (len > mAreaRadius) {
@@ -231,22 +202,13 @@ public class RockerView extends SurfaceView implements Runnable, SurfaceHolder.C
                     mRockerPosition.set((int) event.getX(), (int) event.getY());
                 } else {
                     // 设置摇杆位置，使其处于手指触摸方向的 摇杆活动范围边缘
-                    mRockerPosition = MathUtil.getPointByCutLength(mAreaPosition,
+                    mRockerPosition = MathUtil.Companion.getPointByCutLength(mAreaPosition,
                             new Point((int) event.getX(), (int) event.getY()), mAreaRadius);
-                }
-                if (mListener != null) {
-                    float radian = MathUtil.getRadian(mAreaPosition, new Point((int) event.getX(), (int) event.getY()));
-                    float angle = RockerView.this.getAngleConvert(radian);
-                    float distance = MathUtil.getDistance(mAreaPosition.x, mAreaPosition.y, event.getX(), event.getY());
-                    mListener.callback(EVENT_ACTION, angle, distance);
                 }
             }
             // 如果手指离开屏幕，则摇杆返回初始位置
             if (event.getAction() == MotionEvent.ACTION_UP) {
                 mRockerPosition = new Point(mAreaPosition);
-                if (mListener != null) {
-                    mListener.callback(EVENT_ACTION, -1, 0);
-                }
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -254,12 +216,12 @@ public class RockerView extends SurfaceView implements Runnable, SurfaceHolder.C
         return true;
     }
 
-    /*Thread - draw view***************************************************************************/
     @Override
     public void run() {
         if (isInEditMode()) {
             return;
         }
+
         Canvas canvas = null;
         while (mDrawOk) {
             boolean canMove = this.canMove;
@@ -267,11 +229,8 @@ public class RockerView extends SurfaceView implements Runnable, SurfaceHolder.C
                 if (canMove) {
                     canvas = mHolder.lockCanvas();
                     canvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
-
-                    drawArea(canvas);
-                    drawRocker(canvas);
                 }
-                Thread.sleep(mRefreshCycle); // 休眠
+                Thread.sleep(DEFAULT_REFRESH_CYCLE); // 休眠
             } catch (Exception e) {
                 e.printStackTrace();
             } finally {
@@ -282,153 +241,15 @@ public class RockerView extends SurfaceView implements Runnable, SurfaceHolder.C
         }
     }
 
-    private void drawArea(Canvas canvas) {
-        if (mAreaBitmap != null) {
-            mPaint.setColor(Color.BLACK);
-            Rect src = new Rect(0, 0, mAreaBitmap.getWidth(), mAreaBitmap.getHeight());
-            Rect dst = new Rect(
-                    mAreaPosition.x - mAreaRadius,
-                    mAreaPosition.y - mAreaRadius,
-                    mAreaPosition.x + mAreaRadius,
-                    mAreaPosition.y + mAreaRadius);
-            canvas.drawBitmap(mAreaBitmap, src, dst, mPaint);
-        } else {
-            mPaint.setColor(mAreaColor);
-            canvas.drawCircle(mAreaPosition.x, mAreaPosition.y, mAreaRadius, mPaint);
-        }
-    }
-
-    private void drawRocker(Canvas canvas) {
-        if (mRockerBitmap != null) {
-            mPaint.setColor(Color.BLACK);
-            Rect src = new Rect(0, 0, mRockerBitmap.getWidth(), mRockerBitmap.getHeight());
-            Rect dst = new Rect(
-                    mRockerPosition.x - mRockerRadius,
-                    mRockerPosition.y - mRockerRadius,
-                    mRockerPosition.x + mRockerRadius,
-                    mRockerPosition.y + mRockerRadius);
-            canvas.drawBitmap(mRockerBitmap, src, dst, mPaint);
-        } else {
-            mPaint.setColor(mRockerColor);
-            canvas.drawCircle(mRockerPosition.x, mRockerPosition.y, mRockerRadius, mPaint);
-        }
-    }
-
-    private void listenerCallback() {
-        if (mListener != null) {
-            if (mRockerPosition.x == mAreaPosition.x && mRockerPosition.y == mAreaPosition.y) {
-                mListener.callback(EVENT_CLOCK, -1, 0);
-            } else {
-                float radian = MathUtil.getRadian(mAreaPosition, new Point(mRockerPosition.x, mRockerPosition.y));
-                float angle = RockerView.this.getAngleConvert(radian);
-                float distance = MathUtil.getDistance(mAreaPosition.x, mAreaPosition.y, mRockerPosition.x, mRockerPosition.y);
-                mListener.callback(EVENT_CLOCK, angle, distance);
-            }
-        }
-    }
-
-    // 获取摇杆偏移角度 上方中间为0，左为负，右为正
-    private float getAngleConvert(float radian) {
-        return 90 + Math.round(radian / Math.PI * 180);
-    }
-
     // for preview
     @Override
-    protected void onDraw(Canvas canvas) {
+    protected void onDraw(@NonNull Canvas canvas) {
         if (isInEditMode()) {
             canvas.drawColor(Color.WHITE);
-            drawArea(canvas);
-            drawRocker(canvas);
         }
     }
 
-    /*Getter Setter********************************************************************************/
     public void setCanMove(boolean isMove) {
         this.canMove = isMove;
-    }
-
-    public int getAreaRadius() {
-        return mAreaRadius;
-    }
-
-    public void setAreaRadius(int areaRadius) {
-        mAreaRadius = areaRadius;
-    }
-
-    public int getRockerRadius() {
-        return mRockerRadius;
-    }
-
-    public void setRockerRadius(int rockerRadius) {
-        mRockerRadius = rockerRadius;
-    }
-
-    public Bitmap getAreaBitmap() {
-        return mAreaBitmap;
-    }
-
-    public void setAreaBitmap(Bitmap areaBitmap) {
-        mAreaBitmap = areaBitmap;
-    }
-
-    public Bitmap getRockerBitmap() {
-        return mRockerBitmap;
-    }
-
-    public void setRockerBitmap(Bitmap rockerBitmap) {
-        mRockerBitmap = rockerBitmap;
-    }
-
-    public int getRefreshCycle() {
-        return mRefreshCycle;
-    }
-
-    public void setRefreshCycle(int refreshCycle) {
-        mRefreshCycle = refreshCycle;
-    }
-
-    public int getCallbackCycle() {
-        return mCallbackCycle;
-    }
-
-    public void setCallbackCycle(int callbackCycle) {
-        mCallbackCycle = callbackCycle;
-    }
-
-    public int getAreaColor() {
-        return mAreaColor;
-    }
-
-    public void setAreaColor(int areaColor) {
-        mAreaColor = areaColor;
-        mAreaBitmap = null;
-    }
-
-    public int getRockerColor() {
-        return mRockerColor;
-    }
-
-    public void setRockerColor(int rockerColor) {
-        mRockerColor = rockerColor;
-        mRockerBitmap = null;
-    }
-
-    public void setListener(@NonNull RockerListener listener) {
-        mListener = listener;
-    }
-
-    /*Rocker Listener******************************************************************************/
-    /**
-     * rocker listener
-     */
-    public interface RockerListener {
-        /**
-         * you can get some event from this method
-         *
-         * @param eventType       The event type, EVENT_ACTION or EVENT_CLOCK
-         * @param currentAngle    The current angle
-         * @param currentDistance The current distance (px)
-         */
-        void callback(int eventType, float currentAngle, float currentDistance);
     }
 }

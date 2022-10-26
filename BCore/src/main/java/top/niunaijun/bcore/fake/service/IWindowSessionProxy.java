@@ -16,7 +16,7 @@ public class IWindowSessionProxy extends BinderInvocationStub {
 
     public IWindowSessionProxy(IInterface session) {
         super(session.asBinder());
-        mSession = session;
+        this.mSession = session;
     }
 
     @Override

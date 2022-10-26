@@ -48,9 +48,8 @@ public class PackageParserCompat {
             return PackageParserLollipop22.parsePackage.call(parser, packageFile, flags);
         } else if (API_LEVEL >= LOLLIPOP) {
             return PackageParserLollipop.parsePackage.call(parser, packageFile, flags);
-        } else {
-            return black.android.content.pm.PackageParser.parsePackage.call(parser, packageFile, null, new DisplayMetrics(), flags);
         }
+        return black.android.content.pm.PackageParser.parsePackage.call(parser, packageFile, null, new DisplayMetrics(), flags);
     }
 
     public static void collectCertificates(PackageParser parser, Package p, int flags) {
@@ -64,8 +63,7 @@ public class PackageParserCompat {
             PackageParserLollipop22.collectCertificates.call(parser, p, flags);
         } else if (API_LEVEL >= LOLLIPOP) {
             PackageParserLollipop.collectCertificates.call(parser, p, flags);
-        } else {
-            black.android.content.pm.PackageParser.collectCertificates.call(parser, p, flags);
         }
+        black.android.content.pm.PackageParser.collectCertificates.call(parser, p, flags);
     }
 }

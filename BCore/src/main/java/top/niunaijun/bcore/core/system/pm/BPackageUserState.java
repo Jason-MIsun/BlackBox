@@ -5,8 +5,8 @@ import android.os.Parcelable;
 
 public class BPackageUserState implements Parcelable {
     public boolean installed;
-    public boolean stopped;
-    public boolean hidden;
+    public final boolean stopped;
+    public final boolean hidden;
 
     public BPackageUserState() {
         this.installed = false;

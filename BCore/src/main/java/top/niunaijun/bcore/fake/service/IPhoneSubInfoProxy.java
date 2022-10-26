@@ -1,40 +1,48 @@
 package top.niunaijun.bcore.fake.service;
 
+import android.content.Context;
+import android.util.Log;
+
 import java.lang.reflect.Method;
 
+import black.android.os.ServiceManager;
 import black.android.telephony.TelephonyManager;
 import top.niunaijun.bcore.BlackBoxCore;
-import top.niunaijun.bcore.fake.hook.ClassInvocationStub;
+import top.niunaijun.bcore.fake.hook.BinderInvocationStub;
 import top.niunaijun.bcore.fake.hook.MethodHook;
 import top.niunaijun.bcore.fake.hook.ProxyMethod;
 import top.niunaijun.bcore.utils.Md5Utils;
 import top.niunaijun.bcore.utils.MethodParameterUtils;
+import top.niunaijun.bcore.utils.compat.BuildCompat;
 
-public class IPhoneSubInfoProxy extends ClassInvocationStub {
+public class IPhoneSubInfoProxy extends BinderInvocationStub {
     public static final String TAG = "IPhoneSubInfoProxy";
 
     public IPhoneSubInfoProxy() {
-        if (TelephonyManager.sServiceHandleCacheEnabled != null) {
-            TelephonyManager.sServiceHandleCacheEnabled.set(true);
-        }
-
-        if (TelephonyManager.getSubscriberInfoService != null) {
-            TelephonyManager.getSubscriberInfoService.call();
-        }
+        super(ServiceManager.getService.call("iphonesubinfo"));
     }
 
     @Override
     protected Object getWho() {
-        return TelephonyManager.sIPhoneSubInfo.get();
+        if (BuildCompat.isR()) {
+            return TelephonyManager.sIPhoneSubInfo.get();
+        }
+
+        android.telephony.TelephonyManager telephonyManager = (android.telephony.TelephonyManager) BlackBoxCore.getContext().getSystemService(Context.TELEPHONY_SERVICE);
+        return TelephonyManager.getSubscriberInfo.call(telephonyManager);
     }
 
     @Override
     protected void inject(Object baseInvocation, Object proxyInvocation) {
-        TelephonyManager.sIPhoneSubInfo.set(proxyInvocation);
+        if (BuildCompat.isR()) {
+            TelephonyManager.sIPhoneSubInfo.set(proxyInvocation);
+        }
+        replaceSystemService("iphonesubinfo");
     }
 
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+        Log.e(TAG, "Test");
         MethodParameterUtils.replaceLastAppPkg(args);
         return super.invoke(proxy, method, args);
     }

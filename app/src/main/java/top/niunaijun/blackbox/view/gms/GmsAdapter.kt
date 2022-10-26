@@ -8,18 +8,12 @@ import top.niunaijun.blackbox.R
 import top.niunaijun.blackbox.bean.GmsBean
 import top.niunaijun.blackbox.databinding.ItemGmsBinding
 
-/**
- *
- * @Description:
- * @Author: BlackBox
- * @CreateDate: 2022/3/2 21:13
- */
 class GmsAdapter : RVHolderFactory() {
     override fun createViewHolder(parent: ViewGroup?, viewType: Int, item: Any): RVHolder<out Any> {
-        return GmsVH(inflate(R.layout.item_gms,parent))
+        return GmsVH(inflate(R.layout.item_gms, parent))
     }
 
-    class GmsVH(itemView:View):RVHolder<GmsBean>(itemView) {
+    class GmsVH(itemView: View) : RVHolder<GmsBean>(itemView) {
         private val binding = ItemGmsBinding.bind(itemView)
 
         override fun setContent(item: GmsBean, isSelected: Boolean, payload: Any?) {

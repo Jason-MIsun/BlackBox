@@ -4,12 +4,6 @@ import android.annotation.SuppressLint
 import android.app.Application
 import android.content.Context
 
-/**
- *
- * @Description:
- * @Author: wukaicheng
- * @CreateDate: 2021/4/29 21:21
- */
 class App : Application() {
     companion object {
         @SuppressLint("StaticFieldLeak")

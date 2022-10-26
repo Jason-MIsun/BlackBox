@@ -109,10 +109,11 @@ ElfImg::ElfImg(std::string_view base_name) : elf(base_name) {
 }
 
 ElfW(Addr) ElfImg::ElfLookup(std::string_view name, uint32_t hash) const {
-    if (nbucket_ == 0) return 0;
+    if (nbucket_ == 0) {
+        return 0;
+    }
 
     char *strings = (char *) strtab_start;
-
     for (auto n = bucket_[hash % nbucket_]; n != 0; n = chain_[n]) {
         auto *sym = dynsym_start + n;
         if (name == strings + sym->st_name) {
@@ -125,14 +126,15 @@ ElfW(Addr) ElfImg::ElfLookup(std::string_view name, uint32_t hash) const {
 ElfW(Addr) ElfImg::GnuLookup(std::string_view name, uint32_t hash) const {
     static constexpr auto bloom_mask_bits = sizeof(ElfW(Addr)) * 8;
 
-    if (gnu_nbucket_ == 0 || gnu_bloom_size_ == 0) return 0;
+    if (gnu_nbucket_ == 0 || gnu_bloom_size_ == 0) {
+        return 0;
+    }
 
     auto bloom_word = gnu_bloom_filter_[(hash / bloom_mask_bits) % gnu_bloom_size_];
-    uintptr_t mask = 0
-                     | (uintptr_t) 1 << (hash % bloom_mask_bits)
-                     | (uintptr_t) 1 << ((hash >> gnu_shift2_) % bloom_mask_bits);
+    uintptr_t mask = 0 | (uintptr_t) 1 << (hash % bloom_mask_bits) | (uintptr_t) 1 << ((hash >> gnu_shift2_) % bloom_mask_bits);
     if ((mask & bloom_word) == mask) {
         auto sym_index = gnu_bucket_[hash % gnu_nbucket_];
+
         if (sym_index >= gnu_symndx_) {
             char *strings = (char *) strtab_start;
             do {
@@ -152,8 +154,7 @@ void ElfImg::MayInitLinearMap() const {
         if (symtab_start != nullptr && symstr_offset_for_symtab != 0) {
             for (ElfW(Off) i = 0; i < symtab_count; i++) {
                 unsigned int st_type = ELF_ST_TYPE(symtab_start[i].st_info);
-                const char *st_name = offsetOf<const char *>(header, symstr_offset_for_symtab +
-                                                                     symtab_start[i].st_name);
+                const char *st_name = offsetOf<const char *>(header, symstr_offset_for_symtab + symtab_start[i].st_name);
                 if ((st_type == STT_FUNC || st_type == STT_OBJECT) && symtab_start[i].st_size) {
                     symtabs_.emplace(st_name, &symtab_start[i]);
                 }
@@ -166,20 +167,18 @@ ElfW(Addr) ElfImg::LinearLookup(std::string_view name) const {
     MayInitLinearMap();
     if (auto i = symtabs_.find(name); i != symtabs_.end()) {
         return i->second->st_value;
-    } else {
-        return 0;
     }
+    return 0;
 }
 
 ElfW(Addr) ElfImg::PrefixLookupFirst(std::string_view prefix) const {
     MayInitLinearMap();
     if (auto i = symtabs_.lower_bound(prefix); i != symtabs_.end() && i->first.starts_with(prefix)) {
-        LOGD("found prefix %s of %s %p in %s in symtab by linear lookup", prefix.data(),
-             i->first.data(), reinterpret_cast<void *>(i->second->st_value), elf.data());
+        LOGD("found prefix %s of %s %p in %s in symtab by linear lookup", prefix.data(), i->first.data(),
+             reinterpret_cast<void *>(i->second->st_value), elf.data());
         return i->second->st_value;
-    } else {
-        return 0;
     }
+    return 0;
 }
 
 ElfImg::~ElfImg() {
@@ -228,6 +227,7 @@ bool ElfImg::findModuleBase() {
                 if (elf.back() == '\n') {
                     elf.pop_back();
                 }
+
                 LOGD("update path: %s", elf.data());
                 break;
             }
@@ -235,7 +235,10 @@ bool ElfImg::findModuleBase() {
     }
 
     if (!found) {
-        if (buff) free(buff);
+        if (buff) {
+            free(buff);
+        }
+
         LOGE("failed to read load address for %s", elf.data());
         fclose(maps);
         return false;
@@ -248,8 +251,8 @@ bool ElfImg::findModuleBase() {
     if (buff) {
         free(buff);
     }
-    fclose(maps);
 
+    fclose(maps);
     LOGD("get module base %s: %lx", elf.data(), load_addr);
     base = reinterpret_cast<void *>(load_addr);
     return true;

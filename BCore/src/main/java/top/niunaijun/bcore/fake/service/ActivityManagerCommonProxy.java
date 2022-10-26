@@ -243,9 +243,6 @@ public class ActivityManagerCommonProxy {
         }
 
         public int getIntents() {
-            if (BuildCompat.isR()) {
-                return 3;
-            }
             return 2;
         }
     }
@@ -291,7 +288,7 @@ public class ActivityManagerCommonProxy {
     }
 
     @ProxyMethod("getCallingPackage")
-    public static class getCallingPackage extends MethodHook {
+    public static class GetCallingPackage extends MethodHook {
 
         @Override
         protected Object hook(Object who, Method method, Object[] args) throws Throwable {
@@ -300,7 +297,7 @@ public class ActivityManagerCommonProxy {
     }
 
     @ProxyMethod("getCallingActivity")
-    public static class getCallingActivity extends MethodHook {
+    public static class GetCallingActivity extends MethodHook {
 
         @Override
         protected Object hook(Object who, Method method, Object[] args) throws Throwable {

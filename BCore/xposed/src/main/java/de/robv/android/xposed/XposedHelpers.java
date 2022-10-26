@@ -31,7 +31,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.zip.ZipFile;
 
 import dalvik.system.DexFile;
-
 import external.org.apache.commons.lang3.ClassUtils;
 import external.org.apache.commons.lang3.reflect.MemberUtils;
 
@@ -69,6 +68,7 @@ public final class XposedHelpers {
         if (classLoader == null) {
             classLoader = XposedBridge.BOOTCLASSLOADER;
         }
+
         try {
             return ClassUtils.getClass(classLoader, className, false);
         } catch (ClassNotFoundException e) {
@@ -190,7 +190,6 @@ public final class XposedHelpers {
 
         XC_MethodHook callback = (XC_MethodHook) parameterTypesAndCallback[parameterTypesAndCallback.length-1];
         Method m = findMethodExact(clazz, methodName, getParameterClasses(clazz.getClassLoader(), parameterTypesAndCallback));
-
         return XposedBridge.hookMethod(m, callback);
     }
 
@@ -421,7 +420,6 @@ public final class XposedHelpers {
 
         try {
             Method method = findMethodExact(clazz, methodName, parameterTypes);
-
             methodCache.put(fullMethodName, method);
             return method;
         } catch (NoSuchMethodError ignored) { }
@@ -431,13 +429,14 @@ public final class XposedHelpers {
         boolean considerPrivateMethods = true;
         do {
             for (Method method : clz.getDeclaredMethods()) {
-                // don't consider private methods of superclasses
-                if (!considerPrivateMethods && Modifier.isPrivate(method.getModifiers()))
+                // Don't consider private methods of superclasses
+                if (!considerPrivateMethods && Modifier.isPrivate(method.getModifiers())) {
                     continue;
+                }
 
-                // compare name and parameters
+                // Compare name and parameters
                 if (method.getName().equals(methodName) && ClassUtils.isAssignable(parameterTypes, method.getParameterTypes())) {
-                    // get accessible version of method
+                    // Get accessible version of method
                     if (bestMatch == null || MemberUtils.compareParameterTypes(
                             method.getParameterTypes(),
                             bestMatch.getParameterTypes(),
@@ -483,6 +482,7 @@ public final class XposedHelpers {
             if (parameterTypes[i] != null) {
                 continue;
             }
+
             if (argsClasses == null) {
                 argsClasses = getParameterTypes(args);
             }
@@ -563,6 +563,7 @@ public final class XposedHelpers {
                 sb.append("null");
             }
         }
+
         sb.append(")");
         return sb.toString();
     }
@@ -645,7 +646,6 @@ public final class XposedHelpers {
 
         XC_MethodHook callback = (XC_MethodHook) parameterTypesAndCallback[parameterTypesAndCallback.length-1];
         Constructor<?> m = findConstructorExact(clazz, getParameterClasses(clazz.getClassLoader(), parameterTypesAndCallback));
-
         return XposedBridge.hookMethod(m, callback);
     }
 
@@ -682,13 +682,10 @@ public final class XposedHelpers {
         Constructor<?> bestMatch = null;
         Constructor<?>[] constructors = clazz.getDeclaredConstructors();
         for (Constructor<?> constructor : constructors) {
-            // compare name and parameters
+            // Compare name and parameters
             if (ClassUtils.isAssignable(parameterTypes, constructor.getParameterTypes())) {
-                // get accessible version of method
-                if (bestMatch == null || MemberUtils.compareParameterTypes(
-                        constructor.getParameterTypes(),
-                        bestMatch.getParameterTypes(),
-                        parameterTypes) < 0) {
+                // Get accessible version of method
+                if (bestMatch == null || MemberUtils.compareParameterTypes(constructor.getParameterTypes(), bestMatch.getParameterTypes(), parameterTypes) < 0) {
                     bestMatch = constructor;
                 }
             }
@@ -728,6 +725,7 @@ public final class XposedHelpers {
             if (parameterTypes[i] != null) {
                 continue;
             }
+
             if (argsClasses == null) {
                 argsClasses = getParameterTypes(args);
             }
@@ -762,8 +760,7 @@ public final class XposedHelpers {
      * @hide
      */
     public static int getFirstParameterIndexByType(Member method, Class<?> type) {
-        Class<?>[] classes = (method instanceof Method) ?
-                ((Method) method).getParameterTypes() : ((Constructor<?>) method).getParameterTypes();
+        Class<?>[] classes = (method instanceof Method) ? ((Method) method).getParameterTypes() : ((Constructor<?>) method).getParameterTypes();
         for (int i = 0 ; i < classes.length; i++) {
             if (classes[i] == type) {
                 return i;
@@ -779,8 +776,7 @@ public final class XposedHelpers {
      * @hide
      */
     public static int getParameterIndexByType(Member method, Class<?> type) {
-        Class<?>[] classes = (method instanceof Method) ?
-                ((Method) method).getParameterTypes() : ((Constructor<?>) method).getParameterTypes();
+        Class<?>[] classes = (method instanceof Method) ? ((Method) method).getParameterTypes() : ((Constructor<?>) method).getParameterTypes();
         int idx = -1;
         for (int i = 0 ; i < classes.length; i++) {
             if (classes[i] == type) {
@@ -799,13 +795,12 @@ public final class XposedHelpers {
         }
     }
 
-    //#################################################################################################
+    // #################################################################################################
     /** Sets the value of an object field in the given object instance. A class reference is not sufficient! See also {@link #findField}. */
     public static void setObjectField(Object obj, String fieldName, Object value) {
         try {
             findField(obj.getClass(), fieldName).set(obj, value);
         } catch (IllegalAccessException e) {
-            // should not happen
             XposedBridge.log(e);
             throw new IllegalAccessError(e.getMessage());
         }
@@ -816,7 +811,6 @@ public final class XposedHelpers {
         try {
             findField(obj.getClass(), fieldName).setBoolean(obj, value);
         } catch (IllegalAccessException e) {
-            // should not happen
             XposedBridge.log(e);
             throw new IllegalAccessError(e.getMessage());
         }
@@ -827,7 +821,6 @@ public final class XposedHelpers {
         try {
             findField(obj.getClass(), fieldName).setByte(obj, value);
         } catch (IllegalAccessException e) {
-            // should not happen
             XposedBridge.log(e);
             throw new IllegalAccessError(e.getMessage());
         }
@@ -838,7 +831,6 @@ public final class XposedHelpers {
         try {
             findField(obj.getClass(), fieldName).setChar(obj, value);
         } catch (IllegalAccessException e) {
-            // should not happen
             XposedBridge.log(e);
             throw new IllegalAccessError(e.getMessage());
         }
@@ -849,7 +841,6 @@ public final class XposedHelpers {
         try {
             findField(obj.getClass(), fieldName).setDouble(obj, value);
         } catch (IllegalAccessException e) {
-            // should not happen
             XposedBridge.log(e);
             throw new IllegalAccessError(e.getMessage());
         }
@@ -860,7 +851,6 @@ public final class XposedHelpers {
         try {
             findField(obj.getClass(), fieldName).setFloat(obj, value);
         } catch (IllegalAccessException e) {
-            // should not happen
             XposedBridge.log(e);
             throw new IllegalAccessError(e.getMessage());
         }
@@ -871,7 +861,6 @@ public final class XposedHelpers {
         try {
             findField(obj.getClass(), fieldName).setInt(obj, value);
         } catch (IllegalAccessException e) {
-            // should not happen
             XposedBridge.log(e);
             throw new IllegalAccessError(e.getMessage());
         }
@@ -882,7 +871,6 @@ public final class XposedHelpers {
         try {
             findField(obj.getClass(), fieldName).setLong(obj, value);
         } catch (IllegalAccessException e) {
-            // should not happen
             XposedBridge.log(e);
             throw new IllegalAccessError(e.getMessage());
         }
@@ -893,19 +881,17 @@ public final class XposedHelpers {
         try {
             findField(obj.getClass(), fieldName).setShort(obj, value);
         } catch (IllegalAccessException e) {
-            // should not happen
             XposedBridge.log(e);
             throw new IllegalAccessError(e.getMessage());
         }
     }
 
-    //#################################################################################################
+    // #################################################################################################
     /** Returns the value of an object field in the given object instance. A class reference is not sufficient! See also {@link #findField}. */
     public static Object getObjectField(Object obj, String fieldName) {
         try {
             return findField(obj.getClass(), fieldName).get(obj);
         } catch (IllegalAccessException e) {
-            // should not happen
             XposedBridge.log(e);
             throw new IllegalAccessError(e.getMessage());
         }
@@ -922,7 +908,6 @@ public final class XposedHelpers {
         try {
             return findField(obj.getClass(), fieldName).getBoolean(obj);
         } catch (IllegalAccessException e) {
-            // should not happen
             XposedBridge.log(e);
             throw new IllegalAccessError(e.getMessage());
         }
@@ -933,7 +918,6 @@ public final class XposedHelpers {
         try {
             return findField(obj.getClass(), fieldName).getByte(obj);
         } catch (IllegalAccessException e) {
-            // should not happen
             XposedBridge.log(e);
             throw new IllegalAccessError(e.getMessage());
         }
@@ -944,7 +928,6 @@ public final class XposedHelpers {
         try {
             return findField(obj.getClass(), fieldName).getChar(obj);
         } catch (IllegalAccessException e) {
-            // should not happen
             XposedBridge.log(e);
             throw new IllegalAccessError(e.getMessage());
         }
@@ -955,7 +938,6 @@ public final class XposedHelpers {
         try {
             return findField(obj.getClass(), fieldName).getDouble(obj);
         } catch (IllegalAccessException e) {
-            // should not happen
             XposedBridge.log(e);
             throw new IllegalAccessError(e.getMessage());
         }
@@ -966,7 +948,6 @@ public final class XposedHelpers {
         try {
             return findField(obj.getClass(), fieldName).getFloat(obj);
         } catch (IllegalAccessException e) {
-            // should not happen
             XposedBridge.log(e);
             throw new IllegalAccessError(e.getMessage());
         }
@@ -977,7 +958,6 @@ public final class XposedHelpers {
         try {
             return findField(obj.getClass(), fieldName).getInt(obj);
         } catch (IllegalAccessException e) {
-            // should not happen
             XposedBridge.log(e);
             throw new IllegalAccessError(e.getMessage());
         }
@@ -988,7 +968,6 @@ public final class XposedHelpers {
         try {
             return findField(obj.getClass(), fieldName).getLong(obj);
         } catch (IllegalAccessException e) {
-            // should not happen
             XposedBridge.log(e);
             throw new IllegalAccessError(e.getMessage());
         }
@@ -999,19 +978,17 @@ public final class XposedHelpers {
         try {
             return findField(obj.getClass(), fieldName).getShort(obj);
         } catch (IllegalAccessException e) {
-            // should not happen
             XposedBridge.log(e);
             throw new IllegalAccessError(e.getMessage());
         }
     }
 
-    //#################################################################################################
+    // #################################################################################################
     /** Sets the value of a static object field in the given class. See also {@link #findField}. */
     public static void setStaticObjectField(Class<?> clazz, String fieldName, Object value) {
         try {
             findField(clazz, fieldName).set(null, value);
         } catch (IllegalAccessException e) {
-            // should not happen
             XposedBridge.log(e);
             throw new IllegalAccessError(e.getMessage());
         }
@@ -1022,7 +999,6 @@ public final class XposedHelpers {
         try {
             findField(clazz, fieldName).setBoolean(null, value);
         } catch (IllegalAccessException e) {
-            // should not happen
             XposedBridge.log(e);
             throw new IllegalAccessError(e.getMessage());
         }
@@ -1033,7 +1009,6 @@ public final class XposedHelpers {
         try {
             findField(clazz, fieldName).setByte(null, value);
         } catch (IllegalAccessException e) {
-            // should not happen
             XposedBridge.log(e);
             throw new IllegalAccessError(e.getMessage());
         }
@@ -1044,7 +1019,6 @@ public final class XposedHelpers {
         try {
             findField(clazz, fieldName).setChar(null, value);
         } catch (IllegalAccessException e) {
-            // should not happen
             XposedBridge.log(e);
             throw new IllegalAccessError(e.getMessage());
         }
@@ -1055,7 +1029,6 @@ public final class XposedHelpers {
         try {
             findField(clazz, fieldName).setDouble(null, value);
         } catch (IllegalAccessException e) {
-            // should not happen
             XposedBridge.log(e);
             throw new IllegalAccessError(e.getMessage());
         }
@@ -1066,7 +1039,6 @@ public final class XposedHelpers {
         try {
             findField(clazz, fieldName).setFloat(null, value);
         } catch (IllegalAccessException e) {
-            // should not happen
             XposedBridge.log(e);
             throw new IllegalAccessError(e.getMessage());
         }
@@ -1077,7 +1049,6 @@ public final class XposedHelpers {
         try {
             findField(clazz, fieldName).setInt(null, value);
         } catch (IllegalAccessException e) {
-            // should not happen
             XposedBridge.log(e);
             throw new IllegalAccessError(e.getMessage());
         }
@@ -1088,7 +1059,6 @@ public final class XposedHelpers {
         try {
             findField(clazz, fieldName).setLong(null, value);
         } catch (IllegalAccessException e) {
-            // should not happen
             XposedBridge.log(e);
             throw new IllegalAccessError(e.getMessage());
         }
@@ -1099,19 +1069,17 @@ public final class XposedHelpers {
         try {
             findField(clazz, fieldName).setShort(null, value);
         } catch (IllegalAccessException e) {
-            // should not happen
             XposedBridge.log(e);
             throw new IllegalAccessError(e.getMessage());
         }
     }
 
-    //#################################################################################################
+    // #################################################################################################
     /** Returns the value of a static object field in the given class. See also {@link #findField}. */
     public static Object getStaticObjectField(Class<?> clazz, String fieldName) {
         try {
             return findField(clazz, fieldName).get(null);
         } catch (IllegalAccessException e) {
-            // should not happen
             XposedBridge.log(e);
             throw new IllegalAccessError(e.getMessage());
         }
@@ -1122,7 +1090,6 @@ public final class XposedHelpers {
         try {
             return findField(clazz, fieldName).getBoolean(null);
         } catch (IllegalAccessException e) {
-            // should not happen
             XposedBridge.log(e);
             throw new IllegalAccessError(e.getMessage());
         }
@@ -1133,7 +1100,6 @@ public final class XposedHelpers {
         try {
             return findField(clazz, fieldName).getByte(null);
         } catch (IllegalAccessException e) {
-            // should not happen
             XposedBridge.log(e);
             throw new IllegalAccessError(e.getMessage());
         }
@@ -1144,7 +1110,6 @@ public final class XposedHelpers {
         try {
             return findField(clazz, fieldName).getChar(null);
         } catch (IllegalAccessException e) {
-            // should not happen
             XposedBridge.log(e);
             throw new IllegalAccessError(e.getMessage());
         }
@@ -1155,7 +1120,6 @@ public final class XposedHelpers {
         try {
             return findField(clazz, fieldName).getDouble(null);
         } catch (IllegalAccessException e) {
-            // should not happen
             XposedBridge.log(e);
             throw new IllegalAccessError(e.getMessage());
         }
@@ -1166,7 +1130,6 @@ public final class XposedHelpers {
         try {
             return findField(clazz, fieldName).getFloat(null);
         } catch (IllegalAccessException e) {
-            // should not happen
             XposedBridge.log(e);
             throw new IllegalAccessError(e.getMessage());
         }
@@ -1177,7 +1140,6 @@ public final class XposedHelpers {
         try {
             return findField(clazz, fieldName).getInt(null);
         } catch (IllegalAccessException e) {
-            // should not happen
             XposedBridge.log(e);
             throw new IllegalAccessError(e.getMessage());
         }
@@ -1188,7 +1150,6 @@ public final class XposedHelpers {
         try {
             return findField(clazz, fieldName).getLong(null);
         } catch (IllegalAccessException e) {
-            // should not happen
             XposedBridge.log(e);
             throw new IllegalAccessError(e.getMessage());
         }
@@ -1199,13 +1160,12 @@ public final class XposedHelpers {
         try {
             return findField(clazz, fieldName).getShort(null);
         } catch (IllegalAccessException e) {
-            // should not happen
             XposedBridge.log(e);
             throw new IllegalAccessError(e.getMessage());
         }
     }
 
-    //#################################################################################################
+    // #################################################################################################
     /**
      * Calls an instance or static method of the given object.
      * The method is resolved using {@link #findMethodBestMatch(Class, String, Object...)}.
@@ -1220,7 +1180,6 @@ public final class XposedHelpers {
         try {
             return findMethodBestMatch(obj.getClass(), methodName, args).invoke(obj, args);
         } catch (IllegalAccessException e) {
-            // should not happen
             XposedBridge.log(e);
             throw new IllegalAccessError(e.getMessage());
         } catch (InvocationTargetException e) {
@@ -1239,7 +1198,6 @@ public final class XposedHelpers {
         try {
             return findMethodBestMatch(obj.getClass(), methodName, parameterTypes, args).invoke(obj, args);
         } catch (IllegalAccessException e) {
-            // should not happen
             XposedBridge.log(e);
             throw new IllegalAccessError(e.getMessage());
         } catch (InvocationTargetException e) {
@@ -1261,7 +1219,6 @@ public final class XposedHelpers {
         try {
             return findMethodBestMatch(clazz, methodName, args).invoke(null, args);
         } catch (IllegalAccessException e) {
-            // should not happen
             XposedBridge.log(e);
             throw new IllegalAccessError(e.getMessage());
         } catch (InvocationTargetException e) {
@@ -1280,7 +1237,6 @@ public final class XposedHelpers {
         try {
             return findMethodBestMatch(clazz, methodName, parameterTypes, args).invoke(null, args);
         } catch (IllegalAccessException e) {
-            // should not happen
             XposedBridge.log(e);
             throw new IllegalAccessError(e.getMessage());
         } catch (InvocationTargetException e) {
@@ -1304,7 +1260,7 @@ public final class XposedHelpers {
         }
     }
 
-    //#################################################################################################
+    // #################################################################################################
     /**
      * Creates a new instance of the given class.
      * The constructor is resolved using {@link #findConstructorBestMatch(Class, Object...)}.
@@ -1319,7 +1275,6 @@ public final class XposedHelpers {
         try {
             return findConstructorBestMatch(clazz, args).newInstance(args);
         } catch (IllegalAccessException e) {
-            // should not happen
             XposedBridge.log(e);
             throw new IllegalAccessError(e.getMessage());
         } catch (InvocationTargetException e) {
@@ -1340,7 +1295,6 @@ public final class XposedHelpers {
         try {
             return findConstructorBestMatch(clazz, parameterTypes, args).newInstance(args);
         } catch (IllegalAccessException e) {
-            // should not happen
             XposedBridge.log(e);
             throw new IllegalAccessError(e.getMessage());
         } catch (InvocationTargetException e) {
@@ -1350,7 +1304,7 @@ public final class XposedHelpers {
         }
     }
 
-    //#################################################################################################
+    // #################################################################################################
 
     /**
      * Attaches any value to an object instance. This simulates adding an instance field.
@@ -1365,6 +1319,7 @@ public final class XposedHelpers {
         if (obj == null) {
             throw new NullPointerException("object must not be null");
         }
+
         if (key == null) {
             throw new NullPointerException("key must not be null");
         }
@@ -1377,10 +1332,7 @@ public final class XposedHelpers {
                 additionalFields.put(obj, objectFields);
             }
         }
-
-        synchronized (objectFields) {
-            return objectFields.put(key, value);
-        }
+        return objectFields.put(key, value);
     }
 
     /**
@@ -1394,6 +1346,7 @@ public final class XposedHelpers {
         if (obj == null) {
             throw new NullPointerException("object must not be null");
         }
+
         if (key == null) {
             throw new NullPointerException("key must not be null");
         }
@@ -1405,10 +1358,7 @@ public final class XposedHelpers {
                 return null;
             }
         }
-
-        synchronized (objectFields) {
-            return objectFields.get(key);
-        }
+        return objectFields.get(key);
     }
 
     /**
@@ -1422,6 +1372,7 @@ public final class XposedHelpers {
         if (obj == null) {
             throw new NullPointerException("object must not be null");
         }
+
         if (key == null) {
             throw new NullPointerException("key must not be null");
         }
@@ -1433,10 +1384,7 @@ public final class XposedHelpers {
                 return null;
             }
         }
-
-        synchronized (objectFields) {
-            return objectFields.remove(key);
-        }
+        return objectFields.remove(key);
     }
 
     /** Like {@link #setAdditionalInstanceField}, but the value is stored for the class of {@code obj}. */
@@ -1469,7 +1417,7 @@ public final class XposedHelpers {
         return removeAdditionalInstanceField(clazz, key);
     }
 
-    //#################################################################################################
+    // #################################################################################################
     /**
      * Loads an asset from a resource object and returns the content as {@code byte} array.
      *
@@ -1549,7 +1497,7 @@ public final class XposedHelpers {
         }
     }
 
-    //#################################################################################################
+    // #################################################################################################
     /**
      * Increments the depth counter for the given method.
      *
@@ -1618,7 +1566,7 @@ public final class XposedHelpers {
         return false;
     }
 
-    //#################################################################################################
+    // #################################################################################################
 
     /**
      * Returns the method that is overridden by the given method.
@@ -1665,7 +1613,7 @@ public final class XposedHelpers {
         return methods;
     }
 
-    //#################################################################################################
+    // #################################################################################################
     // TODO helpers for view traversing
 	/*To make it easier, I will try and implement some more helpers:
 	- add view before/after existing view (I already mentioned that I think)

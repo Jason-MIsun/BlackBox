@@ -9,6 +9,7 @@ import android.content.pm.PackageManager;
 import android.content.pm.ProviderInfo;
 import android.content.pm.ResolveInfo;
 import android.content.pm.ServiceInfo;
+import android.content.pm.VersionedPackage;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -27,7 +28,6 @@ import top.niunaijun.bcore.fake.hook.BinderInvocationStub;
 import top.niunaijun.bcore.fake.hook.MethodHook;
 import top.niunaijun.bcore.fake.hook.ProxyMethod;
 import top.niunaijun.bcore.fake.service.base.PkgMethodProxy;
-import top.niunaijun.bcore.fake.service.base.ValueMethodProxy;
 import top.niunaijun.bcore.utils.MethodParameterUtils;
 import top.niunaijun.bcore.utils.Slog;
 import top.niunaijun.bcore.utils.compat.BuildCompat;
@@ -62,20 +62,48 @@ public class IPackageManagerProxy extends BinderInvocationStub {
     }
 
     @Override
+    protected void onBindMethod() {
+        super.onBindMethod();
+        addMethodHook(new PkgMethodProxy("getPackageUid"));
+        addMethodHook(new PkgMethodProxy("canRequestPackageInstalls"));
+
+        if (BuildCompat.isOreo()) {
+            addMethodHook("getPackageInfoVersioned", new MethodHook() {
+                @Override
+                protected Object hook(Object who, Method method, Object[] args) throws Throwable {
+                    VersionedPackage versionedPackage = (VersionedPackage) args[0];
+                    String packageName = versionedPackage.getPackageName();
+                    PackageInfo packageInfo;
+
+                    if (BuildCompat.isT()) {
+                        long flags = (long) args[1];
+                        packageInfo = BlackBoxCore.getBPackageManager().getPackageInfo(packageName, Math.toIntExact(flags), BActivityThread.getUserId());
+                    } else {
+                        int flags = (int) args[1];
+                        packageInfo = BlackBoxCore.getBPackageManager().getPackageInfo(packageName, flags, BActivityThread.getUserId());
+                    }
+
+                    if (packageInfo != null) {
+                        return packageInfo;
+                    }
+
+                    if (AppSystemEnv.isOpenPackage(packageName)) {
+                        return method.invoke(who, args);
+                    }
+                    return null;
+                }
+            });
+        }
+    }
+
+    @Override
     public boolean isBadEnv() {
         return false;
     }
 
-    @Override
-    protected void onBindMethod() {
-        super.onBindMethod();
-        addMethodHook(new ValueMethodProxy("addOnPermissionsChangeListener", 0));
-        addMethodHook(new ValueMethodProxy("removeOnPermissionsChangeListener", 0));
-        addMethodHook(new PkgMethodProxy("shouldShowRequestPermissionRationale"));
-    }
-
     @ProxyMethod("resolveIntent")
     public static class ResolveIntent extends MethodHook {
+
         @Override
         protected Object hook(Object who, Method method, Object[] args) throws Throwable {
             Intent intent = (Intent) args[0];
@@ -99,6 +127,7 @@ public class IPackageManagerProxy extends BinderInvocationStub {
 
     @ProxyMethod("resolveService")
     public static class ResolveService extends MethodHook {
+
         @Override
         protected Object hook(Object who, Method method, Object[] args) throws Throwable {
             Intent intent = (Intent) args[0];
@@ -120,16 +149,9 @@ public class IPackageManagerProxy extends BinderInvocationStub {
         }
     }
 
-    @ProxyMethod("setComponentEnabledSetting")
-    public static class SetComponentEnabledSetting extends MethodHook {
-        @Override
-        protected Object hook(Object who, Method method, Object[] args) throws Throwable {
-            return 0;
-        }
-    }
-
     @ProxyMethod("getPackageInfo")
     public static class GetPackageInfo extends MethodHook {
+
         @Override
         protected Object hook(Object who, Method method, Object[] args) throws Throwable {
             String packageName = (String) args[0];
@@ -154,17 +176,9 @@ public class IPackageManagerProxy extends BinderInvocationStub {
         }
     }
 
-    @ProxyMethod("getPackageUid")
-    public static class GetPackageUid extends MethodHook {
-        @Override
-        protected Object hook(Object who, Method method, Object[] args) throws Throwable {
-            MethodParameterUtils.replaceFirstAppPkg(args);
-            return method.invoke(who, args);
-        }
-    }
-
     @ProxyMethod("getProviderInfo")
     public static class GetProviderInfo extends MethodHook {
+
         @Override
         protected Object hook(Object who, Method method, Object[] args) throws Throwable {
             ComponentName componentName = (ComponentName) args[0];
@@ -191,6 +205,7 @@ public class IPackageManagerProxy extends BinderInvocationStub {
 
     @ProxyMethod("getReceiverInfo")
     public static class GetReceiverInfo extends MethodHook {
+
         @Override
         protected Object hook(Object who, Method method, Object[] args) throws Throwable {
             ComponentName componentName = (ComponentName) args[0];
@@ -217,6 +232,7 @@ public class IPackageManagerProxy extends BinderInvocationStub {
 
     @ProxyMethod("getActivityInfo")
     public static class GetActivityInfo extends MethodHook {
+
         @Override
         protected Object hook(Object who, Method method, Object[] args) throws Throwable {
             ComponentName componentName = (ComponentName) args[0];
@@ -243,6 +259,7 @@ public class IPackageManagerProxy extends BinderInvocationStub {
 
     @ProxyMethod("getServiceInfo")
     public static class GetServiceInfo extends MethodHook {
+
         @Override
         protected Object hook(Object who, Method method, Object[] args) throws Throwable {
             ComponentName componentName = (ComponentName) args[0];
@@ -269,6 +286,7 @@ public class IPackageManagerProxy extends BinderInvocationStub {
 
     @ProxyMethod("getInstalledApplications")
     public static class GetInstalledApplications extends MethodHook {
+
         @Override
         protected Object hook(Object who, Method method, Object[] args) throws Throwable {
             List<ApplicationInfo> installedApplications;
@@ -286,6 +304,7 @@ public class IPackageManagerProxy extends BinderInvocationStub {
 
     @ProxyMethod("queryIntentActivities")
     public static class QueryIntentActivities extends MethodHook {
+
         @Override
         protected Object hook(Object who, Method method, Object[] args) throws Throwable {
             Intent intent = (Intent) args[0];
@@ -305,6 +324,7 @@ public class IPackageManagerProxy extends BinderInvocationStub {
 
     @ProxyMethod("getInstalledPackages")
     public static class GetInstalledPackages extends MethodHook {
+
         @Override
         protected Object hook(Object who, Method method, Object[] args) throws Throwable {
             List<PackageInfo> installedPackages;
@@ -322,6 +342,7 @@ public class IPackageManagerProxy extends BinderInvocationStub {
 
     @ProxyMethod("getApplicationInfo")
     public static class GetApplicationInfo extends MethodHook {
+
         @Override
         protected Object hook(Object who, Method method, Object[] args) throws Throwable {
             String packageName = (String) args[0];
@@ -348,6 +369,7 @@ public class IPackageManagerProxy extends BinderInvocationStub {
 
     @ProxyMethod("queryContentProviders")
     public static class QueryContentProviders extends MethodHook {
+
         @Override
         protected Object hook(Object who, Method method, Object[] args) throws Throwable {
             List<ProviderInfo> providers;
@@ -369,6 +391,7 @@ public class IPackageManagerProxy extends BinderInvocationStub {
 
     @ProxyMethod("queryIntentReceivers")
     public static class QueryBroadcastReceivers extends MethodHook {
+
         @Override
         protected Object hook(Object who, Method method, Object[] args) throws Throwable {
             Intent intent = MethodParameterUtils.getFirstParam(args, Intent.class);
@@ -397,6 +420,7 @@ public class IPackageManagerProxy extends BinderInvocationStub {
 
     @ProxyMethod("resolveContentProvider")
     public static class ResolveContentProvider extends MethodHook {
+
         @Override
         protected Object hook(Object who, Method method, Object[] args) throws Throwable {
             String authority = (String) args[0];
@@ -417,17 +441,9 @@ public class IPackageManagerProxy extends BinderInvocationStub {
         }
     }
 
-    @ProxyMethod("canRequestPackageInstalls")
-    public static class CanRequestPackageInstalls extends MethodHook {
-        @Override
-        protected Object hook(Object who, Method method, Object[] args) throws Throwable {
-            MethodParameterUtils.replaceFirstAppPkg(args);
-            return method.invoke(who, args);
-        }
-    }
-
     @ProxyMethod("getPackagesForUid")
     public static class GetPackagesForUid extends MethodHook {
+
         @Override
         protected Object hook(Object who, Method method, Object[] args) throws Throwable {
             int uid = (Integer) args[0];
@@ -437,22 +453,23 @@ public class IPackageManagerProxy extends BinderInvocationStub {
             }
 
             String[] packagesForUid = BlackBoxCore.getBPackageManager().getPackagesForUid(uid);
-            Slog.d(TAG, args[0] + " , " + BActivityThread.getAppProcessName() + " GetPackagesForUid: " + Arrays.toString(packagesForUid));
+            Slog.d(TAG, args[0] + " , " + BActivityThread.getAppProcessName() + " getPackagesForUid: " + Arrays.toString(packagesForUid));
             return packagesForUid;
         }
     }
 
     @ProxyMethod("getInstallerPackageName")
     public static class GetInstallerPackageName extends MethodHook {
+
         @Override
         protected Object hook(Object who, Method method, Object[] args) throws Throwable {
-            // fake google play
             return "com.android.vending";
         }
     }
 
     @ProxyMethod("getSharedLibraries")
     public static class GetSharedLibraries extends MethodHook {
+
         @Override
         protected Object hook(Object who, Method method, Object[] args) throws Throwable {
             String packageName = (String) args[0];
@@ -474,6 +491,7 @@ public class IPackageManagerProxy extends BinderInvocationStub {
 
     @ProxyMethod("getComponentEnabledSetting")
     public static class GetComponentEnabledSetting extends MethodHook {
+
         @Override
         protected Object hook(Object who, Method method, Object[] args) throws Throwable {
             return PackageManager.COMPONENT_ENABLED_STATE_DEFAULT;

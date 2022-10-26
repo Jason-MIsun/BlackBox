@@ -1,7 +1,6 @@
 package top.niunaijun.bcore.utils;
 
 import java.util.Arrays;
-import java.util.Objects;
 
 public class ArrayUtils {
 	public static<T> T[] trimToSize(T[] array, int size) {
@@ -11,42 +10,6 @@ public class ArrayUtils {
 			return array;
 		}
 		return Arrays.copyOf(array, size);
-	}
-
-	public static Object[] push(Object[] array, Object item) {
-		Object[] longer = new Object[array.length + 1];
-		System.arraycopy(array, 0, longer, 0, array.length);
-		longer[array.length] = item;
-		return longer;
-	}
-
-	public static <T> boolean contains(T[] array, T value) {
-		return indexOf(array, value) != -1;
-	}
-
-	public static boolean contains(int[] array, int value) {
-		if (array == null) return false;
-		for (int element : array) {
-			if (element == value) {
-				return true;
-			}
-		}
-		return false;
-	}
-
-	/**
-	 * Return first index of {@code value} in {@code array}, or {@code -1} if
-	 * not found.
-	 */
-	public static <T> int indexOf(T[] array, T value) {
-		if (array == null) {
-			return -1;
-		}
-
-		for (int i = 0; i < array.length; i++) {
-			if (Objects.equals(array[i], value)) return i;
-		}
-		return -1;
 	}
 
 	public static int indexOfFirst(Object[] array, Class<?> type) {

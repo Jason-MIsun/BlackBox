@@ -1,8 +1,10 @@
 package top.niunaijun.blackbox.view.apps
 
+import android.graphics.Point
 import android.os.Bundle
 import android.text.TextUtils
 import android.view.LayoutInflater
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.widget.PopupMenu
@@ -19,21 +21,13 @@ import top.niunaijun.blackbox.bean.AppInfo
 import top.niunaijun.blackbox.databinding.FragmentAppsBinding
 import top.niunaijun.blackbox.util.InjectionUtil
 import top.niunaijun.blackbox.util.ShortcutUtil
-import top.niunaijun.blackbox.util.inflate
-import top.niunaijun.blackbox.util.toast
+import top.niunaijun.blackbox.util.ToastEx.toast
+import top.niunaijun.blackbox.util.ViewBindingEx.inflate
 import top.niunaijun.blackbox.view.base.LoadingActivity
 import top.niunaijun.blackbox.view.main.MainActivity
 import java.util.*
 import kotlin.math.abs
-import android.view.MotionEvent
-import android.graphics.Point
 
-/**
- *
- * @Description:
- * @Author: wukaicheng
- * @CreateDate: 2021/4/29 22:21
- */
 class AppsFragment : Fragment() {
     var userID: Int = 0
     private lateinit var viewModel: AppsViewModel
@@ -43,20 +37,14 @@ class AppsFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        viewModel =
-            ViewModelProvider(this, InjectionUtil.getAppsFactory()).get(AppsViewModel::class.java)
+        viewModel = ViewModelProvider(this, InjectionUtil.getAppsFactory())[AppsViewModel::class.java]
         userID = requireArguments().getInt("userID", 0)
     }
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         viewBinding.stateView.showEmpty()
-
-        mAdapter =
-            RVAdapter<AppInfo>(requireContext(), AppsAdapter()).bind(viewBinding.recyclerView)
+        mAdapter = RVAdapter<AppInfo>(requireContext(), AppsAdapter())
+			.bind(viewBinding.recyclerView)
 
         viewBinding.recyclerView.adapter = mAdapter
         viewBinding.recyclerView.layoutManager = GridLayoutManager(requireContext(), 4)
@@ -93,12 +81,14 @@ class AppsFragment : Fragment() {
      */
     private fun interceptTouch() {
         val point = Point()
+
         viewBinding.recyclerView.setOnTouchListener { _, e ->
             when (e.action) {
                 MotionEvent.ACTION_UP -> {
                     if (!isMove(point, e)) {
                         popupMenu?.show()
                     }
+
                     popupMenu = null
                     point.set(0, 0)
                 }
@@ -108,8 +98,8 @@ class AppsFragment : Fragment() {
                         point.x = e.rawX.toInt()
                         point.y = e.rawY.toInt()
                     }
-                    isDownAndUp(point, e)
 
+                    isDownAndUp(point, e)
                     if (isMove(point, e)) {
                         popupMenu?.dismiss()
                     }
@@ -139,7 +129,7 @@ class AppsFragment : Fragment() {
         }
     }
 
-    private fun onItemMove(fromPosition:Int, toPosition:Int) {
+    private fun onItemMove(fromPosition: Int, toPosition: Int) {
         if (fromPosition < toPosition) {
             for (i in fromPosition until toPosition) {
                 Collections.swap(mAdapter.getItems(), i, i + 1)
@@ -156,7 +146,7 @@ class AppsFragment : Fragment() {
         mAdapter.setItemLongClickListener { view, data, _ ->
             popupMenu = PopupMenu(requireContext(), view).also {
                 // mAdapter.setItemClickListener { view, data, _ ->
-                // PopupMenu(requireContext(),view).also {
+                // PopupMenu(requireContext(), view).also {
                 it.inflate(R.menu.app_menu)
                 it.setOnMenuItemClickListener { item ->
                     when (item.itemId) {
@@ -207,7 +197,7 @@ class AppsFragment : Fragment() {
         viewModel.getInstalledApps(userID)
     }
 
-    private fun onItemMove(fromPosition:Int, toPosition:Int) {
+    private fun onItemMove(fromPosition: Int, toPosition: Int) {
         if (fromPosition < toPosition) {
             for (i in fromPosition until toPosition) {
                 Collections.swap(mAdapter.getItems(), i, i + 1)
@@ -284,10 +274,10 @@ class AppsFragment : Fragment() {
     private fun stopApk(info: AppInfo) {
         MaterialDialog(requireContext()).show {
             title(R.string.app_stop)
-            message(text = getString(R.string.app_stop_hint,info.name))
+            message(text = getString(R.string.app_stop_hint, info.name))
             positiveButton(R.string.done) {
                 BlackBoxCore.get().stopPackage(info.packageName, userID)
-                toast(getString(R.string.is_stop,info.name))
+                toast(getString(R.string.is_stop, info.name))
             }
             negativeButton(R.string.cancel)
         }
@@ -300,7 +290,7 @@ class AppsFragment : Fragment() {
     private fun clearApk(info: AppInfo) {
         MaterialDialog(requireContext()).show {
             title(R.string.app_clear)
-            message(text = getString(R.string.app_clear_hint,info.name))
+            message(text = getString(R.string.app_clear_hint, info.name))
             positiveButton(R.string.done) {
                 showLoading()
                 viewModel.clearApkData(info.packageName, userID)
@@ -331,9 +321,10 @@ class AppsFragment : Fragment() {
     }
 
     companion object {
-        fun newInstance(userID:Int): AppsFragment {
+        fun newInstance(userID: Int): AppsFragment {
             val fragment = AppsFragment()
             val bundle = bundleOf("userID" to userID)
+
             fragment.arguments = bundle
             return fragment
         }

@@ -7,30 +7,17 @@ import top.niunaijun.bcore.BlackBoxCore
 import top.niunaijun.bcore.BlackBoxCore.getPackageManager
 import top.niunaijun.blackbox.R
 import top.niunaijun.blackbox.bean.XpModuleInfo
-import top.niunaijun.blackbox.util.getString
+import top.niunaijun.blackbox.util.ResUtil.getString
 
-/**
- *
- * @Description:
- * @Author: wukaicheng
- * @CreateDate: 2021/5/2 20:55
- */
 class XpRepository {
     fun getInstallModules(modulesLiveData: MutableLiveData<List<XpModuleInfo>>) {
         val moduleList = BlackBoxCore.get().installedXPModules
         val result = mutableListOf<XpModuleInfo>()
+
         moduleList.forEach {
-            val info = XpModuleInfo(
-                    it.name,
-                    it.desc,
-                    it.packageName,
-                    it.packageInfo.versionName,
-                    it.enable,
-                    it.application.loadIcon(getPackageManager())
-            )
+            val info = XpModuleInfo(it.name, it.desc, it.packageName, it.packageInfo.versionName, it.enable, it.application.loadIcon(getPackageManager()))
             result.add(info)
         }
-
         modulesLiveData.postValue(result)
     }
 

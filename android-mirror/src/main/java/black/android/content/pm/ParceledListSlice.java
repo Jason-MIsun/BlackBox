@@ -1,7 +1,5 @@
 package black.android.content.pm;
 
-import android.os.Parcelable.Creator;
-
 import java.util.List;
 
 import black.Reflector;
@@ -11,8 +9,6 @@ public class ParceledListSlice {
 
     public static Reflector.ConstructorWrapper<Object> _new0 = REF.constructor();
     public static Reflector.ConstructorWrapper<Object> _new1 = REF.constructor(List.class);
-
-    public static Reflector.FieldWrapper<Creator<?>> CREATOR = REF.field("CREATOR");
 
     public static Reflector.MethodWrapper<Boolean> append = REF.method("append", Object.class);
     public static Reflector.MethodWrapper<List<?>> getList = REF.method("getList");

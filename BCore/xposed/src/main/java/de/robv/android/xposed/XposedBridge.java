@@ -40,7 +40,7 @@ public final class XposedBridge {
 
 	private static final Object[] EMPTY_ARRAY = new Object[0];
 
-	// built-in handlers
+	// Built-in handlers
 	private static final Map<Member, CopyOnWriteSortedSet<XC_MethodHook>> sHookedMethodCallbacks = new HashMap<>();
 	/*package*/ static final CopyOnWriteSortedSet<XC_LoadPackage> sLoadedPackageCallbacks = new CopyOnWriteSortedSet<>();
 	/*package*/ static final Map<Member, HookInfo> sHookRecords = new HashMap<>();
@@ -101,7 +101,7 @@ public final class XposedBridge {
 		if (!(hookMethod instanceof Method) && !(hookMethod instanceof Constructor<?>)) {
 			throw new IllegalArgumentException("Only methods and constructors can be hooked: " + hookMethod.toString());
 		} else if (Modifier.isAbstract(hookMethod.getModifiers())) {
-			throw new IllegalArgumentException("Cannot hook abstract methods: " + hookMethod.toString());
+			throw new IllegalArgumentException("Cannot hook abstract methods: " + hookMethod);
 		}
 
 		CopyOnWriteSortedSet<XC_MethodHook> callbacks;
@@ -245,9 +245,11 @@ public final class XposedBridge {
 			if (hookInfo != null) {
 				return invokeMethod(hookInfo.backup, thisObject, args);
 			}
+
 			if (method == null) {
 				throw new NullPointerException("Method must not be null");
 			}
+
 			if (!(method instanceof Method || method instanceof Constructor<?>)) {
 				throw new IllegalArgumentException("Method must be a Method or Constructor");
 			}

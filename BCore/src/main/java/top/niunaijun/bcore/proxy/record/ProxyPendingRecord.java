@@ -5,12 +5,12 @@ import android.content.Intent;
 import androidx.annotation.NonNull;
 
 public class ProxyPendingRecord {
-    public int mUserId;
-    public Intent mTarget;
+    public final int mUserId;
+    public final Intent mTarget;
 
     public ProxyPendingRecord(Intent target, int userId) {
-        mUserId = userId;
-        mTarget = target;
+        this.mUserId = userId;
+        this.mTarget = target;
     }
 
     public static void saveStub(Intent shadow, Intent target, int userId) {

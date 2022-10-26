@@ -1,9 +1,5 @@
-//
-// Created by Milk on 4/10/21.
-//
-
-#ifndef VIRTUALM_IO_H
-#define VIRTUALM_IO_H
+#ifndef BLACKBOX_IO_H
+#define BLACKBOX_IO_H
 
 #if defined(__LP64__)
 #define LINKER_PATH_L "/system/bin/linker64"
@@ -47,4 +43,4 @@ public:
     static void unProtect(const char *libraryName, const char *symbol);
 };
 
-#endif //VIRTUALM_IO_H
+#endif // BLACKBOX_IO_H

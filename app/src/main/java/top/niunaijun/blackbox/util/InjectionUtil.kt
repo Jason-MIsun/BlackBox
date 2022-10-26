@@ -10,12 +10,6 @@ import top.niunaijun.blackbox.view.gms.GmsFactory
 import top.niunaijun.blackbox.view.list.ListFactory
 import top.niunaijun.blackbox.view.xp.XpFactory
 
-/**
- *
- * @Description:
- * @Author: wukaicheng
- * @CreateDate: 2021/4/29 22:38
- */
 object InjectionUtil {
     private val appsRepository = AppsRepository()
     private val xpRepository = XpRepository()

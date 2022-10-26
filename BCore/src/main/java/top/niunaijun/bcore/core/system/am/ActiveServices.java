@@ -196,7 +196,7 @@ public class ActiveServices {
 
     private Intent createStubServiceIntent(Intent targetIntent, ServiceInfo serviceInfo, ProcessRecord processRecord, RunningServiceRecord runningServiceRecord) {
         Intent stub = new Intent();
-        ComponentName stubComp = new ComponentName(BlackBoxCore.getHostPkg(), ProxyManifest.getProxyService(processRecord.bpid));
+        ComponentName stubComp = new ComponentName(BlackBoxCore.getHostPkg(), ProxyManifest.getProxyService(processRecord.bPID));
         stub.setComponent(stubComp);
         stub.setAction(UUID.randomUUID().toString());
         ProxyServiceRecord.saveStub(stub, targetIntent, serviceInfo, runningServiceRecord, processRecord.userId, runningServiceRecord.mStartId.get());
@@ -273,10 +273,8 @@ public class ActiveServices {
     }
 
     public static class RunningServiceRecord extends IEmpty.Stub {
-        // onStartCommand startId
         private final AtomicInteger mStartId = new AtomicInteger(1);
         private final AtomicInteger mBindCount = new AtomicInteger(0);
-        // 正在连接的服务
 
         private ServiceInfo mServiceInfo;
         private Intent mIntent;

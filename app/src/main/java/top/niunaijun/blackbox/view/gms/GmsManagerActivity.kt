@@ -12,16 +12,10 @@ import top.niunaijun.blackbox.R
 import top.niunaijun.blackbox.bean.GmsBean
 import top.niunaijun.blackbox.databinding.ActivityGmsBinding
 import top.niunaijun.blackbox.util.InjectionUtil
-import top.niunaijun.blackbox.util.inflate
-import top.niunaijun.blackbox.util.toast
+import top.niunaijun.blackbox.util.ToastEx.toast
+import top.niunaijun.blackbox.util.ViewBindingEx.inflate
 import top.niunaijun.blackbox.view.base.LoadingActivity
 
-/**
- *
- * @Description: gms manager activity
- * @Author: BlackBox
- * @CreateDate: 2022/3/2 21:06
- */
 class GmsManagerActivity : LoadingActivity() {
     private lateinit var viewModel: GmsViewModel
     private lateinit var mAdapter: RVAdapter<GmsBean>
@@ -30,9 +24,9 @@ class GmsManagerActivity : LoadingActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(viewBinding.root)
+
         initToolbar(viewBinding.toolbarLayout.toolbar, R.string.gms_manager, true)
         initViewModel()
-
         initRecyclerView()
     }
 
@@ -57,7 +51,7 @@ class GmsManagerActivity : LoadingActivity() {
                     if (result.success) {
                         bean.isInstalledGms = !bean.isInstalledGms
                     }
-                    mAdapter.replaceAt( index,bean)
+                    mAdapter.replaceAt(index, bean)
                     break
                 }
             }
@@ -73,12 +67,12 @@ class GmsManagerActivity : LoadingActivity() {
                 }
             }
         }
-
         viewModel.getInstalledUser()
     }
 
     private fun initRecyclerView() {
-        mAdapter = RVAdapter<GmsBean>(this, GmsAdapter()).bind(viewBinding.recyclerView)
+        mAdapter = RVAdapter<GmsBean>(this, GmsAdapter())
+			.bind(viewBinding.recyclerView)
             .setItemClickListener { view, item, _ ->
                 val checkbox = view.findViewById<Switch>(R.id.checkbox)
                 if (item.isInstalledGms) {
@@ -98,6 +92,7 @@ class GmsManagerActivity : LoadingActivity() {
                 showLoading()
                 viewModel.installGms(userID)
             }
+
             negativeButton(R.string.cancel) {
                 checkbox.isChecked = !checkbox.isChecked
             }
@@ -112,6 +107,7 @@ class GmsManagerActivity : LoadingActivity() {
                 showLoading()
                 viewModel.uninstallGms(userID)
             }
+
             negativeButton(R.string.cancel) {
                 checkbox.isChecked = !checkbox.isChecked
             }
@@ -120,7 +116,7 @@ class GmsManagerActivity : LoadingActivity() {
 
     companion object{
         fun start(context: Context) {
-            val intent = Intent(context,GmsManagerActivity::class.java)
+            val intent = Intent(context, GmsManagerActivity::class.java)
             context.startActivity(intent)
         }
     }

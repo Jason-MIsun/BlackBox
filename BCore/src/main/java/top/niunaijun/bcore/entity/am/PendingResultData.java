@@ -13,51 +13,50 @@ import java.util.UUID;
 import top.niunaijun.bcore.utils.compat.BuildCompat;
 
 public class PendingResultData implements Parcelable {
-    public int mType;
-    public boolean mOrderedHint;
-    public boolean mInitialStickyHint;
-    public IBinder mToken;
-    public int mSendingUser;
+    public final int mType;
+    public final boolean mOrderedHint;
+    public final boolean mInitialStickyHint;
+    public final IBinder mToken;
+    public final int mSendingUser;
     public int mFlags;
     public int mResultCode;
-    public String mResultData;
-    public Bundle mResultExtras;
-    public boolean mAbortBroadcast;
-    public boolean mFinished;
-    public String mBToken;
+    public final String mResultData;
+    public final Bundle mResultExtras;
+    public final boolean mAbortBroadcast;
+    public final boolean mFinished;
+    public final String mBToken;
 
     public PendingResultData(BroadcastReceiver.PendingResult pendingResult) {
-        mBToken = UUID.randomUUID().toString();
+        this.mBToken = UUID.randomUUID().toString();
         if (BuildCompat.isM()) {
-            mType = black.android.content.BroadcastReceiver.PendingResultM.mType.get(pendingResult);
-            mOrderedHint = black.android.content.BroadcastReceiver.PendingResultM.mOrderedHint.get(pendingResult);
-            mInitialStickyHint = black.android.content.BroadcastReceiver.PendingResultM.mInitialStickyHint.get(pendingResult);
-            mToken = black.android.content.BroadcastReceiver.PendingResultM.mToken.get(pendingResult);
-            mSendingUser = black.android.content.BroadcastReceiver.PendingResultM.mSendingUser.get(pendingResult);
-            mFlags = black.android.content.BroadcastReceiver.PendingResultM.mFlags.get(pendingResult);
-            mResultData = black.android.content.BroadcastReceiver.PendingResultM.mResultData.get(pendingResult);
-            mResultExtras = black.android.content.BroadcastReceiver.PendingResultM.mResultExtras.get(pendingResult);
-            mAbortBroadcast = black.android.content.BroadcastReceiver.PendingResultM.mAbortBroadcast.get(pendingResult);
-            mFinished = black.android.content.BroadcastReceiver.PendingResultM.mFinished.get(pendingResult);
+            this.mType = black.android.content.BroadcastReceiver.PendingResultM.mType.get(pendingResult);
+            this.mOrderedHint = black.android.content.BroadcastReceiver.PendingResultM.mOrderedHint.get(pendingResult);
+            this.mInitialStickyHint = black.android.content.BroadcastReceiver.PendingResultM.mInitialStickyHint.get(pendingResult);
+            this.mToken = black.android.content.BroadcastReceiver.PendingResultM.mToken.get(pendingResult);
+            this.mSendingUser = black.android.content.BroadcastReceiver.PendingResultM.mSendingUser.get(pendingResult);
+            this.mFlags = black.android.content.BroadcastReceiver.PendingResultM.mFlags.get(pendingResult);
+            this.mResultData = black.android.content.BroadcastReceiver.PendingResultM.mResultData.get(pendingResult);
+            this.mResultExtras = black.android.content.BroadcastReceiver.PendingResultM.mResultExtras.get(pendingResult);
+            this.mAbortBroadcast = black.android.content.BroadcastReceiver.PendingResultM.mAbortBroadcast.get(pendingResult);
+            this.mFinished = black.android.content.BroadcastReceiver.PendingResultM.mFinished.get(pendingResult);
         } else {
-            mType = black.android.content.BroadcastReceiver.PendingResult.mType.get(pendingResult);
-            mOrderedHint = black.android.content.BroadcastReceiver.PendingResult.mOrderedHint.get(pendingResult);
-            mInitialStickyHint = black.android.content.BroadcastReceiver.PendingResult.mInitialStickyHint.get(pendingResult);
-            mToken = black.android.content.BroadcastReceiver.PendingResult.mToken.get(pendingResult);
-            mSendingUser = black.android.content.BroadcastReceiver.PendingResult.mSendingUser.get(pendingResult);
-            mResultData = black.android.content.BroadcastReceiver.PendingResult.mResultData.get(pendingResult);
-            mResultExtras = black.android.content.BroadcastReceiver.PendingResult.mResultExtras.get(pendingResult);
-            mAbortBroadcast = black.android.content.BroadcastReceiver.PendingResult.mAbortBroadcast.get(pendingResult);
-            mFinished = black.android.content.BroadcastReceiver.PendingResult.mFinished.get(pendingResult);
+            this.mType = black.android.content.BroadcastReceiver.PendingResult.mType.get(pendingResult);
+            this.mOrderedHint = black.android.content.BroadcastReceiver.PendingResult.mOrderedHint.get(pendingResult);
+            this.mInitialStickyHint = black.android.content.BroadcastReceiver.PendingResult.mInitialStickyHint.get(pendingResult);
+            this.mToken = black.android.content.BroadcastReceiver.PendingResult.mToken.get(pendingResult);
+            this.mSendingUser = black.android.content.BroadcastReceiver.PendingResult.mSendingUser.get(pendingResult);
+            this.mResultData = black.android.content.BroadcastReceiver.PendingResult.mResultData.get(pendingResult);
+            this.mResultExtras = black.android.content.BroadcastReceiver.PendingResult.mResultExtras.get(pendingResult);
+            this.mAbortBroadcast = black.android.content.BroadcastReceiver.PendingResult.mAbortBroadcast.get(pendingResult);
+            this.mFinished = black.android.content.BroadcastReceiver.PendingResult.mFinished.get(pendingResult);
         }
     }
 
     public BroadcastReceiver.PendingResult build() {
         if (BuildCompat.isM()) {
             return black.android.content.BroadcastReceiver.PendingResultM._new.newInstance(mResultCode, mResultData, mResultExtras, mType, mOrderedHint, mInitialStickyHint, mToken, mSendingUser, mFlags);
-        } else {
-            return black.android.content.BroadcastReceiver.PendingResult._new.newInstance(mResultCode, mResultData, mResultExtras, mType, mOrderedHint, mInitialStickyHint, mToken, mSendingUser);
         }
+        return black.android.content.BroadcastReceiver.PendingResult._new.newInstance(mResultCode, mResultData, mResultExtras, mType, mOrderedHint, mInitialStickyHint, mToken, mSendingUser);
     }
 
     @Override

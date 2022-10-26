@@ -44,9 +44,8 @@ public abstract class XC_MethodHook extends XCallback {
 	 * <p>Note that implementations shouldn't call {@code super(param)}, it's not necessary.
 	 *
 	 * @param param Information about the method call.
-	 * @throws Throwable Everything the callback throws is caught and logged.
 	 */
-	protected void beforeHookedMethod(MethodHookParam param) throws Throwable { }
+	protected void beforeHookedMethod(MethodHookParam param) { }
 
 	/**
 	 * Called after the invocation of the method.
@@ -57,9 +56,8 @@ public abstract class XC_MethodHook extends XCallback {
 	 * <p>Note that implementations shouldn't call {@code super(param)}, it's not necessary.
 	 *
 	 * @param param Information about the method call.
-	 * @throws Throwable Everything the callback throws is caught and logged.
 	 */
-	protected void afterHookedMethod(MethodHookParam param) throws Throwable { }
+	protected void afterHookedMethod(MethodHookParam param) { }
 
 	/**
 	 * Wraps information about the method call and allows to influence it.

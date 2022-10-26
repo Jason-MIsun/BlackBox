@@ -35,7 +35,7 @@ import top.niunaijun.bcore.utils.provider.ProviderCall;
 public class BProcessManagerService implements ISystemService {
     public static final String TAG = "BProcessManager";
 
-    public static BProcessManagerService sBProcessManagerService = new BProcessManagerService();
+    public static final BProcessManagerService sBProcessManagerService = new BProcessManagerService();
     private final Map<Integer, Map<String, ProcessRecord>> mProcessMap = new HashMap<>();
     private final List<ProcessRecord> mPidsSelfLocked = new ArrayList<>();
     private final Object mProcessLock = new Object();
@@ -80,8 +80,8 @@ public class BProcessManagerService implements ISystemService {
 
             app = new ProcessRecord(info, processName);
             app.uid = Process.myUid();
-            app.bpid = bPID;
-            app.buid = BPackageManagerService.get().getAppId(packageName);
+            app.bPID = bPID;
+            app.bUID = BPackageManagerService.get().getAppId(packageName);
             app.callingBUid = getBUidByPidOrPackageName(callingPid, packageName);
             app.userId = userId;
 
@@ -93,12 +93,11 @@ public class BProcessManagerService implements ISystemService {
             }
 
             if (!initAppProcessL(app)) {
-                // init process fail
                 bProcess.remove(processName);
                 mPidsSelfLocked.remove(app);
                 app = null;
             } else {
-                app.pid = getPid(BlackBoxCore.getContext(), ProxyManifest.getProcessName(app.bpid));
+                app.pid = getPid(BlackBoxCore.getContext(), ProxyManifest.getProcessName(app.bPID));
 
                 Slog.d(TAG, "init pid = " + app.pid);
             }
@@ -107,7 +106,6 @@ public class BProcessManagerService implements ISystemService {
     }
 
     private void killProcess(final ProcessRecord app) {
-        // make sure process be killed
         if (app.pid > 0) {
             Process.killProcess(app.pid);
         } else {
@@ -116,7 +114,7 @@ public class BProcessManagerService implements ISystemService {
                 List<ActivityManager.RunningAppProcessInfo> runningAppProcesses = manager.getRunningAppProcesses();
                 for (ActivityManager.RunningAppProcessInfo runningAppProcess : runningAppProcesses) {
                     int bPID = parseBPid(runningAppProcess.processName);
-                    if (bPID != -1 && app.bpid == bPID) {
+                    if (bPID != -1 && app.bPID == bPID) {
                         Slog.d(TAG, "force kill process: " + app.processName + ", pid: " + runningAppProcess.pid + ", bPID: " + bPID);
                         Process.killProcess(runningAppProcess.pid);
                     }
@@ -225,11 +223,11 @@ public class BProcessManagerService implements ISystemService {
     public void onProcessDie(ProcessRecord record) {
         synchronized (mProcessLock) {
             killProcess(record);
-            Map<String, ProcessRecord> process = mProcessMap.get(record.buid);
+            Map<String, ProcessRecord> process = mProcessMap.get(record.bUID);
             if (process != null) {
                 process.remove(record.processName);
                 if (process.isEmpty()) {
-                    mProcessMap.remove(record.buid);
+                    mProcessMap.remove(record.bUID);
                 }
             }
 
@@ -242,9 +240,9 @@ public class BProcessManagerService implements ISystemService {
     public ProcessRecord findProcessRecord(String packageName, String processName, int userId) {
         synchronized (mProcessMap) {
             int appId = BPackageManagerService.get().getAppId(packageName);
-            int buid = BUserHandle.getUid(userId, appId);
+            int bUID = BUserHandle.getUid(userId, appId);
 
-            Map<String, ProcessRecord> processRecordMap = mProcessMap.get(buid);
+            Map<String, ProcessRecord> processRecordMap = mProcessMap.get(bUID);
             if (processRecordMap == null) {
                 return null;
             }
@@ -258,9 +256,9 @@ public class BProcessManagerService implements ISystemService {
                 List<ProcessRecord> tmp = new ArrayList<>(mPidsSelfLocked);
                 int appId = BPackageManagerService.get().getAppId(packageName);
                 for (ProcessRecord processRecord : mPidsSelfLocked) {
-                    int appId1 = BUserHandle.getAppId(processRecord.buid);
+                    int appId1 = BUserHandle.getAppId(processRecord.bUID);
                     if (appId == appId1) {
-                        mProcessMap.remove(processRecord.buid);
+                        mProcessMap.remove(processRecord.bUID);
                         killProcess(processRecord);
                         tmp.remove(processRecord);
                     }
@@ -273,8 +271,8 @@ public class BProcessManagerService implements ISystemService {
 
     public void killPackageAsUser(String packageName, int userId) {
         synchronized (mProcessLock) {
-            int buid = BUserHandle.getUid(userId, BPackageManagerService.get().getAppId(packageName));
-            Map<String, ProcessRecord> process = mProcessMap.get(buid);
+            int bUID = BUserHandle.getUid(userId, BPackageManagerService.get().getAppId(packageName));
+            Map<String, ProcessRecord> process = mProcessMap.get(bUID);
             if (process == null) {
                 return;
             }
@@ -283,7 +281,7 @@ public class BProcessManagerService implements ISystemService {
                 killProcess(value);
                 mPidsSelfLocked.remove(value);
             }
-            mProcessMap.remove(buid);
+            mProcessMap.remove(bUID);
         }
     }
 
@@ -303,7 +301,7 @@ public class BProcessManagerService implements ISystemService {
         if (callingProcess == null) {
             return BPackageManagerService.get().getAppId(packageName);
         }
-        return BUserHandle.getAppId(callingProcess.buid);
+        return BUserHandle.getAppId(callingProcess.bUID);
     }
 
     public int getUserIdByCallingPid(int callingPid) {
@@ -356,14 +354,14 @@ public class BProcessManagerService implements ISystemService {
     }
 
     private static void createProc(ProcessRecord record) {
-        File cmdline = new File(BEnvironment.getProcDir(record.bpid), "cmdline");
+        File cmdline = new File(BEnvironment.getProcDir(record.bPID), "cmdline");
         try {
             FileUtils.writeToFile(record.processName.getBytes(), cmdline);
         } catch (IOException ignored) { }
     }
 
     private static void removeProc(ProcessRecord record) {
-        FileUtils.deleteDir(BEnvironment.getProcDir(record.bpid));
+        FileUtils.deleteDir(BEnvironment.getProcDir(record.bPID));
     }
 
     @Override

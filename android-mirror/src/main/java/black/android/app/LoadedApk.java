@@ -2,7 +2,6 @@ package black.android.app;
 
 import android.app.Application;
 import android.app.Instrumentation;
-import android.content.Context;
 import android.content.IIntentReceiver;
 import android.content.ServiceConnection;
 import android.content.pm.ApplicationInfo;
@@ -17,7 +16,6 @@ public class LoadedApk {
     public static Reflector.FieldWrapper<ApplicationInfo> mApplicationInfo = REF.field("mApplicationInfo");
     public static Reflector.FieldWrapper<Boolean> mSecurityViolation = REF.field("mSecurityViolation");
 
-    public static Reflector.MethodWrapper<Object> getResources = REF.method("getResources");
     public static Reflector.MethodWrapper<ClassLoader> getClassLoader = REF.method("getClassLoader");
     public static Reflector.MethodWrapper<Application> makeApplication = REF.method("makeApplication", boolean.class, Instrumentation.class);
 
@@ -25,7 +23,6 @@ public class LoadedApk {
         public static final Reflector REF = Reflector.on("android.app.LoadedApk$ServiceDispatcher");
 
         public static Reflector.FieldWrapper<ServiceConnection> mConnection = REF.field("mConnection");
-        public static Reflector.FieldWrapper<Context> mContext = REF.field("mContext");
 
         public static class InnerConnection {
             public static final Reflector REF = Reflector.on("android.app.LoadedApk$ServiceDispatcher$InnerConnection");

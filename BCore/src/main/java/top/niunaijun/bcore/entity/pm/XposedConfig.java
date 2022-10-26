@@ -30,7 +30,7 @@ public class XposedConfig implements Parcelable {
     public XposedConfig(Parcel in) {
         this.enable = in.readByte() != 0;
         int mModuleStateSize = in.readInt();
-        this.moduleState = new HashMap<String, Boolean>(mModuleStateSize);
+        this.moduleState = new HashMap<>(mModuleStateSize);
 
         for (int i = 0; i < mModuleStateSize; i++) {
             String key = in.readString();

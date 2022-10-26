@@ -63,7 +63,7 @@ public class ActivityStack {
     };
 
     public ActivityStack() {
-        mAms = (ActivityManager) BlackBoxCore.getContext().getSystemService(Context.ACTIVITY_SERVICE);
+        this.mAms = (ActivityManager) BlackBoxCore.getContext().getSystemService(Context.ACTIVITY_SERVICE);
     }
 
     public boolean containsFlag(Intent intent, int flag) {
@@ -252,7 +252,7 @@ public class ActivityStack {
         if (targetApp == null) {
             throw new RuntimeException("Unable to create process, name:" + info.name);
         }
-        return getStartStubActivityIntentInner(intent, targetApp.bpid, stubRecord, info);
+        return getStartStubActivityIntentInner(intent, targetApp.bPID, stubRecord, info);
     }
 
     private int startActivityInNewTaskLocked(int userId, Intent intent, ActivityInfo activityInfo, IBinder resultTo, int launchMode) {
@@ -294,7 +294,7 @@ public class ActivityStack {
         return 0;
     }
 
-    private Intent getStartStubActivityIntentInner(Intent intent, int vpid, ProxyActivityRecord target, ActivityInfo activityInfo) {
+    private Intent getStartStubActivityIntentInner(Intent intent, int vPID, ProxyActivityRecord target, ActivityInfo activityInfo) {
         Intent shadow = new Intent();
         TypedArray typedArray = null;
 
@@ -311,15 +311,15 @@ public class ActivityStack {
             typedArray = resources.newTheme().obtainStyledAttributes(id, ArrayUtils.toInt(black.com.android.internal.R.styleable.Window.get()));
             boolean windowIsTranslucent = typedArray.getBoolean(black.com.android.internal.R.styleable.Window_windowIsTranslucent.get(), false);
             if (windowIsTranslucent) {
-                shadow.setComponent(new ComponentName(BlackBoxCore.getHostPkg(), ProxyManifest.TransparentProxyActivity(vpid)));
+                shadow.setComponent(new ComponentName(BlackBoxCore.getHostPkg(), ProxyManifest.TransparentProxyActivity(vPID)));
             } else {
-                shadow.setComponent(new ComponentName(BlackBoxCore.getHostPkg(), ProxyManifest.getProxyActivity(vpid)));
+                shadow.setComponent(new ComponentName(BlackBoxCore.getHostPkg(), ProxyManifest.getProxyActivity(vPID)));
             }
 
             Slog.d(TAG, activityInfo + ", windowIsTranslucent: " + windowIsTranslucent);
         } catch (Throwable e) {
             e.printStackTrace();
-            shadow.setComponent(new ComponentName(BlackBoxCore.getHostPkg(), ProxyManifest.getProxyActivity(vpid)));
+            shadow.setComponent(new ComponentName(BlackBoxCore.getHostPkg(), ProxyManifest.getProxyActivity(vPID)));
         } finally {
             if (typedArray != null) {
                 typedArray.recycle();
@@ -426,7 +426,7 @@ public class ActivityStack {
         }
     }
 
-    // FIXME: multiple activities belonged to same app.
+    // FIXME: Multiple activities belonged to same app.
     public void onActivityResumed(int userId, IBinder token) {
         synchronized (mTasks) {
             synchronizeTasks();

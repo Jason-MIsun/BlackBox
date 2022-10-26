@@ -172,12 +172,11 @@ public class BNotificationManagerService extends IBNotificationManagerService.St
 
         int notificationId = getNotificationId(userId, id, processByPid.getPackageName());
         if (BuildCompat.isOreo()) {
-            // channel
             if (NotificationO.mChannelId != null) {
                 String blackChannelId = getBlackChannelId(NotificationO.mChannelId.get(), userId);
                 NotificationO.mChannelId.set(blackChannelId);
             }
-            // group
+			
             if (NotificationO.mGroupKey != null) {
                 String blackGroupId = getBlackGroupId(NotificationO.mGroupKey.get(), userId);
                 NotificationO.mGroupKey.set(blackGroupId);

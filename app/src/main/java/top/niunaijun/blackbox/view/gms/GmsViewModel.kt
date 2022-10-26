@@ -6,12 +6,6 @@ import top.niunaijun.blackbox.bean.GmsInstallBean
 import top.niunaijun.blackbox.data.GmsRepository
 import top.niunaijun.blackbox.view.base.BaseViewModel
 
-/**
- *
- * @Description: gms viewModel
- * @Author: BlackBox
- * @CreateDate: 2022/3/2 21:11
- */
 class GmsViewModel(private val mRepo: GmsRepository) : BaseViewModel() {
     val mInstalledLiveData = MutableLiveData<List<GmsBean>>()
     val mUpdateInstalledLiveData = MutableLiveData<GmsInstallBean>()
@@ -24,13 +18,13 @@ class GmsViewModel(private val mRepo: GmsRepository) : BaseViewModel() {
 
     fun installGms(userID: Int) {
         launchOnUI {
-            mRepo.installGms(userID,mUpdateInstalledLiveData)
+            mRepo.installGms(userID, mUpdateInstalledLiveData)
         }
     }
 
     fun uninstallGms(userID: Int) {
         launchOnUI {
-            mRepo.uninstallGms(userID,mUpdateInstalledLiveData)
+            mRepo.uninstallGms(userID, mUpdateInstalledLiveData)
         }
     }
 }

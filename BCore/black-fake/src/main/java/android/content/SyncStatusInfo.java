@@ -36,10 +36,6 @@ public class SyncStatusInfo implements Parcelable {
         this.authorityId = authorityId;
     }
 
-    public int getLastFailureMesgAsInt(int def) {
-        return 0;
-    }
-
     public int describeContents() {
         return 0;
     }
@@ -101,7 +97,7 @@ public class SyncStatusInfo implements Parcelable {
             if (N < 0) {
                 periodicSyncTimes = null;
             } else {
-                periodicSyncTimes = new ArrayList<Long>();
+                periodicSyncTimes = new ArrayList<>();
                 for (int i = 0; i < N; i++) {
                     periodicSyncTimes.add(parcel.readLong());
                 }
@@ -128,7 +124,7 @@ public class SyncStatusInfo implements Parcelable {
         initialize = other.initialize;
 
         if (other.periodicSyncTimes != null) {
-            periodicSyncTimes = new ArrayList<Long>(other.periodicSyncTimes);
+            periodicSyncTimes = new ArrayList<>(other.periodicSyncTimes);
         }
     }
 

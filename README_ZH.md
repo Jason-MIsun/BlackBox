@@ -14,14 +14,24 @@
 [Telegram](https://t.me/blackboxing)
 
 ## 支持
-暂不考虑4x，目前已兼容 5.0 ～ 12.0并跟进后续新系统。
+暂不考虑4x，目前已兼容 5.0 ～ 13.0并跟进后续新系统。
 
 如果条件允许，降级targetSdkVersion到28或以下可以获得更好的兼容性。
 
 ***稳定性未经大量测试，仅供学习交流，请勿用于其他用途***
 
-## 架构说明
-~~本项目区分32位与64位，目前是2个不同的app，如在Demo已安装列表内无法找到需要开启的app说明不支持，请编译其他的架构。~~
+## API
+- [BlackBoxCore](BlackBoxCore)
+- [BAccountManager](BAccountManager)
+- [BActivityManager](BActivityManager)
+- [BJobManager](BJobManager)
+- [BlackManager](BlackManager)
+- [BLocationManager](BLocationManager)
+- [BNotificationManager](BNotificationManager)
+- [BPackageManager](BPackageManager)
+- [BStorageManager](BStorageManager)
+- [BUserManager](BUserManager)
+- [BXposedManager](BXposedManager)
 
 ## 如何使用
 ### Step 1.初始化，在Application中加入以下代码初始化
@@ -98,11 +108,9 @@
 ```
 更多其他操作看BlackBoxCore函数名大概就知道了。
 
-
 #### Xposed相关
 - 已支持使用XP模块
 - Xposed已粗略过检测，[Xposed Checker](https://www.coolapk.com/apk/190247)、[XposedDetector](https://github.com/vvb2060/XposedDetector) 均无法检测
-
 
 ## 如何参与开发？
 ### 应用分2个模块

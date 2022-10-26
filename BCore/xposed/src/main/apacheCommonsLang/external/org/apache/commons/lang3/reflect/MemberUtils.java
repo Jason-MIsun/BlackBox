@@ -60,6 +60,7 @@ public abstract class MemberUtils {
      */
     private static float getTotalTransformationCost(Class<?>[] srcArgs, Class<?>[] destArgs) {
         float totalCost = 0.0f;
+
         for (int i = 0; i < srcArgs.length; i++) {
             Class<?> srcClass, destClass;
             srcClass = srcArgs[i];
@@ -81,6 +82,7 @@ public abstract class MemberUtils {
         if (destClass.isPrimitive()) {
             return getPrimitivePromotionCost(srcClass, destClass);
         }
+
         float cost = 0.0f;
         while (srcClass != null && !destClass.equals(srcClass)) {
             if (destClass.isInterface() && ClassUtils.isAssignable(srcClass, destClass)) {

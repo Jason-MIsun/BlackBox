@@ -62,7 +62,7 @@ public class HCallbackProxy implements IInjectHook, Handler.Callback {
     public boolean handleMessage(@NonNull Message msg) {
         if (!mBeing.getAndSet(true)) {
             try {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                if (BuildCompat.isPie()) {
                     if (msg.what == ActivityThread.H.EXECUTE_TRANSACTION.get()) {
                         if (handleLaunchActivity(msg.obj)) {
                             getH().sendMessageAtFrontOfQueue(Message.obtain(msg));
@@ -151,7 +151,6 @@ public class HCallbackProxy implements IInjectHook, Handler.Callback {
                 return true;
             }
 
-            // bind
             if (!BActivityThread.currentActivityThread().isInit()) {
                 BActivityThread.currentActivityThread().bindApplication(activityInfo.packageName, activityInfo.processName);
                 return true;
@@ -160,13 +159,8 @@ public class HCallbackProxy implements IInjectHook, Handler.Callback {
             int taskId = IActivityManager.getTaskForActivity.call(ActivityManagerNative.getDefault.call(), token, false);
             BlackBoxCore.getBActivityManager().onActivityCreated(taskId, token, stubRecord.mActivityToken);
 
-            if (BuildCompat.isS()) {
-                Object record;
-                if (BuildCompat.isT()) {
-                    record = ActivityThread.getActivityClient.call(BlackBoxCore.mainThread(), token);
-                } else {
-                    record = ActivityThread.getLaunchingActivity.call(BlackBoxCore.mainThread(), token);
-                }
+            if (Build.VERSION.SDK_INT == Build.VERSION_CODES.S || (Build.VERSION.SDK_INT == Build.VERSION_CODES.R && Build.VERSION.PREVIEW_SDK_INT == 1)) {
+                Object record = ActivityThread.getLaunchingActivity.call(BlackBoxCore.mainThread(), token);
 
                 ActivityThread.ActivityClientRecord.intent.set(record, stubRecord.mTarget);
                 ActivityThread.ActivityClientRecord.activityInfo.set(record, activityInfo);

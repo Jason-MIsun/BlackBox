@@ -175,8 +175,8 @@ public class BActivityManager extends BlackManager<IBActivityManagerService> {
                     activityByToken.getWindow().getDecorView().clearFocus();
                 }
             }
-        } catch (Throwable ignored) {
-        }
+        } catch (Throwable ignored) { }
+
         try {
             getService().onActivityResumed(token);
         } catch (RemoteException e) {

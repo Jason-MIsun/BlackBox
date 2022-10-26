@@ -459,7 +459,6 @@ public class ComponentResolver {
 
             res.priority = info.intentFilter.getPriority();
             res.preferredOrder = activity.owner.mPreferredOrder;
-            // System.out.println("Result: " + res.activityInfo.className + " = " + res.priority);
             res.match = match;
             res.isDefault = info.hasDefault;
             res.labelRes = info.labelRes;

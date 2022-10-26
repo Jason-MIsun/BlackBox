@@ -40,12 +40,12 @@ public class BuildCompat {
 
     // 6
     public static boolean isM() {
-        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.M || (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && Build.VERSION.PREVIEW_SDK_INT == 1);
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.M;
     }
 
     // 5
     public static boolean isL() {
-        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP || (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN && Build.VERSION.PREVIEW_SDK_INT == 1);
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP;
     }
 
     public static boolean isSamsung() {

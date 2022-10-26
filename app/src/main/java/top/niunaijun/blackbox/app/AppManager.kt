@@ -12,7 +12,7 @@ object AppManager {
 
     @JvmStatic
     val mRemarkSharedPreferences: SharedPreferences by lazy {
-        App.getContext().getSharedPreferences("UserRemark",Context.MODE_PRIVATE)
+        App.getContext().getSharedPreferences("UserRemark", Context.MODE_PRIVATE)
     }
 
     fun doAttachBaseContext(context: Context) {

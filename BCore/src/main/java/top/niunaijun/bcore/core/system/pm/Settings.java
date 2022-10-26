@@ -193,7 +193,6 @@ import top.niunaijun.bcore.utils.compat.PackageParserCompat;
                 PackageInfo packageInfo = BlackBoxCore.getPackageManager().getPackageInfo(packageName, PackageManager.GET_META_DATA);
                 String currPackageSourcePath = packageInfo.applicationInfo.sourceDir;
                 if (!currPackageSourcePath.equals(bPackageSettings.pkg.baseCodePath)) {
-                    // update baseCodePath And Re install
                     BProcessManagerService.get().killAllByPackageName(bPackageSettings.pkg.packageName);
                     BPackageSettings newPkg = reInstallBySystem(packageInfo, bPackageSettings.installOption);
                     bPackageSettings.pkg = newPkg.pkg;
@@ -204,15 +203,15 @@ import top.niunaijun.bcore.utils.compat.PackageParserCompat;
 
             bPackageSettings.save();
             mPackages.put(bPackageSettings.pkg.packageName, bPackageSettings);
-            Slog.d(TAG, "loaded Package: " + packageName);
+            Slog.d(TAG, "Loaded package: " + packageName);
         } catch (Throwable e) {
             e.printStackTrace();
-            // bad package
+
             FileUtils.deleteDir(app);
             removePackage(packageName);
             BProcessManagerService.get().killAllByPackageName(packageName);
             BPackageManagerService.get().onPackageUninstalled(packageName, true, BUserHandle.USER_ALL);
-            Slog.d(TAG, "bad Package: " + packageName);
+            Slog.d(TAG, "Bad package: " + packageName);
         } finally {
             packageSettingsIn.recycle();
         }

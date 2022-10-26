@@ -1,13 +1,8 @@
 package top.niunaijun.bcore.core.system;
 
-import static top.niunaijun.bcore.core.env.BEnvironment.EMPTY_JAR;
-import static top.niunaijun.bcore.core.env.BEnvironment.JUNIT_JAR;
-
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -27,7 +22,6 @@ import top.niunaijun.bcore.core.system.pm.BXposedManagerService;
 import top.niunaijun.bcore.core.system.user.BUserHandle;
 import top.niunaijun.bcore.core.system.user.BUserManagerService;
 import top.niunaijun.bcore.entity.pm.InstallOption;
-import top.niunaijun.bcore.utils.FileUtils;
 
 public class BlackBoxSystem {
     private final List<ISystemService> mServices = new ArrayList<>();
@@ -71,19 +65,6 @@ public class BlackBoxSystem {
                     BPackageManagerService.get().installPackageAsUser(packageInfo.applicationInfo.sourceDir, InstallOption.installBySystem(), BUserHandle.USER_ALL);
                 }
             } catch (PackageManager.NameNotFoundException ignored) { }
-        }
-        initJarEnv();
-    }
-
-    private void initJarEnv() {
-        try {
-            InputStream junit = BlackBoxCore.getContext().getAssets().open("junit.jar");
-            FileUtils.copyFile(junit, JUNIT_JAR);
-
-            InputStream empty = BlackBoxCore.getContext().getAssets().open("empty.jar");
-            FileUtils.copyFile(empty, EMPTY_JAR);
-        } catch (IOException e) {
-            e.printStackTrace();
         }
     }
 }

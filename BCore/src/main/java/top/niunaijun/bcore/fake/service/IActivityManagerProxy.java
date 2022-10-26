@@ -6,6 +6,7 @@ import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 import android.Manifest;
 import android.app.ActivityManager;
 import android.app.IServiceConnection;
+import android.app.Notification;
 import android.content.ComponentName;
 import android.content.IIntentReceiver;
 import android.content.Intent;
@@ -30,6 +31,7 @@ import black.android.util.Singleton;
 import top.niunaijun.bcore.BlackBoxCore;
 import top.niunaijun.bcore.app.BActivityThread;
 import top.niunaijun.bcore.core.env.AppSystemEnv;
+import top.niunaijun.bcore.core.system.DaemonService;
 import top.niunaijun.bcore.entity.AppConfig;
 import top.niunaijun.bcore.entity.am.RunningAppProcessInfo;
 import top.niunaijun.bcore.entity.am.RunningServiceInfo;
@@ -48,6 +50,7 @@ import top.niunaijun.bcore.proxy.ProxyManifest;
 import top.niunaijun.bcore.proxy.record.ProxyBroadcastRecord;
 import top.niunaijun.bcore.proxy.record.ProxyPendingRecord;
 import top.niunaijun.bcore.utils.MethodParameterUtils;
+import top.niunaijun.bcore.utils.Slog;
 import top.niunaijun.bcore.utils.compat.ActivityManagerCompat;
 import top.niunaijun.bcore.utils.compat.BuildCompat;
 import top.niunaijun.bcore.utils.compat.ParceledListSliceCompat;
@@ -101,10 +104,10 @@ public class IActivityManagerProxy extends ClassInvocationStub {
             Object auth = args[authIndex];
             Object content;
 
-            Log.d(TAG, "innovate getContentProvider: " + auth);
+            Slog.d(TAG, "Innovate getContentProvider: " + auth);
             if (auth instanceof String) {
                 if (ProxyManifest.isProxy((String) auth)) {
-                    Log.d(TAG, "ProxyManifest.isProxy: " + auth);
+                    Slog.d(TAG, "ProxyManifest.isProxy: " + auth);
                     return method.invoke(who, args);
                 }
 
@@ -117,18 +120,18 @@ public class IActivityManagerProxy extends ClassInvocationStub {
                     ContentProviderDelegate.update(content, (String) auth);
                     return content;
                 } else {
-                    Log.d(TAG, "hook getContentProvider: " + auth);
+                    Slog.d(TAG, "Hook getContentProvider: " + auth);
                     ProviderInfo providerInfo = BlackBoxCore.getBPackageManager().resolveContentProvider((String) auth, GET_META_DATA, BActivityThread.getUserId());
 
-                    Log.d(TAG, "hook app: " + auth);
+                    Slog.d(TAG, "Hook app: " + auth);
                     IBinder providerBinder = null;
                     if (BActivityThread.getAppPid() != -1 && providerInfo != null) {
                         AppConfig appConfig = BlackBoxCore.getBActivityManager().initProcess(providerInfo.packageName, providerInfo.processName, BActivityThread.getUserId());
-                        if (appConfig.bpid != BActivityThread.getAppPid()) {
+                        if (appConfig.bPID != BActivityThread.getAppPid()) {
                             providerBinder = BlackBoxCore.getBActivityManager().acquireContentProviderClient(providerInfo);
                         }
 
-                        args[authIndex] = ProxyManifest.getProxyAuthorities(appConfig.bpid);
+                        args[authIndex] = ProxyManifest.getProxyAuthorities(appConfig.bPID);
                         args[getUserIndex()] = BlackBoxCore.getHostUserId();
                     }
 
@@ -358,7 +361,7 @@ public class IActivityManagerProxy extends ClassInvocationStub {
     }
 
     @ProxyMethod("getPackageForIntentSender")
-    public static class getPackageForIntentSender extends MethodHook {
+    public static class GetPackageForIntentSender extends MethodHook {
 
         @Override
         protected Object hook(Object who, Method method, Object[] args) throws Throwable {
@@ -490,6 +493,27 @@ public class IActivityManagerProxy extends ClassInvocationStub {
         }
     }
 
+    @ProxyMethod("setServiceForeground")
+    public static class SetServiceForeground extends MethodHook {
+
+        @Override
+        protected Object hook(Object who, Method method, Object[] args) throws Throwable {
+            Notification notification = (Notification) args[3];
+
+            Intent intent = new Intent(BlackBoxCore.getContext(), DaemonService.class);
+            if (notification != null) {
+                if (BuildCompat.isOreo()) {
+                    BlackBoxCore.getContext().startForegroundService(intent);
+                } else {
+                    BlackBoxCore.getContext().startService(intent);
+                }
+            } else {
+                BlackBoxCore.getContext().stopService(intent);
+            }
+            return method.invoke(who, args);
+        }
+    }
+
     @ProxyMethod("getHistoricalProcessExitReasons")
     public static class GetHistoricalProcessExitReasons extends MethodHook {
 
@@ -524,7 +548,7 @@ public class IActivityManagerProxy extends ClassInvocationStub {
     }
 
     @ProxyMethod("checkUriPermission")
-    public static class checkUriPermission extends MethodHook {
+    public static class CheckUriPermission extends MethodHook {
 
         @Override
         protected Object hook(Object who, Method method, Object[] args) throws Throwable {

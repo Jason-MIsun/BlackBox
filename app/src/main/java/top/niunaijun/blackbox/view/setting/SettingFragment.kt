@@ -8,16 +8,10 @@ import androidx.preference.SwitchPreferenceCompat
 import top.niunaijun.bcore.BlackBoxCore
 import top.niunaijun.blackbox.R
 import top.niunaijun.blackbox.app.AppManager
-import top.niunaijun.blackbox.util.toast
+import top.niunaijun.blackbox.util.ToastEx.toast
 import top.niunaijun.blackbox.view.gms.GmsManagerActivity
 import top.niunaijun.blackbox.view.xp.XpActivity
 
-/**
- *
- * @Description:
- * @Author: wukaicheng
- * @CreateDate: 2021/5/6 22:13
- */
 class SettingFragment : PreferenceFragmentCompat() {
     private lateinit var xpEnable: SwitchPreferenceCompat
     private lateinit var xpModule: Preference
@@ -39,8 +33,8 @@ class SettingFragment : PreferenceFragmentCompat() {
             requireContext().startActivity(intent)
             true
         }
-        initGms()
 
+        initGms()
         invalidHideState{
             val xpHidePreference: Preference = (findPreference("xp_hide")!!)
             val hideXposed = AppManager.mBlackBoxLoader.hideXposed()

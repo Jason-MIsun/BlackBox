@@ -11,23 +11,17 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import cbfg.rvadapter.RVAdapter
 import com.afollestad.materialdialogs.MaterialDialog
 import com.ferfalk.simplesearchview.SimpleSearchView
+import top.niunaijun.bcore.entity.location.BLocation
+import top.niunaijun.bcore.fake.frameworks.BLocationManager
 import top.niunaijun.blackbox.R
 import top.niunaijun.blackbox.bean.FakeLocationBean
 import top.niunaijun.blackbox.databinding.ActivityListBinding
-import top.niunaijun.bcore.entity.location.BLocation
-import top.niunaijun.bcore.fake.frameworks.BLocationManager
 import top.niunaijun.blackbox.util.InjectionUtil
-import top.niunaijun.blackbox.util.inflate
-import top.niunaijun.blackbox.util.toast
+import top.niunaijun.blackbox.util.ToastEx.toast
+import top.niunaijun.blackbox.util.ViewBindingEx.inflate
 import top.niunaijun.blackbox.view.base.BaseActivity
 
-/**
- *
- * @Author: BlackBoxing
- * @CreateDate: 2022/3/14
- */
 class FakeManagerActivity : BaseActivity() {
-    val TAG: String = "FakeManagerActivity"
     private val viewBinding: ActivityListBinding by inflate()
     // private lateinit var mAdapter: ListAdapter
     private lateinit var mAdapter: RVAdapter<FakeLocationBean>
@@ -39,17 +33,17 @@ class FakeManagerActivity : BaseActivity() {
         setContentView(viewBinding.root)
 
         initToolbar(viewBinding.toolbarLayout.toolbar, R.string.fake_location, true)
-
-        mAdapter = RVAdapter<FakeLocationBean>(this,FakeLocationAdapter()).bind(viewBinding.recyclerView)
+        mAdapter = RVAdapter<FakeLocationBean>(this, FakeLocationAdapter())
+			.bind(viewBinding.recyclerView)
             .setItemClickListener { _, data, _ ->
-
                 val intent = Intent(this, FollowMyLocationOverlay::class.java)
                 intent.putExtra("location", data.fakeLocation)
                 intent.putExtra("pkg", data.packageName)
 
                 locationResult.launch(intent)
-            }.setItemLongClickListener { _, item, position ->
-                disableFakeLocation(item,position)
+            }
+			.setItemLongClickListener { _, item, position ->
+                disableFakeLocation(item, position)
             }
 
         viewBinding.recyclerView.layoutManager = LinearLayoutManager(this)
@@ -59,16 +53,17 @@ class FakeManagerActivity : BaseActivity() {
             .addCallback(onBackPressedCallback)
     }
 
-    private fun disableFakeLocation(item: FakeLocationBean,position:Int) {
+    private fun disableFakeLocation(item: FakeLocationBean, position: Int) {
         MaterialDialog(this).show {
             title(R.string.close_fake_location)
-            message(text = getString(R.string.close_app_fake_location,item.name))
+            message(text = getString(R.string.close_app_fake_location, item.name))
             negativeButton(R.string.cancel)
             positiveButton(R.string.done) {
                 BLocationManager.disableFakeLocation(currentUserID(), item.packageName)
-                toast(getString(R.string.close_fake_location_success,item.name))
+                toast(getString(R.string.close_fake_location_success, item.name))
+
                 item.fakeLocationPattern = BLocationManager.CLOSE_MODE
-                mAdapter.replaceAt(position,item)
+                mAdapter.replaceAt(position, item)
             }
         }
     }
@@ -92,9 +87,7 @@ class FakeManagerActivity : BaseActivity() {
     }
 
     private fun initViewModel() {
-        viewModel = ViewModelProvider(this, InjectionUtil.getFakeLocationFactory()).get(
-            FakeLocationViewModel::class.java
-        )
+        viewModel = ViewModelProvider(this, InjectionUtil.getFakeLocationFactory())[FakeLocationViewModel::class.java]
         loadAppList()
         viewBinding.toolbarLayout.toolbar.setTitle(R.string.fake_location)
 
@@ -102,6 +95,7 @@ class FakeManagerActivity : BaseActivity() {
             if (it != null) {
                 this.appList = it
                 viewBinding.searchView.setQuery("", false)
+
                 filterApp("")
                 if (it.isNotEmpty()) {
                     viewBinding.stateView.showContent()
@@ -155,6 +149,7 @@ class FakeManagerActivity : BaseActivity() {
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.menu_search, menu)
         val item = menu.findItem(R.id.list_search)
+
         viewBinding.searchView.setMenuItem(item)
         return true
     }

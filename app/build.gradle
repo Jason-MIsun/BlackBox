@@ -13,7 +13,7 @@ android {
         versionCode rootProject.ext.versionCode
         versionName rootProject.ext.versionName
 
-        manifestPlaceholders = [APP_ICON      : "@mipmap/ic_launcher",
+        manifestPlaceholders = [APP_ICON: "@mipmap/ic_launcher",
                                 APP_ROUND_ICON: "@mipmap/ic_launcher_round"]
         multiDexEnabled true
     }

@@ -49,8 +49,7 @@ public class GmsCore {
 
             try {
                 BlackBoxCore.getContext().getPackageManager().getApplicationInfo(packageName, 0);
-            } catch (PackageManager.NameNotFoundException e) {
-                // Ignore
+            } catch (PackageManager.NameNotFoundException ignored) {
                 continue;
             }
 

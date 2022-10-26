@@ -7,7 +7,5 @@ import black.Reflector;
 public class PackageParserNougat {
     public static final Reflector REF = Reflector.on("android.content.pm.PackageParser");
 
-    public static Reflector.ConstructorWrapper<PackageParser> _new = REF.constructor();
-
     public static Reflector.StaticMethodWrapper<Void> collectCertificates = REF.staticMethod("collectCertificates", PackageParser.Package.class, int.class);
 }

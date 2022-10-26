@@ -323,7 +323,7 @@ public class PackageManagerCompat {
             ApplicationInfoL.scanSourceDir.set(ai, ApplicationInfoL.scanSourceDir.get(baseApplication));
         }
 
-        if (BuildCompat.isN()) {
+        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.N) {
             ai.deviceProtectedDataDir = BEnvironment.getDeDataDir(p.packageName, userId).getAbsolutePath();
 
             if (ApplicationInfoN.deviceProtectedDataDir != null) {

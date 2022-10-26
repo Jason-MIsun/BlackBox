@@ -73,7 +73,7 @@ public class BPackageSettings implements Parcelable {
         return state;
     }
 
-    public boolean save() {
+    public void save() {
         synchronized (this) {
             Parcel parcel = Parcel.obtain();
             AtomicFile atomicFile = new AtomicFile(BEnvironment.getPackageConf(pkg.packageName));
@@ -86,11 +86,9 @@ public class BPackageSettings implements Parcelable {
 
                 FileUtils.writeParcelToOutput(parcel, fileOutputStream);
                 atomicFile.finishWrite(fileOutputStream);
-                return true;
             } catch (Throwable e) {
                 e.printStackTrace();
                 atomicFile.failWrite(fileOutputStream);
-                return false;
             } finally {
                 parcel.recycle();
                 CloseUtils.close(fileOutputStream);

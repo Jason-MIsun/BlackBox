@@ -45,7 +45,7 @@ public class IShortcutManagerProxy extends BinderInvocationStub {
     @Override
     protected void onBindMethod() {
         super.onBindMethod();
-        addMethodHook(new PkgMethodProxy("getShortcuts"));//修复whtasApp启动黑屏问题
+        addMethodHook(new PkgMethodProxy("getShortcuts")); //修复WhatsApp启动黑屏问题
         addMethodHook(new PkgMethodProxy("disableShortcuts"));
         addMethodHook(new PkgMethodProxy("enableShortcuts"));
         addMethodHook(new PkgMethodProxy("getRemainingCallCount"));

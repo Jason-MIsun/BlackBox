@@ -3,27 +3,23 @@ package top.niunaijun.blackbox.data
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
 import android.net.Uri
-import android.os.Build
 import android.util.Log
 import android.webkit.URLUtil
 import androidx.core.content.edit
 import androidx.lifecycle.MutableLiveData
 import top.niunaijun.bcore.BlackBoxCore
 import top.niunaijun.bcore.BlackBoxCore.getPackageManager
+import top.niunaijun.bcore.core.GmsCore
 import top.niunaijun.bcore.utils.AbiUtils
+import top.niunaijun.bcore.utils.Slog
+import top.niunaijun.bcore.utils.compat.BuildCompat
 import top.niunaijun.blackbox.R
 import top.niunaijun.blackbox.app.AppManager
 import top.niunaijun.blackbox.bean.AppInfo
 import top.niunaijun.blackbox.bean.InstalledAppBean
-import top.niunaijun.blackbox.util.getString
+import top.niunaijun.blackbox.util.ResUtil.getString
 import java.io.File
 
-/**
- *
- * @Description:
- * @Author: wukaicheng
- * @CreateDate: 2021/4/29 23:05
- */
 class AppsRepository {
     private val TAG: String = "AppsRepository"
     private var mInstalledList = mutableListOf<AppInfo>()
@@ -31,16 +27,15 @@ class AppsRepository {
     fun previewInstallList() {
         synchronized(mInstalledList) {
             val installedList = mutableListOf<AppInfo>()
-            val installedApplications: List<ApplicationInfo> = if (Build.VERSION.SDK_INT >= 33) {
-                getPackageManager().getInstalledApplications(
-                    PackageManager.ApplicationInfoFlags.of(0))
+            val installedApplications: List<ApplicationInfo> = if (BuildCompat.isT()) {
+                getPackageManager().getInstalledApplications(PackageManager.ApplicationInfoFlags.of(0))
             } else {
                 getPackageManager().getInstalledApplications(0)
             }
 
             for (installedApplication in installedApplications) {
                 val file = File(installedApplication.sourceDir)
-                if ((installedApplication.flags and ApplicationInfo.FLAG_SYSTEM) != 0) {
+                if (installedApplication.flags and ApplicationInfo.FLAG_SYSTEM != 0) {
                     continue
                 }
 
@@ -49,7 +44,6 @@ class AppsRepository {
                 }
 
                 val isXpModule = BlackBoxCore.get().isXposedModule(file)
-
                 val info = AppInfo(
                     installedApplication.loadLabel(getPackageManager()).toString(),
                     installedApplication.loadIcon(getPackageManager()),
@@ -73,46 +67,30 @@ class AppsRepository {
         }
     }
 
-    fun getInstalledAppList(
-        userID: Int,
-        loadingLiveData: MutableLiveData<Boolean>,
-        appsLiveData: MutableLiveData<List<InstalledAppBean>>
-    ) {
+    fun getInstalledAppList(userID: Int, loadingLiveData: MutableLiveData<Boolean>, appsLiveData: MutableLiveData<List<InstalledAppBean>>) {
         loadingLiveData.postValue(true)
+
         synchronized(mInstalledList) {
             val blackBoxCore = BlackBoxCore.get()
-            Log.d(TAG, mInstalledList.joinToString(","))
+            Slog.d(TAG, mInstalledList.joinToString(","))
+
             val newInstalledList = mInstalledList.map {
-                InstalledAppBean(
-                    it.name,
-                    it.icon,
-                    it.packageName,
-                    it.sourceDir,
-                    blackBoxCore.isInstalled(it.packageName, userID)
-                )
+                InstalledAppBean(it.name, it.icon, it.packageName, it.sourceDir, blackBoxCore.isInstalled(it.packageName, userID))
             }
             appsLiveData.postValue(newInstalledList)
             loadingLiveData.postValue(false)
         }
     }
 
-    fun getInstalledModuleList(
-        loadingLiveData: MutableLiveData<Boolean>,
-        appsLiveData: MutableLiveData<List<InstalledAppBean>>
-    ) {
+    fun getInstalledModuleList(loadingLiveData: MutableLiveData<Boolean>, appsLiveData: MutableLiveData<List<InstalledAppBean>>) {
         loadingLiveData.postValue(true)
+
         synchronized(mInstalledList) {
             val blackBoxCore = BlackBoxCore.get()
             val moduleList = mInstalledList.filter {
                 it.isXpModule
             }.map {
-                InstalledAppBean(
-                    it.name,
-                    it.icon,
-                    it.packageName,
-                    it.sourceDir,
-                    blackBoxCore.isInstalledXposedModule(it.packageName)
-                )
+                InstalledAppBean(it.name, it.icon, it.packageName, it.sourceDir, blackBoxCore.isInstalledXposedModule(it.packageName))
             }
             appsLiveData.postValue(moduleList)
             loadingLiveData.postValue(false)
@@ -120,8 +98,7 @@ class AppsRepository {
     }
 
     fun getVmInstallList(userId: Int, appsLiveData: MutableLiveData<List<AppInfo>>) {
-        val sortListData =
-            AppManager.mRemarkSharedPreferences.getString("AppList$userId", "")
+        val sortListData = AppManager.mRemarkSharedPreferences.getString("AppList$userId", "")
         val sortList = sortListData?.split(",")
 
         val applicationList = BlackBoxCore.get().getInstalledApplications(0, userId)
@@ -132,17 +109,10 @@ class AppsRepository {
             }
             it.sortWith(AppsSortComparator(sortList))
         }.forEach {
-            val info = AppInfo(
-                it.loadLabel(getPackageManager()).toString(),
-                it.loadIcon(getPackageManager()),
-                it.packageName,
-                it.sourceDir,
-                isInstalledXpModule(it.packageName)
-            )
-
+            val info = AppInfo(it.loadLabel(getPackageManager()).toString(), it.loadIcon(getPackageManager()), it.packageName, it.sourceDir,
+                isInstalledXpModule(it.packageName))
             appInfoList.add(info)
         }
-
         appsLiveData.postValue(appInfoList)
     }
 
@@ -220,9 +190,7 @@ class AppsRepository {
      * @param isAdd Boolean true是添加，false是移除
      */
     private fun updateAppSortList(userID: Int, pkg: String, isAdd: Boolean) {
-        val savedSortList =
-            AppManager.mRemarkSharedPreferences.getString("AppList$userID", "")
-
+        val savedSortList = AppManager.mRemarkSharedPreferences.getString("AppList$userID", "")
         val sortList = linkedSetOf<String>()
         if (savedSortList != null) {
             sortList.addAll(savedSortList.split(","))
@@ -244,8 +212,7 @@ class AppsRepository {
      */
     fun updateApkOrder(userID: Int, dataList: List<AppInfo>) {
         AppManager.mRemarkSharedPreferences.edit {
-            putString("AppList$userID",
-                dataList.joinToString(",") { it.packageName })
+            putString("AppList$userID", dataList.joinToString(",") { it.packageName })
         }
     }
 }

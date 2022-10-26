@@ -6,11 +6,6 @@ import top.niunaijun.blackbox.bean.FakeLocationBean
 import top.niunaijun.blackbox.data.FakeLocationRepository
 import top.niunaijun.blackbox.view.base.BaseViewModel
 
-/**
- *
- * @Author: BlackBoxing
- * @CreateDate: 2022/3/14
- */
 class FakeLocationViewModel(private val mRepo: FakeLocationRepository) : BaseViewModel() {
     val appsLiveData = MutableLiveData<List<FakeLocationBean>>()
 

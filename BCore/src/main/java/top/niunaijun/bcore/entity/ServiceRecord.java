@@ -96,7 +96,6 @@ public class ServiceRecord {
             return true;
         }
         int i = boundInfo.decrementAndGetBindCount();
-        // mBounds.remove(filterComparison);
         return i <= 0;
     }
 

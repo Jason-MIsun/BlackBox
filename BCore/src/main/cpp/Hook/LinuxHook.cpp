@@ -1,7 +1,3 @@
-//
-// Created by Arcy on 11/09/22.
-//
-
 #include "LinuxHook.h"
 #import "JniHook/JniHook.h"
 #include "IO.h"

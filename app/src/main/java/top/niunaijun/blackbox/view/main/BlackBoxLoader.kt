@@ -7,16 +7,11 @@ import top.niunaijun.bcore.BlackBoxCore
 import top.niunaijun.bcore.app.BActivityThread
 import top.niunaijun.bcore.app.configuration.AppLifecycleCallback
 import top.niunaijun.bcore.app.configuration.ClientConfiguration
+import top.niunaijun.bcore.utils.Slog
 import top.niunaijun.blackbox.app.App
 import top.niunaijun.blackbox.biz.cache.AppSharedPreferenceDelegate
 import java.io.File
 
-/**
- *
- * @Description:
- * @Author: wukaicheng
- * @CreateDate: 2021/5/6 23:38
- */
 class BlackBoxLoader {
     private var mHideRoot by AppSharedPreferenceDelegate(App.getContext(), false)
     private var mHideXposed by AppSharedPreferenceDelegate(App.getContext(), false)
@@ -51,41 +46,18 @@ class BlackBoxLoader {
         return mShowShortcutPermissionDialog
     }
 
-    fun invalidShortcutPermissionDialog(show: Boolean) {
-        this.mShowShortcutPermissionDialog = show
-    }
-
     fun addLifecycleCallback() {
         BlackBoxCore.get().addAppLifecycleCallback(object : AppLifecycleCallback() {
-            override fun beforeCreateApplication(
-                packageName: String?,
-                processName: String?,
-                context: Context?,
-                userId: Int
-            ) {
-                Log.d(
-                    TAG,
-                    "beforeCreateApplication: pkg $packageName, processName $processName,userID:${BActivityThread.getUserId()}"
-                )
+            override fun beforeCreateApplication(packageName: String?, processName: String?, context: Context?, userId: Int) {
+                Slog.d(TAG, "beforeCreateApplication: pkg $packageName, processName $processName, userID:${BActivityThread.getUserId()}")
             }
 
-            override fun beforeApplicationOnCreate(
-                packageName: String?,
-                processName: String?,
-                application: Application?,
-                userId: Int
-            ) {
-                Log.d(TAG, "beforeApplicationOnCreate: pkg $packageName, processName $processName")
+            override fun beforeApplicationOnCreate(packageName: String?, processName: String?, application: Application?, userId: Int) {
+                Slog.d(TAG, "beforeApplicationOnCreate: pkg $packageName, processName $processName")
             }
 
-            override fun afterApplicationOnCreate(
-                packageName: String?,
-                processName: String?,
-                application: Application?,
-                userId: Int
-            ) {
-                Log.d(TAG, "afterApplicationOnCreate: pkg $packageName, processName $processName")
-                // RockerManager.init(application, userId)
+            override fun afterApplicationOnCreate(packageName: String?, processName: String?, application: Application?, userId: Int) {
+                Slog.d(TAG, "afterApplicationOnCreate: pkg $packageName, processName $processName")
             }
         })
     }

@@ -35,11 +35,8 @@ public class ActivityThread {
     public static Reflector.StaticMethodWrapper<Object> currentActivityThread = REF.staticMethod("currentActivityThread");
 
     public static Reflector.MethodWrapper<IBinder> getApplicationThread = REF.method("getApplicationThread");
-    public static Reflector.MethodWrapper<String> getProcessName = REF.method("getProcessName");
     public static Reflector.MethodWrapper<Object> getSystemContext = REF.method("getSystemContext");
     public static Reflector.MethodWrapper<Object> getLaunchingActivity = REF.method("getLaunchingActivity", IBinder.class);
-    public static Reflector.MethodWrapper<Object> getActivityClient = REF.method("getActivityClient", IBinder.class);
-    public static Reflector.MethodWrapper<Object> getPackageInfo = REF.method("getPackageInfo", ApplicationInfo.class, Reflector.findClass("android.content.res.CompatibilityInfo"), int.class);
     public static Reflector.MethodWrapper<Void> performNewIntents = REF.method("performNewIntents", IBinder.class, List.class);
     public static Reflector.MethodWrapper<Void> installProvider = REF.method("installProvider", Context.class, ContentProviderHolder.class, ProviderInfo.class, boolean.class, boolean.class, boolean.class);
 
@@ -47,8 +44,6 @@ public class ActivityThread {
         public static final Reflector REF = Reflector.on("android.app.ActivityThread$CreateServiceData");
 
         public static Reflector.FieldWrapper<ServiceInfo> info = REF.field("info");
-        public static Reflector.FieldWrapper<Intent> intent = REF.field("intent");
-        public static Reflector.FieldWrapper<IBinder> token = REF.field("token");
     }
 
     public static class H {
@@ -72,7 +67,6 @@ public class ActivityThread {
     public static class ProviderClientRecordP {
         public static final Reflector REF = Reflector.on("android.app.ActivityThread$ProviderClientRecord");
 
-        public static Reflector.ConstructorWrapper<ProviderClientRecordP> _new = REF.constructor();
         public static Reflector.FieldWrapper<String[]> mNames = REF.field("mNames");
         public static Reflector.FieldWrapper<IInterface> mProvider = REF.field("mProvider");
     }
@@ -85,5 +79,9 @@ public class ActivityThread {
         public static Reflector.FieldWrapper<Intent> intent = REF.field("intent");
         public static Reflector.FieldWrapper<IBinder> token = REF.field("token");
         public static Reflector.FieldWrapper<Object> packageInfo = REF.field("packageInfo");
+    }
+
+    public static class AndroidOs {
+        public static final Reflector REF = Reflector.on("android.app.ActivityThread$AndroidOs");
     }
 }

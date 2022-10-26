@@ -1,7 +1,3 @@
-//
-// Created by Milk on 4/9/21.
-//
-
 #include <IO.h>
 #include "UnixFileSystemHook.h"
 #import "JniHook/JniHook.h"
@@ -104,15 +100,13 @@ void UnixFileSystemHook::init(JNIEnv *env) {
                         (void *) new_canonicalize0, (void **) (&orig_canonicalize0), false);
 
     JniHook::HookJniFun(env, className, "getLastModifiedTime0", "(Ljava/io/File;)J",
-                        (void *) new_getLastModifiedTime0, (void **) (&orig_getLastModifiedTime0),
-                        false);
+                        (void *) new_getLastModifiedTime0, (void **) (&orig_getLastModifiedTime0), false);
 
     JniHook::HookJniFun(env, className, "setPermission0", "(Ljava/io/File;IZZ)Z",
                         (void *) new_setPermission0, (void **) (&orig_setPermission0), false);
 
     JniHook::HookJniFun(env, className, "createFileExclusively0", "(Ljava/lang/String;)Z",
-                        (void *) new_createFileExclusively0,
-                        (void **) (&orig_createFileExclusively0), false);
+                        (void *) new_createFileExclusively0, (void **) (&orig_createFileExclusively0), false);
 
     JniHook::HookJniFun(env, className, "list0", "(Ljava/io/File;)[Ljava/lang/String;",
                         (void *) new_list0, (void **) (&orig_list0), false);
@@ -121,8 +115,7 @@ void UnixFileSystemHook::init(JNIEnv *env) {
                         (void *) new_createDirectory0, (void **) (&orig_createDirectory0), false);
 
     JniHook::HookJniFun(env, className, "setLastModifiedTime0", "(Ljava/io/File;J)Z",
-                        (void *) new_setLastModifiedTime0, (void **) (&orig_setLastModifiedTime0),
-                        false);
+                        (void *) new_setLastModifiedTime0, (void **) (&orig_setLastModifiedTime0),false);
 
     JniHook::HookJniFun(env, className, "setReadOnly0", "(Ljava/io/File;)Z",
                         (void *) new_setReadOnly0, (void **) (&orig_setReadOnly0), false);

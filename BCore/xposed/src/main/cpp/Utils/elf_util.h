@@ -107,4 +107,4 @@ namespace LSPosed {
     }
 }
 
-#endif //LSPOSED_ELF_UTIL_H
+#endif // LSPOSED_ELF_UTIL_H

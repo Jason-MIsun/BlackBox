@@ -6,8 +6,9 @@ import android.os.Parcelable;
 
 import java.util.ArrayList;
 import java.util.List;
+
 public class RunningServiceInfo implements Parcelable {
-    public List<ActivityManager.RunningServiceInfo> mRunningServiceInfoList;
+    public final List<ActivityManager.RunningServiceInfo> mRunningServiceInfoList;
 
     @Override
     public int describeContents() {
@@ -20,7 +21,7 @@ public class RunningServiceInfo implements Parcelable {
     }
 
     public RunningServiceInfo() {
-        mRunningServiceInfoList = new ArrayList<>();
+        this.mRunningServiceInfoList = new ArrayList<>();
     }
 
     protected RunningServiceInfo(Parcel in) {

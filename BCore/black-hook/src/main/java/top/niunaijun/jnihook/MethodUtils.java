@@ -36,6 +36,7 @@ public class MethodUtils {
         if (returnType.isPrimitive()) {
             return getPrimitiveLetter(returnType);
         }
+
         if (returnType.isArray()) {
             return "[" + getDesc(Objects.requireNonNull(returnType.getComponentType()));
         }
@@ -46,6 +47,7 @@ public class MethodUtils {
         if (parameterType.isArray()) {
             return "[" + getDesc(Objects.requireNonNull(parameterType.getComponentType()));
         }
+
         if (!parameterType.isPrimitive()) {
             final String clsName = parameterType.getName();
             return clsName.replaceAll("\\.", "/");
@@ -57,27 +59,35 @@ public class MethodUtils {
         if (Integer.TYPE.equals(type)) {
             return "I";
         }
+
         if (Void.TYPE.equals(type)) {
             return "V";
         }
+
         if (Boolean.TYPE.equals(type)) {
             return "Z";
         }
+
         if (Character.TYPE.equals(type)) {
             return "C";
         }
+
         if (Byte.TYPE.equals(type)) {
             return "B";
         }
+
         if (Short.TYPE.equals(type)) {
             return "S";
         }
+
         if (Float.TYPE.equals(type)) {
             return "F";
         }
+
         if (Long.TYPE.equals(type)) {
             return "J";
         }
+
         if (Double.TYPE.equals(type)) {
             return "D";
         }

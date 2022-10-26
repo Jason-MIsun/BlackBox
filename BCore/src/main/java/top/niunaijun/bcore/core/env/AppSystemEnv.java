@@ -24,21 +24,21 @@ public class AppSystemEnv {
         sSystemPackages.add("com.android.talkback");
         sSystemPackages.add("com.miui.gallery");
 
-        // google Gboard
+        // Google Gboard
         sSystemPackages.add("com.google.android.inputmethod.latin");
         // sSystemPackages.add(BlackBoxCore.getHostPkg());
 
         // 华为
         sSystemPackages.add("com.huawei.webview");
 
-        // miui
+        // MIUI
         sSystemPackages.add("com.miui.contentcatcher");
         sSystemPackages.add("com.miui.catcherpatch");
 
-        // oppo
+        // Oppo
         sSystemPackages.add("com.coloros.safecenter");
 
-        // su
+        // Su
         sSuPackages.add("com.noshufou.android.su");
         sSuPackages.add("com.noshufou.android.su.elite");
         sSuPackages.add("eu.chainfire.supersu");
@@ -60,7 +60,8 @@ public class AppSystemEnv {
     public static boolean isBlackPackage(String packageName) {
         if (BlackBoxCore.get().isHideRoot() && sSuPackages.contains(packageName)) {
             return true;
-        } else return BlackBoxCore.get().isHideXposed() && sXposedPackages.contains(packageName);
+        }
+        return BlackBoxCore.get().isHideXposed() && sXposedPackages.contains(packageName);
     }
 
     public static List<String> getPreInstallPackages() {

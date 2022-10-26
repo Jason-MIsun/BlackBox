@@ -1,7 +1,3 @@
-//
-// Created by Milk on 4/25/21.
-//
-
 #include "BinderHook.h"
 #include <IO.h>
 #include <BoxCore.h>
@@ -15,6 +11,5 @@ HOOK_JNI(jint, getCallingUid, JNIEnv *env, jobject obj) {
 
 void BinderHook::init(JNIEnv *env) {
     const char *clazz = "android/os/Binder";
-    JniHook::HookJniFun(env, clazz, "getCallingUid", "()I", (void *) new_getCallingUid,
-                        (void **) (&orig_getCallingUid), true);
+    JniHook::HookJniFun(env, clazz, "getCallingUid", "()I", (void *) new_getCallingUid, (void **) (&orig_getCallingUid), true);
 }

@@ -50,7 +50,7 @@ import top.niunaijun.bcore.utils.compat.XposedParserCompat;
 
 public class BPackageManagerService extends IBPackageManagerService.Stub implements ISystemService {
     public static final String TAG = "BPackageManagerService";
-    public static BPackageManagerService sService = new BPackageManagerService();
+    public static final BPackageManagerService sService = new BPackageManagerService();
     private final Settings mSettings = new Settings();
     private final ComponentResolver mComponentResolver;
     private static final BUserManagerService sUserManager = BUserManagerService.get();
@@ -100,9 +100,8 @@ public class BPackageManagerService extends IBPackageManagerService.Stub impleme
         }
 
         flags = updateFlags(flags);
-        // reader
         synchronized (mPackages) {
-            // Normalize package name to handle renamed packages and static libs
+            // Normalize package name to handle renamed packages and static libs.
             BPackageSettings ps = mPackages.get(packageName);
             if (ps != null) {
                 BPackage p = ps.pkg;
@@ -153,7 +152,6 @@ public class BPackageManagerService extends IBPackageManagerService.Stub impleme
             return list;
         }
 
-        // reader
         synchronized (mPackages) {
             String pkgName = intent.getPackage();
             if (pkgName != null) {
@@ -242,7 +240,6 @@ public class BPackageManagerService extends IBPackageManagerService.Stub impleme
             }
         }
 
-        // reader
         synchronized (mPackages) {
             return mComponentResolver.queryActivities(intent, resolvedType, flags, userId);
         }
@@ -274,7 +271,7 @@ public class BPackageManagerService extends IBPackageManagerService.Stub impleme
     public int getUidByPid(int pid) {
         ProcessRecord processByPid = BProcessManagerService.get().findProcessByPid(pid);
         if (processByPid != null) {
-            return processByPid.buid;
+            return processByPid.bUID;
         }
         return -1;
     }
@@ -297,9 +294,8 @@ public class BPackageManagerService extends IBPackageManagerService.Stub impleme
         flags = updateFlags(flags);
         BPackageSettings ps;
 
-        // reader
         synchronized (mPackages) {
-            // Normalize package name to handle renamed packages and static libs
+            // Normalize package name to handle renamed packages and static libs.
             ps = mPackages.get(packageName);
         }
 
@@ -397,7 +393,6 @@ public class BPackageManagerService extends IBPackageManagerService.Stub impleme
             return Collections.emptyList();
         }
 
-        // writer
         synchronized (mPackages) {
             ArrayList<PackageInfo> list;
             list = new ArrayList<>(mPackages.size());
@@ -417,7 +412,6 @@ public class BPackageManagerService extends IBPackageManagerService.Stub impleme
             return Collections.emptyList();
         }
 
-        // writer
         synchronized (mPackages) {
             ArrayList<ApplicationInfo> list;
             list = new ArrayList<>(mPackages.size());
@@ -467,15 +461,14 @@ public class BPackageManagerService extends IBPackageManagerService.Stub impleme
             return list;
         }
 
-        // reader
         List<ResolveInfo> result;
         synchronized (mPackages) {
             if (pkgName != null) {
                 BPackageSettings bPackageSettings = mPackages.get(pkgName);
                 result = null;
+				
                 if (bPackageSettings != null) {
                     final BPackage pkg = bPackageSettings.pkg;
-
                     result = mComponentResolver.queryActivities(intent, resolvedType, flags, pkg.activities, userId);
                 }
 
@@ -521,7 +514,6 @@ public class BPackageManagerService extends IBPackageManagerService.Stub impleme
             return list;
         }
 
-        // reader
         synchronized (mPackages) {
             String pkgName = intent.getPackage();
             BPackageSettings bPackageSettings = mPackages.get(pkgName);
@@ -750,9 +742,7 @@ public class BPackageManagerService extends IBPackageManagerService.Stub impleme
             }
             BPackageSettings bPackageSettings = mSettings.getPackageLPw(aPackage.packageName, aPackage, option);
 
-            // stop pkg
             BProcessManagerService.get().killPackageAsUser(aPackage.packageName, userId);
-
             int i = BPackageInstallerService.get().installPackageAsUser(bPackageSettings, userId);
             if (i < 0) {
                 return result.installError("Install apk error.");
@@ -774,7 +764,7 @@ public class BPackageManagerService extends IBPackageManagerService.Stub impleme
             if (apkFile != null && option.isFlag(InstallOption.FLAG_URI_FILE)) {
                 FileUtils.deleteDir(apkFile);
             }
-            Slog.d(TAG, "install finish: " + (System.currentTimeMillis() - l) + "ms");
+            Slog.d(TAG, "Install finish: " + (System.currentTimeMillis() - l) + "ms");
         }
         return result;
     }

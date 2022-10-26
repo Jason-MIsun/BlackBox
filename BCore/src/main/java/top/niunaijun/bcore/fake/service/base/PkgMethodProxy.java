@@ -6,10 +6,10 @@ import top.niunaijun.bcore.fake.hook.MethodHook;
 import top.niunaijun.bcore.utils.MethodParameterUtils;
 
 public class PkgMethodProxy extends MethodHook {
-	String mName;
+	final String mName;
 
 	public PkgMethodProxy(String name) {
-		mName = name;
+		this.mName = name;
 	}
 
 	@Override

@@ -11,9 +11,6 @@ public class BEnvironment {
     private static final File sVirtualRoot = new File(BlackBoxCore.getContext().getCacheDir().getParent(), "blackbox");
     private static final File sExternalVirtualRoot = BlackBoxCore.getContext().getExternalFilesDir("blackbox");
 
-    public static File JUNIT_JAR = new File(getCacheDir(), "junit.apk");
-    public static File EMPTY_JAR = new File(getCacheDir(), "empty.apk");
-
     public static void load() {
         FileUtils.mkdirs(sVirtualRoot);
         FileUtils.mkdirs(sExternalVirtualRoot);

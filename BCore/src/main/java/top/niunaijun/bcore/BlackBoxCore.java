@@ -115,7 +115,7 @@ public class BlackBoxCore extends ClientConfiguration {
             throw new IllegalArgumentException("ClientConfiguration is null!");
         }
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+        if (BuildCompat.isPie()) {
             HiddenApiBypass.addHiddenApiExemptions("L");
         }
 

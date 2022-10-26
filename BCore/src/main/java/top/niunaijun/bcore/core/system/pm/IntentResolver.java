@@ -1,19 +1,3 @@
-/*
- * Copyright (C) 2006 The Android Open Source Project
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package top.niunaijun.bcore.core.system.pm;
 
 import android.content.Intent;
@@ -25,7 +9,6 @@ import android.util.LogPrinter;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -47,7 +30,6 @@ public abstract class IntentResolver<F extends BPackage.IntentInfo, R> {
             Slog.v(TAG, "    Building Lookup Maps:");
         }
 
-        mFilters.add(f);
         int numS = register_intent_filter(f, f.intentFilter.schemesIterator(), mSchemeToFilter, "      Scheme: ");
         int numT = register_mime_types(f);
         if (numS == 0 && numT == 0) {
@@ -62,7 +44,6 @@ public abstract class IntentResolver<F extends BPackage.IntentInfo, R> {
 
     public void removeFilter(F f) {
         removeFilterInternal(f);
-        mFilters.remove(f);
     }
 
     void removeFilterInternal(F f) {
@@ -392,7 +373,6 @@ public abstract class IntentResolver<F extends BPackage.IntentInfo, R> {
         final Uri data = intent.getData();
         final String packageName = intent.getPackage();
 
-		// final boolean excludingStopped = intent.isExcludingStopped();
         final int N = src != null ? src.length : 0;
         boolean hasNonDefaults = false;
         int i;
@@ -462,11 +442,6 @@ public abstract class IntentResolver<F extends BPackage.IntentInfo, R> {
             }
         }
     }
-
-    /**
-     * All filters that have been registered.
-     */
-    private final HashSet<F> mFilters = new HashSet<>();
 
     /**
      * All of the MIME types that have been registered, such as "image/jpeg",

@@ -7,18 +7,18 @@ import android.os.IBinder;
 import top.niunaijun.bcore.utils.compat.BundleCompat;
 
 public class ProxyServiceRecord {
-    public Intent mServiceIntent;
-    public ServiceInfo mServiceInfo;
-    public IBinder mToken;
-    public int mUserId;
-    public int mStartId;
+    public final Intent mServiceIntent;
+    public final ServiceInfo mServiceInfo;
+    public final IBinder mToken;
+    public final int mUserId;
+    public final int mStartId;
 
     public ProxyServiceRecord(Intent serviceIntent, ServiceInfo serviceInfo, IBinder token, int userId, int startId) {
-        mServiceIntent = serviceIntent;
-        mServiceInfo = serviceInfo;
-        mUserId = userId;
-        mStartId = startId;
-        mToken = token;
+        this.mServiceIntent = serviceIntent;
+        this.mServiceInfo = serviceInfo;
+        this.mUserId = userId;
+        this.mStartId = startId;
+        this.mToken = token;
     }
 
     public static void saveStub(Intent shadow, Intent target, ServiceInfo serviceInfo, IBinder token, int userId, int startId) {

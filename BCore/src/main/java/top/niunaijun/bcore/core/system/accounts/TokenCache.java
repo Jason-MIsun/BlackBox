@@ -5,14 +5,14 @@ import android.accounts.Account;
 import java.util.Objects;
 
 public class TokenCache {
-    public int userId;
-    public Account account;
-    public long expiryEpochMillis;
-    public String authToken;
-    public String authTokenType;
-    public String packageName;
+    public final int userId;
+    public final Account account;
+    public final long expiryEpochMillis;
+    public final String authToken;
+    public final String authTokenType;
+    public final String packageName;
 
-    public TokenCache(int userId,Account account, String callerPkg, String tokenType, String token, long expiryMillis) {
+    public TokenCache(int userId, Account account, String callerPkg, String tokenType, String token, long expiryMillis) {
         this.userId = userId;
         this.account = account;
         this.expiryEpochMillis = expiryMillis;

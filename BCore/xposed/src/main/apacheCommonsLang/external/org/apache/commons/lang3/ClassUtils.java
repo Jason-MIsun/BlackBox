@@ -114,6 +114,7 @@ public class ClassUtils {
                 className = className.substring(0, className.length() - 2);
                 classNameBuffer.append("[");
             }
+
             String abbreviation = abbreviationMap.get(className);
             if (abbreviation != null) {
                 classNameBuffer.append(abbreviation);
@@ -139,8 +140,7 @@ public class ClassUtils {
      * @return the class represented by {@code className} using the {@code classLoader}
      * @throws ClassNotFoundException if the class is not found
      */
-    public static Class<?> getClass(
-            ClassLoader classLoader, String className, boolean initialize) throws ClassNotFoundException {
+    public static Class<?> getClass(ClassLoader classLoader, String className, boolean initialize) throws ClassNotFoundException {
         try {
             Class<?> clazz;
             if (abbreviationMap.containsKey(className)) {
@@ -151,19 +151,15 @@ public class ClassUtils {
             }
             return clazz;
         } catch (ClassNotFoundException ex) {
-            // allow path separators (.) as inner class name separators
+            // Allow path separators (.) as inner class name separators
             int lastDotIndex = className.lastIndexOf(PACKAGE_SEPARATOR_CHAR);
 
             if (lastDotIndex != -1) {
                 try {
                     return getClass(classLoader, className.substring(0, lastDotIndex) +
-                            INNER_CLASS_SEPARATOR_CHAR + className.substring(lastDotIndex + 1),
-                            initialize);
-                } catch (ClassNotFoundException ex2) { // NOPMD
-                    // ignore exception
-                }
+                                    INNER_CLASS_SEPARATOR_CHAR + className.substring(lastDotIndex + 1), initialize);
+                } catch (ClassNotFoundException ignored) { }
             }
-
             throw ex;
         }
     }
@@ -238,12 +234,15 @@ public class ClassUtils {
         if (!ArrayUtils.isSameLength(classArray, toClassArray)) {
             return false;
         }
+
         if (classArray == null) {
             classArray = ArrayUtils.EMPTY_CLASS_ARRAY;
         }
+
         if (toClassArray == null) {
             toClassArray = ArrayUtils.EMPTY_CLASS_ARRAY;
         }
+
         for (int i = 0; i < classArray.length; i++) {
             if (!isAssignable(classArray[i], toClassArray[i])) {
                 return false;
@@ -323,11 +322,11 @@ public class ClassUtils {
         if (toClass == null) {
             return false;
         }
-        // have to check for null, as isAssignableFrom doesn't
+        // Have to check for null, as isAssignableFrom doesn't
         if (cls == null) {
             return !toClass.isPrimitive();
         }
-        //autoboxing:
+
         if (autoboxing) {
             if (cls.isPrimitive() && !toClass.isPrimitive()) {
                 cls = primitiveToWrapper(cls);
@@ -335,6 +334,7 @@ public class ClassUtils {
                     return false;
                 }
             }
+
             if (toClass.isPrimitive() && !cls.isPrimitive()) {
                 cls = wrapperToPrimitive(cls);
                 if (cls == null) {
@@ -342,49 +342,49 @@ public class ClassUtils {
                 }
             }
         }
+
         if (cls.equals(toClass)) {
             return true;
         }
+
         if (cls.isPrimitive()) {
             if (!toClass.isPrimitive()) {
                 return false;
             }
+
             if (Integer.TYPE.equals(cls)) {
-                return Long.TYPE.equals(toClass)
-                        || Float.TYPE.equals(toClass)
-                        || Double.TYPE.equals(toClass);
+                return Long.TYPE.equals(toClass) || Float.TYPE.equals(toClass) || Double.TYPE.equals(toClass);
             }
+
             if (Long.TYPE.equals(cls)) {
-                return Float.TYPE.equals(toClass)
-                        || Double.TYPE.equals(toClass);
+                return Float.TYPE.equals(toClass) || Double.TYPE.equals(toClass);
             }
+
             if (Boolean.TYPE.equals(cls)) {
                 return false;
             }
+
             if (Double.TYPE.equals(cls)) {
                 return false;
             }
+
             if (Float.TYPE.equals(cls)) {
                 return Double.TYPE.equals(toClass);
             }
-            boolean b = Integer.TYPE.equals(toClass)
-                    || Long.TYPE.equals(toClass)
-                    || Float.TYPE.equals(toClass)
-                    || Double.TYPE.equals(toClass);
+
+            boolean b = Integer.TYPE.equals(toClass) || Long.TYPE.equals(toClass) || Float.TYPE.equals(toClass) || Double.TYPE.equals(toClass);
             if (Character.TYPE.equals(cls)) {
                 return b;
             }
+
             if (Short.TYPE.equals(cls)) {
                 return b;
             }
+
             if (Byte.TYPE.equals(cls)) {
-                return Short.TYPE.equals(toClass)
-                        || Integer.TYPE.equals(toClass)
-                        || Long.TYPE.equals(toClass)
-                        || Float.TYPE.equals(toClass)
+                return Short.TYPE.equals(toClass) || Integer.TYPE.equals(toClass) || Long.TYPE.equals(toClass) || Float.TYPE.equals(toClass)
                         || Double.TYPE.equals(toClass);
             }
-            // should never get here
             return false;
         }
         return toClass.isAssignableFrom(cls);

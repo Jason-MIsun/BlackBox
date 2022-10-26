@@ -25,7 +25,7 @@ class WelcomeActivity : AppCompatActivity() {
     }
 
     private fun previewInstalledAppList() {
-        val viewModel = ViewModelProvider(this,InjectionUtil.getListFactory()).get(ListViewModel::class.java)
+        val viewModel = ViewModelProvider(this, InjectionUtil.getListFactory())[ListViewModel::class.java]
         viewModel.previewInstalledList()
     }
 }

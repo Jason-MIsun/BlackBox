@@ -89,24 +89,9 @@ public class SystemUtils {
         try {
             return System.getProperty("java.specification.version");
         } catch (SecurityException ex) {
-            // we are not allowed to look at this property
             System.err.println("Caught a SecurityException reading the system property '" + "java.specification.version"
                     + "'; the SystemUtils property value will default to null.");
             return null;
         }
-    }
-
-    // -----------------------------------------------------------------------
-    /**
-     * <p>
-     * SystemUtils instances should NOT be constructed in standard programming. Instead, the class should be used as
-     * {@code SystemUtils.FILE_SEPARATOR}.
-     * </p>
-     * <p>
-     * This constructor is public to permit tools that require a JavaBean instance to operate.
-     * </p>
-     */
-    public SystemUtils() {
-        super();
     }
 }

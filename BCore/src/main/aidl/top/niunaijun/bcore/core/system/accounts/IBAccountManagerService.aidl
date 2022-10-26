@@ -67,10 +67,10 @@ interface IBAccountManagerService {
     void unregisterAccountListener(in String[] accountTypes, String opPackageName, int userId);
 
     /* Check if the package in a user can access an account */
-    //boolean hasAccountAccess(in Account account, String packageName, in UserHandle userHandle);
+    // boolean hasAccountAccess(in Account account, String packageName, in UserHandle userHandle);
     /* Crate an intent to request account access for package and a given user id */
-    //IntentSender createRequestAccountAccessIntentSenderAsUser(in Account account,
-    //    String packageName, in UserHandle userHandle);
+    // IntentSender createRequestAccountAccessIntentSenderAsUser(in Account account,
+    // String packageName, in UserHandle userHandle);
 
-    //void onAccountAccessed(String token);
+    // void onAccountAccessed(String token);
 }

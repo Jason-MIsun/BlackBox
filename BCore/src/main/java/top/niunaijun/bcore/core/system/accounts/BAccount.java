@@ -16,7 +16,9 @@ public class BAccount implements Parcelable {
     public long updateLastAuthenticatedTime;
 
     public boolean isMatch(Account account) {
-        if (account == null) return false;
+        if (account == null) {
+            return false;
+        }
         return account.equals(this.account);
     }
 

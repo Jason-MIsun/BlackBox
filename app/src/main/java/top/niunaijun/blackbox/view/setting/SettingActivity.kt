@@ -5,7 +5,7 @@ import android.content.Intent
 import android.os.Bundle
 import top.niunaijun.blackbox.R
 import top.niunaijun.blackbox.databinding.ActivitySettingBinding
-import top.niunaijun.blackbox.util.inflate
+import top.niunaijun.blackbox.util.ViewBindingEx.inflate
 import top.niunaijun.blackbox.view.base.BaseActivity
 
 class SettingActivity : BaseActivity() {
@@ -14,6 +14,7 @@ class SettingActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(viewBinding.root)
+
         initToolbar(viewBinding.toolbarLayout.toolbar, R.string.setting, true)
         supportFragmentManager.beginTransaction()
                 .replace(R.id.fragment, SettingFragment())
@@ -22,7 +23,7 @@ class SettingActivity : BaseActivity() {
 
     companion object {
         fun start(context: Context) {
-            val intent = Intent(context,SettingActivity::class.java)
+            val intent = Intent(context, SettingActivity::class.java)
             intent.action = Intent.ACTION_OPEN_DOCUMENT
             context.startActivity(intent)
         }

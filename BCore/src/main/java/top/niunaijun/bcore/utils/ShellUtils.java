@@ -16,7 +16,7 @@ public class ShellUtils {
     }
 
     /**
-     * execute shell command, default return result msg
+     * Execute shell command, default return result msg
      *
      * @param command command
      * @param isRoot  whether need to run with root
@@ -27,14 +27,14 @@ public class ShellUtils {
     }
 
     /**
-     * execute shell commands
+     * Execute shell commands
      *
      * @param commands        command array
      * @param isRoot          whether need to run with root
      * @param isNeedResultMsg whether need result msg
      * @return <ul>
      * <li>if isNeedResultMsg is false, {@link CommandResult#successMsg} is null and
-     * <li>if {@link CommandResult#result} is -1, there maybe some excepiton.</li>
+     * <li>if {@link CommandResult#result} is -1, there maybe some exception.</li>
      * </ul>
      */
     public static CommandResult execCommand(String[] commands, boolean isRoot, boolean isNeedResultMsg) {
@@ -47,6 +47,7 @@ public class ShellUtils {
         BufferedReader successResult = null;
         StringBuilder successMsg = null;
         DataOutputStream os = null;
+
         try {
             process = Runtime.getRuntime().exec(isRoot ? COMMAND_SU : COMMAND_SH);
             os = new DataOutputStream(process.getOutputStream());
@@ -55,6 +56,7 @@ public class ShellUtils {
                 if (command == null) {
                     continue;
                 }
+
                 os.write(command.getBytes());
                 os.writeBytes(COMMAND_LINE_END);
                 os.flush();
@@ -68,6 +70,7 @@ public class ShellUtils {
                 successMsg = new StringBuilder();
                 successResult = new BufferedReader(new InputStreamReader(process.getInputStream()));
                 String s;
+
                 while ((s = successResult.readLine()) != null) {
                     successMsg.append(s).append("\n");
                 }
@@ -95,9 +98,9 @@ public class ShellUtils {
     }
 
     /**
-     * result of command
+     * Result of command
      * <ul>
-     * <li>{@link CommandResult#result} means result of command, 0 means normal, else means error, same to excute in
+     * <li>{@link CommandResult#result} means result of command, 0 means normal, else means error, same to execute in
      * linux shell</li>
      * <li>{@link CommandResult#successMsg} means success message of command result</li>
      * </ul>
@@ -108,11 +111,11 @@ public class ShellUtils {
         /**
          * result of command
          **/
-        public int result;
+        public final int result;
         /**
          * success message of command result
          **/
-        public String successMsg;
+        public final String successMsg;
 
         public CommandResult(int result, String successMsg) {
             this.result = result;

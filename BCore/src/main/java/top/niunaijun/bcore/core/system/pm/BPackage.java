@@ -22,42 +22,32 @@ import java.util.ArrayList;
 import top.niunaijun.bcore.entity.pm.InstallOption;
 import top.niunaijun.bcore.utils.compat.BuildCompat;
 
-/**
- * Created by Milk on 4/21/21.
- * * ∧＿∧
- * (`･ω･∥
- * 丶　つ０
- * しーＪ
- * 此处无Bug
- */
 public class BPackage implements Parcelable {
-    public ArrayList<Activity> activities;
-    public ArrayList<Activity> receivers;
-    public ArrayList<Provider> providers;
-    public ArrayList<Service> services;
-    public ArrayList<Instrumentation> instrumentation;
-    public ArrayList<Permission> permissions;
-    public ArrayList<PermissionGroup> permissionGroups;
+    public final ArrayList<Activity> activities;
+    public final ArrayList<Activity> receivers;
+    public final ArrayList<Provider> providers;
+    public final ArrayList<Service> services;
+    public final ArrayList<Instrumentation> instrumentation;
+    public final ArrayList<Permission> permissions;
+    public final ArrayList<PermissionGroup> permissionGroups;
     public ArrayList<String> requestedPermissions = new ArrayList<>();
-    public Signature[] mSignatures;
+    public final Signature[] mSignatures;
     public SigningDetails mSigningDetails;
-    public Bundle mAppMetaData;
+    public final Bundle mAppMetaData;
     public BPackageSettings mExtras;
-    public String packageName;
-    public int mPreferredOrder;
-    public String mSharedUserId;
-    public ArrayList<String> usesLibraries;
-    public ArrayList<String> usesOptionalLibraries;
-    public int mVersionCode;
+    public final String packageName;
+    public final int mPreferredOrder;
+    public final String mSharedUserId;
+    public final ArrayList<String> usesLibraries;
+    public final ArrayList<String> usesOptionalLibraries;
+    public final int mVersionCode;
     public ApplicationInfo applicationInfo;
-    public String mVersionName;
+    public final String mVersionName;
     public String baseCodePath;
 
-    public int mSharedUserLabel;
-    // Applications hardware preferences
-    public ArrayList<ConfigurationInfo> configPreferences;
-    // Applications requested features
-    public ArrayList<FeatureInfo> reqFeatures;
+    public final int mSharedUserLabel;
+    public final ArrayList<ConfigurationInfo> configPreferences;
+    public final ArrayList<FeatureInfo> reqFeatures;
 
     public InstallOption installOption;
 
@@ -248,7 +238,7 @@ public class BPackage implements Parcelable {
     }
 
     public final static class Activity extends Component<ActivityIntentInfo> {
-        public ActivityInfo info;
+        public final ActivityInfo info;
 
         public Activity(PackageParser.Activity activity) {
             super(activity);
@@ -278,7 +268,7 @@ public class BPackage implements Parcelable {
     }
 
     public static final class Service extends Component<ServiceIntentInfo> {
-        public ServiceInfo info;
+        public final ServiceInfo info;
 
         public Service(PackageParser.Service service) {
             super(service);
@@ -308,7 +298,7 @@ public class BPackage implements Parcelable {
     }
 
     public static final class Provider extends Component<ProviderIntentInfo> {
-        public ProviderInfo info;
+        public final ProviderInfo info;
 
         public Provider(PackageParser.Provider provider) {
             super(provider);
@@ -338,7 +328,7 @@ public class BPackage implements Parcelable {
     }
 
     public static final class Instrumentation extends Component<IntentInfo> {
-        public InstrumentationInfo info;
+        public final InstrumentationInfo info;
 
         public Instrumentation(PackageParser.Instrumentation instrumentation) {
             super(instrumentation);
@@ -368,7 +358,7 @@ public class BPackage implements Parcelable {
     }
 
     public static final class Permission extends Component<IntentInfo> {
-        public PermissionInfo info;
+        public final PermissionInfo info;
 
         public Permission(PackageParser.Permission permission) {
             super(permission);
@@ -398,7 +388,7 @@ public class BPackage implements Parcelable {
     }
 
     public static final class PermissionGroup extends Component<IntentInfo> {
-        public PermissionGroupInfo info;
+        public final PermissionGroupInfo info;
 
         public PermissionGroup(PackageParser.PermissionGroup group) {
             super(group);
@@ -464,7 +454,7 @@ public class BPackage implements Parcelable {
     }
 
     public static final class SigningDetails implements Parcelable {
-        public Signature[] signatures;
+        public final Signature[] signatures;
 
         @Override
         public int describeContents() {
@@ -502,13 +492,13 @@ public class BPackage implements Parcelable {
     }
 
     public static class IntentInfo implements Parcelable {
-        public IntentFilter intentFilter;
-        public boolean hasDefault;
-        public int labelRes;
-        public String nonLocalizedLabel;
-        public int icon;
-        public int logo;
-        public int banner;
+        public final IntentFilter intentFilter;
+        public final boolean hasDefault;
+        public final int labelRes;
+        public final String nonLocalizedLabel;
+        public final int icon;
+        public final int logo;
+        public final int banner;
 
         public IntentInfo(PackageParser.IntentInfo intentInfo) {
             this.intentFilter = intentInfo;
@@ -572,8 +562,8 @@ public class BPackage implements Parcelable {
     public static class Component<II extends BPackage.IntentInfo> {
         public BPackage owner;
         public ArrayList<II> intents;
-        public String className;
-        public Bundle metaData;
+        public final String className;
+        public final Bundle metaData;
         public ComponentName componentName;
 
         public Component(Parcel parcel) {

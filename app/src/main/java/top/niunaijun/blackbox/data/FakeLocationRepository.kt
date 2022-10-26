@@ -1,23 +1,13 @@
 package top.niunaijun.blackbox.data
 
 import android.content.pm.ApplicationInfo
-import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import top.niunaijun.bcore.BlackBoxCore
 import top.niunaijun.bcore.entity.location.BLocation
 import top.niunaijun.bcore.fake.frameworks.BLocationManager
+import top.niunaijun.bcore.utils.Slog
 import top.niunaijun.blackbox.bean.FakeLocationBean
 
-/**
- * getInstalledApplications and query fake location of each of them.
- * mode and location configuration are respectively concept.
- * Location config just store the location but mode decides whether turns on it
- * each application has three pattern.Global: use global fake location,
- * self: use own config, close: use real config
- * @Description:
- * @Author: BlackBoxing
- * @CreateDate: 2022/3/12 21:14
- */
 class FakeLocationRepository {
     private val TAG: String = "FakeLocationRepository"
 
@@ -37,13 +27,9 @@ class FakeLocationRepository {
         BLocationManager.get().setLocation(userId, pkg, location)
     }
 
-    fun getInstalledAppList(
-        userID: Int,
-        appsFakeLiveData: MutableLiveData<List<FakeLocationBean>>
-    ) {
+    fun getInstalledAppList(userID: Int, appsFakeLiveData: MutableLiveData<List<FakeLocationBean>>) {
         val installedList = mutableListOf<FakeLocationBean>()
-        val installedApplications: List<ApplicationInfo> =
-            BlackBoxCore.get().getInstalledApplications(0, userID)
+        val installedApplications: List<ApplicationInfo> = BlackBoxCore.get().getInstalledApplications(0, userID)
         // List<ApplicationInfo> -> List<FakeLocationBean>
         for (installedApplication in installedApplications) {
             /*val file = File(installedApplication.sourceDir)
@@ -68,7 +54,7 @@ class FakeLocationRepository {
             installedList.add(info)
         }
 
-        Log.d(TAG, installedList.joinToString(","))
+        Slog.d(TAG, installedList.joinToString(","))
         appsFakeLiveData.postValue(installedList)
     }
 }

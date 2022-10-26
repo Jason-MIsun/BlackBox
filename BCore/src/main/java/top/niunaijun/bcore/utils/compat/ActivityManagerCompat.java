@@ -11,7 +11,7 @@ import black.android.app.IActivityManagerN;
 
 public class ActivityManagerCompat {
 	/**
-	 * Type for IActivityManaqer.getIntentSender: this PendingIntent is
+	 * Type for IActivityManager.getIntentSender: this PendingIntent is
 	 * for a startActivity operation.
 	 */
 	public static final int INTENT_SENDER_ACTIVITY = 2;

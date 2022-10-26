@@ -5,15 +5,13 @@ import java.util.List;
 import java.util.Objects;
 
 public class TrieTree {
-    // The root node of TrieTree
     private final TrieNode root = new TrieNode();
 
-    // The node type of TrieTree
     private static class TrieNode {
         char content;
         String word;
-        boolean isEnd = false; // This node is whether the end of a word
-        List<TrieNode> children = new LinkedList<>();
+        boolean isEnd = false;
+        final List<TrieNode> children = new LinkedList<>();
 
         public TrieNode() { }
 
