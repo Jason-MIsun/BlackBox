@@ -10,7 +10,7 @@ android {
         minSdk rootProject.ext.minSdk
         targetSdk rootProject.ext.targetSdk
 
-        consumerProguardFiles "consumer-rules.pro"
+
     }
 
     buildTypes {
