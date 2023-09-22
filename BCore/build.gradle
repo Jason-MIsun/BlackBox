@@ -10,7 +10,7 @@ android {
         minSdk rootProject.ext.minSdk
         targetSdk rootProject.ext.targetSdk
 
-        consumerProguardFiles 'consumer-rules.pro'
+
         externalNativeBuild {
             cmake {
                 abiFilters 'armeabi-v7a', 'arm64-v8a', 'x86', 'x86_64'
